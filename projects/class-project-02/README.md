@@ -1,4 +1,4 @@
-# Class project
+# Class project 2: Extension
 
 ## Project description
 
@@ -11,9 +11,9 @@
 
 ## Materials due
 
-Your topic is due by the end of the day on **February 9th**.
+Your topic is due by the end of the day on **February 6th**.
 
-By 11:59p on **March 12th**, submit **two documents** on Canvas (share links or upload files):
+By 11:59p on **March 11th**, submit **two documents** on Canvas (share links or upload files):
 
 1. an HTML notebook of the Wiki explanation of your topic that includes the intuition, math, and example (including code)
 1. slides for a five-minute presentation explaining the topic and showing your example 
@@ -22,22 +22,10 @@ By 11:59p on **March 12th**, submit **two documents** on Canvas (share links or 
 
 ## Claimed topics
 
-**Day 1 Presentations** Thursday, 13 March 2025, 10a–11:20a
-
 | Topic | Name |
 |:---------|:---------|
-| *Maximum likelihood estimation* | Natalie Mathers |
-| *Neural nets* | Ocea Roberts Thompson |
-| *Adversarial learning* | Andre Fulton |
-| *Reinforcement learning* | Isaac Wilfong |
-| *Recurrent neural nets and LSTMs* | Hunter Wright |
-| *Convolutions* | Darian Miranda Olivas |
-| *Image processing* | Miles Jew |
-| *Natural language processing (NLP)* | Wenbo Teng |
-| *Large language models (LLMs)* | Shi Zhang Ooi |
-| *Naive Bayes* | Michelle Ohwobete |
-| *Bayesian neural networks* | Jane Morgan |
-| *MCMC in prediction* | Sebastian Jaramillo Diaz |
+| *Topic 1* | A Name |
+| *Topic 2* | Another name |
 
 **Day 2 Presentations** Friday, 14 March 2025, 2p–2:50p
 
@@ -53,14 +41,13 @@ By 11:59p on **March 12th**, submit **two documents** on Canvas (share links or 
 
 ## Some ideas for topics
 
-You are not limited to these ideas, but here are some suggestions:
+You are not limited to these ideas, but here are some suggestions (some of the topics below are very broad; you might want to choose something more specific):
 
 - Multi-level output (esp. ordered)
 - Maximum likelihood estimation
 - Discriminant analysis
 - Bayesian machine learning methods
 - Relaxing IID assumptions
-	- Clustering
 	- Time-series prediction (esp. CV)
 	- Spatial prediction (esp. CV)
 - Image processing (e.g., facial recognition or satellite imagery)

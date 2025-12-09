@@ -51,12 +51,11 @@ anchorcolor = black]{hyperref}
 \title{
   % \vspace{-4em}
 	\texttt{\textbf{Prediction and machine learning} [EC524/424]} \\[1em]
-	\large Winter 2025 Syllabus \\
-  \href{https://github.com/edrubin/EC524W25/}{\normalsize \texttt{https://github.com/edrubin/EC524W25}}
+	\large Winter 2026 Syllabus \\
+  \href{https://github.com/edrubin/EC524W26/}{\normalsize \texttt{https://github.com/edrubin/EC524W26}}
 }
 \author{\textbf{Dr. Edward Rubin}\\ Dept. of Economics, University of Oregon}
-\date{}  % Toggle commenting to test
-% \date{\vspace{-5ex}}
+\date{}
 
 \maketitle
 
@@ -69,12 +68,12 @@ anchorcolor = black]{hyperref}
 	\ra{1.2}
 \begin{tabular}{@{\extracolsep{5pt}} lll @{}}
 	& \underline{\textbf{{Instructor}}} & \underline{\textbf{{GE}}}\\
-	\faUser & \emf{Edward Rubin} & \emf{Andrew Dickinson}\\
-	\faPaperPlaneO & \href{mailto:edwardr@uoregon.edu?subject=EC524}{edwardr@uoregon.edu} & \href{mailto:adickin3@uoregon.edu?subject=EC524}{adickin3@uoregon.edu}\\
+	\faUser & \emf{Edward Rubin} & \emf{Jose Rojas Fallas}\\
+	\faPaperPlaneO & \href{mailto:edwardr@uoregon.edu?subject=EC524}{edwardr@uoregon.edu} & \href{mailto:jrojas2@uoregon.edu?subject=EC524}{jrojas2@uoregon.edu}\\
 	 & \multicolumn{2}{c}{Start subject with ``\texttt{EC524:}''.} \\
-  \faBuildingO & PLC 530 & Zoom \\
-  \faHourglassStart & Tu. 2:30p--3:30p & We. 3p--4p \\
-  \faChevronRight & \href{https://edrub.in}{edrub.in} & \href{https://ajdickinson.github.io}{ajdickinson.github.io} \\
+  \faBuildingO & PLC 530 & PLC 525 \\
+  \faHourglassStart & Tu. 2:00p--3:30p & TBA \\
+  \faChevronRight & \href{https://edrub.in}{edrub.in} & \href{https://jose-rojas-fallas.quarto.pub/}{jose-rojas-fallas.quarto.pub} \\
 \end{tabular}
 \end{table}
 
@@ -84,10 +83,11 @@ anchorcolor = black]{hyperref}
 	\ra{1.2}
 \begin{tabular}{@{\extracolsep{5pt}} l l l l l l @{}}
 	& \underline{\textbf{{Lecture}}} & \underline{\textbf{{Lab}}} \\
-	\faClockO & Tu. \& Th., 10:00a--11:20a & Fr., 2:00p--2:50p & \\
-  \faMapMarker & \href{https://classrooms.uoregon.edu/mckenzie-101}{101 McKenzie} & \href{https://classrooms.uoregon.edu/anstett-195}{195 Anstett} \\
-	\faUser & Ed & Andrew $|$ Ed  \\
-  \faChevronRight & \multicolumn{2}{l}{\emf{Our class:} \href{https://github.com/edrubin/EC524W25/}{https://github.com/edrubin/EC524W25/}} \\
+	\faClockO & Tu. \& Th., 10:00a--11:20a & Fr., 10:00a--10:50a & \\
+  \faMapMarker & \href{https://classrooms.uoregon.edu/esslinger-105/}{105 Esslinger} & \href{https://classrooms.uoregon.edu/plc-72/}{072 PLC} \\
+	\faUser & Ed & Jose $|$ Ed  \\
+  \faChevronRight & \multicolumn{2}{l}{\emf{Our class:} \href{https://github.com/edrubin/EC524W26/}{https://github.com/edrubin/EC524W26/}} \\
+  \faChevronRight & \multicolumn{2}{l}{2025: \href{https://github.com/edrubin/EC524W25/}{https://github.com/edrubin/EC524W25/}} \\
   \faChevronRight & \multicolumn{2}{l}{2024: \href{https://github.com/edrubin/EC524S24/}{https://github.com/edrubin/EC524S24/}} \\
   \faChevronRight & \multicolumn{2}{l}{2023: \href{https://github.com/edrubin/EC524W23/}{https://github.com/edrubin/EC524W23/}} \\
   \faChevronRight & \multicolumn{2}{l}{2022: \href{https://github.com/edrubin/EC524W22/}{https://github.com/edrubin/EC524W22/}} \\
@@ -108,7 +108,7 @@ Learning statistical programming is inherent to practicing applied econometrics.
 
 \begin{enumerate}
   \item \emf{Distinguish} between settings that require \emf{causal inference} \textit{vs.} settings that want \emf{prediction}.
-  \item Understand the main \emf{themes and best practices} in modern \emf{prediction} methods.
+  \item Understand the main \emf{themes and best practices} in modern \emf{prediction} methods/contexts.
   \item Develop \emf{familiarity} with common machine-learning algorithms---and their strengths/weaknesses.
   \item Build \emf{intuition} for prediction---especially the bias-variance tradeoff.
   \item Expand \emf{R expertise}.
@@ -156,8 +156,8 @@ Learning \texttt{R} will require time and effort, but it is a powerful and versa
 \begin{itemize}
   \item You will submit \emf{typed assignments via Canvas}, generally in one of two formats (we'll tell you what we want):
   \begin{enumerate}
-    \item An \href{https://www.rstudio.com/blog/r-notebooks/}{R notebook} that is hosted somewhere on the web
-    \item A link to a \href{https://www.kaggle.com/docs/notebooks}{Kaggle notebook}
+    \item An \href{https://www.rstudio.com/blog/r-notebooks/}{R notebook} that is hosted somewhere on the web or submitted as a self-contained HTML file;
+    \item A link to a \href{https://www.kaggle.com/docs/notebooks}{Kaggle notebook}.
   \end{enumerate}
   % \item Assignments will typically be due on Thursday evenings.
   \item We will grade on a \emf{complete/incomplete scale}. \newline Low-quality work will be returned to be re-submitted as late.
@@ -167,15 +167,24 @@ Learning \texttt{R} will require time and effort, but it is a powerful and versa
 
 \paragraph{Group work} Feel free to work together on the assignments. Unless explicitly stated, each student is required to write and submit independent answer sheets. This means that word-for-word copies will not be accepted and will be viewed as academic dishonesty. If you work with other students, you must list the students in your study group at the top of your assignment. If you fail to do so, you will receive a score of zero.
 
-\paragraph{Project} We have one major project---due the final week of class. You will choose a topic that we have not covered in class---but that is related to topics covered in class---\textit{e.g.}, spectral clustering or time-series prediction. You will:
+\paragraph{Project 1: Application} (Due 04 March 2026) For this project, you will apply what you've learned in this course to a prediction problem/context of your choice. You will:
+\begin{itemize}
+  \item Find data for your problem,
+  \item Clean data as needed,
+  \item Use multiple prediction models and best practices to make predictions,
+  \item Write up everything in a clean notebook/blog,
+  \item Present a five-minute presentation on the process/results.
+\end{itemize}
+
+\paragraph{Project 2: Extension} (Due 11 March 2026) This project pushes you to extend your knowledge to a new method. You will choose a topic that we have not covered in class---but that is related to topics covered in class---\textit{e.g.}, spectral clustering or time-series prediction. You will:
 \begin{itemize}
   \item Learn about this topic on your own,
-  \item Write a `wiki` that explains this topic using math and examples,
-  \item Make and give a five-minute presentation on the topic (with a simple example)
+  \item Write a `wiki` that explains this topic using \textit{math and examples},
+  \item Make and give a five-minute presentation on the topic.
 \end{itemize}
 No duplicates for topics. I will provide a list of ideas on the course site. The idea here is that you extend/apply the course's ideas to situations that \textbf{interest you}.
 
-\paragraph{Exams} We will proctor an \emf{in-person \href{https://registrar.uoregon.edu/calendars/examinations}{final}} on Monday, March 17\textsuperscript{th}, 2025 from 8:00a--10:00a Pacific. We will not offer remote or make-up options for the exam.
+\paragraph{Exams} We will proctor an \emf{in-person \href{https://registrar.uoregon.edu/calendars/examinations}{final}} on Monday, March 17\textsuperscript{th}, 2026 from 8:00a--10:00a Pacific. We \textbf{will not} offer remote or make-up options for the exam.
 
 \section*{Recommendations}
 
@@ -192,11 +201,11 @@ No duplicates for topics. I will provide a list of ideas on the course site. The
 
 \emf{You must do your own work.} Do not claim credit for any work other than your own. \emf{Your work should not be identical to others' work.} Cheating or plagiarizing of any sort on any component of this class will result in a failing grade for the term and a report of the offense to the university. Please acquaint yourself with the \href{http://studentlife.uoregon.edu}{Student Conduct Code}.
 
-\textbf{Large language models}: ChatGPT, GitHub Copilot, and the related AI `assistants' are great tools. I am totally fine with you using them---and even encourage it. However, you still need to submit work \emf{in your own words}, and you need to \emf{understand the code} that you submit. Anything less is plagiarism, lazy, and a loss of opportunity to actually learn valuable material/tools.
+\textbf{Large language models} (and other sources): ChatGPT, GitHub Copilot, Claude, and other related AI `assistants' are great tools. I am totally fine with you using them---and even encourage it. However, you still need to submit work \emf{in your own words}, and you need to \emf{understand the code} that you submit. Anything less is plagiarism, lazy, and a loss of opportunity to actually learn valuable material/tools.
 
 \section*{Accessibility}
 
-If you have a documented disability and anticipate needing accommodations in this course, please make arrangements with me during the first week of the term. Please request that the \href{https://aec.uoregon.edu/}{Accessible Education Center} send me a letter verifying your disability.
+The University of Oregon and I are dedicated to fostering inclusive, equitable, and accessible learning environments for all students. The Accessible Education Center (AEC) assists students with disabilities in reducing barriers in the educational experience. You may be eligible for accommodations for a variety of disabilities – apparent disabilities, such as a mobility or physical disability, or non apparent disabilities, such as chronic illnesses or psychological disabilities. \href{https://aec.uoregon.edu/content/what-disability}{If you have or think you have a disability} and experience academic barriers, please contact the Accessible Education Center (Location: 360 Oregon Hall; 541-346-1155; \href{https://aec.uoregon.edu/}{uoaec@uoregon.edu}) to discuss appropriate accommodations or support. The details of your disability will be kept confidential with the AEC and you are not expected to share this information with others. However, I invite you to discuss any approved accommodations or access needs at any time with me.
 
 \section*{Grading}
 
@@ -205,7 +214,7 @@ Grades will be assigned as follows.\footnote{Undergraduates are allowed to miss 
 \begin{table}[!ht]
   \ra{1.5}
   \begin{tabular}{@{\extracolsep{1cm}} cccc @{}}
-    \textbf{\underline{Grade}} & \textbf{\underline{Assignments}} & \textbf{\underline{Project}} & \textbf{\underline{Final exam}} \\
+    \textbf{\underline{Grade}} & \textbf{\underline{Assignments}} & \textbf{\underline{min(Projects)}} & \textbf{\underline{Final exam}} \\
     \textbf{A}
     & \textit{Incomplete} on 0 assignments.
     & $\geq$ \textit{Professional}
@@ -226,25 +235,11 @@ Grades will be assigned as follows.\footnote{Undergraduates are allowed to miss 
 \end{table}
 \noindent Recall that assignments are graded as \textit{Complete} \textit{vs.} \textit{Incomplete}---the standard for \textit{Complete} is much higher than simply submitting.
 
-\section*{COVID-19 and safety}
-
-The University of Oregon (UO), in accordance with guidance from the Centers for Disease Control, Oregon Health
-Authority, and Lane County Public Health requires faculty, staff, students, visitors, and vendors across all UO locations to use face coverings when in UO owned, leased, or controlled buildings. This includes classrooms. Please correctly wear a suitable face covering during class. Students unable to wear face coverings can work with the Accessible Education Center to find a reasonable accommodation. Students refusing to wear a face covering will be asked to leave the class. 
-
-If the professor or GE is made to feel threatened or uncomfortable by a student aggressively or repeatedly refusing to properly wear a mask, the student will be reported to the university and asked to withdraw from the class (or the student will receive an F).
-
-\section*{Academic disruption}
-
-In the event of a campus emergency that disrupts academic activities, course requirements, deadlines, and grading
-percentages are subject to change. Information about changes in this course will be communicated as soon as possible by email, and on Canvas. If we are not able to meet face-to-face, students should immediately log onto Canvas and read any announcements and/or access alternative assignments. Students are also expected to continue coursework as outlined in this syllabus or other instructions on Canvas.
-
-In the event that the instructor of this course has to quarantine, this course may be taught online during that time.
-
 \newpage
 
 \section*{Tentative, overly-ambitious, predicted outline}
 
-\textit{Note:} Stay up to date on our class \href{https://github.com/edrubin/EC524W25/}{class's Github page}.
+\textit{Note:} Stay up to date on our class \href{https://github.com/edrubin/EC524W26/}{class's Github page}.
 
 \paragraph{0. An introduction to prediction and statistical learning}
 \begin{enumerate}

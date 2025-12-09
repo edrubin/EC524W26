@@ -1,22 +1,21 @@
-
 # EC 524/424, Winter 2025
 
-Welcome to Economics 524 (424): Prediction and machine-learning in econometrics, taught by [Ed Rubin](https://edrub.in) and [Andrew Dickinson](https://ajdickinson.github.io).
+Welcome to Economics 524 (424): Prediction and machine-learning in econometrics, taught by [Ed Rubin](https://edrub.in) and [Jose Rojas Fallas](https://jose-rojas-fallas.quarto.pub/).
 
 ## Schedule
 
-**Lecture** Tuesdays and Thursdays, 10:00a-11:20a (Pacific), [101 McKenzie](https://classrooms.uoregon.edu/mckenzie-101)
+**Lecture** Tuesdays and Thursdays, 10:00a-11:20a (Pacific), [105 Esslinger](https://classrooms.uoregon.edu/esslinger-105/)
 
-**Lab** Friday, 2:00p–2:50p (Pacific), [195 Anstett](https://classrooms.uoregon.edu/anstett-195)
+**Lab** Friday, 10:00a–10:50a (Pacific), [072 PLC](https://classrooms.uoregon.edu/plc-72/)
 
 **Office hours**
 
-- **Ed Rubin** Tu. 2:30p–3:30p ([PLC 530](https://map.uoregon.edu/b83e556a1))
-- **Andrew Dickinson** We. 3p–4p (Zoom)
+- **Ed Rubin** Tu. 2p–3p ([PLC 530](https://map.uoregon.edu/b83e556a1))
+- **Jose Rojas Fallas** TBA ([PLC 525](https://map.uoregon.edu/6794b993e))
 
 ## Syllabus
 
-[**Syllabus**](https://raw.githack.com/edrubin/EC524W25/master/syllabus/syllabus.pdf)
+[**Syllabus**](https://raw.githack.com/edrubin/EC524W26/master/syllabus/syllabus.pdf)
 
 ## Books
 
