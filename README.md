@@ -1,4 +1,4 @@
-# EC 524/424, Winter 2025
+# EC 524/424, Winter 2026
 
 Welcome to Economics 524 (424): Prediction and machine-learning in econometrics, taught by [Ed Rubin](https://edrub.in) and [Jose Rojas Fallas](https://jose-rojas-fallas.quarto.pub/).
 
