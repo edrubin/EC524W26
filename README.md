@@ -192,44 +192,34 @@ Welcome to Economics 524 (424): Prediction and machine-learning in econometrics,
 
 Past, present, and future projects.
 
-[**000** Predicting sales price in housing data (Kaggle)](projects/project-000)
-
-*Due:* Friday 31 January 2025 by midnight (before 11:59 PM) Pacific
+**000** Predicting sales price in housing data (Kaggle)
 
 **Help:** 
 
 - [A simple example/walkthrough](https://www.kaggle.com/edwardarubin/project-000-example)
 - [Kaggle notebooks](https://rpubs.com/Clennon/KagNotes) (from Connor Lennon)
 
-[**001** Validation and out-of-sample performance](projects/project-001)
+**001** Validation and out-of-sample performance
 
-*Due:* Thursday 13 February 2025 by midnight (before 11:59 PM) Pacific
+**002** Penalized regression, logistic regression, and classification
 
-[**002** Penalized regression, logistic regression, and classification](projects/project-002)
+**003** Trees, ensembles, and imputation
 
-*Due:* Saturday 22 February 2025 by midnight (before 11:59 PM) Pacific
+**004** Prediction finale
 
-[**003** Trees, ensembles, and imputation](projects/project-003)
+## Class projects
 
-*Due:* Saturday 01 March 2025 by midnight (before 11:59 PM) Pacific
+[**Class project 01: Application**](https://github.com/edrubin/EC524W26/tree/master/projects/class-project-01)
+<br>*Selected topic due by 30 January 2026*
+<br>*Project due 04 March 2026*
 
-[Help](projects/project-003/help-003.md)
-
-[**004** Prediction finale](projects/project-004)
-
-*Due:* Wednesday 19 March 2025 by midnight (before 11:59 PM) Pacific
-
-## Class project
-
-[Outline of the project](https://github.com/edrubin/EC524W25/tree/master/projects/class-project)
-
-**Topic due by midnight on 09 February 2025**.
-
-**Final project submission due by 11:59p on 12 March 2025.**
+[**Class project 02: Extension**](https://github.com/edrubin/EC524W26/tree/master/projects/class-project-02)
+<br>*Selected topic due by 06 February 2026*
+<br>*Project due 11 March 2026*
 
 ## Final exam
 
-**In-class exam**: *Monday (17 March 2025) at [8:00a–10:00a](https://registrar.uoregon.edu/dates-deadlines/exams)*
+**In-class exam**: *Tuesday (17 March 2026) at [8:00a–10:00a](https://registrar.uoregon.edu/dates-deadlines/exams)*
 <br>
 *Note:* Previous years had a take-home portion of the final exam. This year, we will only have an in-class exam.
 
