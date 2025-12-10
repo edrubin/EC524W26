@@ -36,13 +36,13 @@ Welcome to Economics 524 (424): Prediction and machine-learning in econometrics,
 
 **Note:** Links to topics that we have not yet covered lead to older slides. I will update links to the new slides as we work our way through the term/slides.
 
-[**000 - Overview (Why predict?)**](https://raw.githack.com/edrubin/EC524W25/master/lecture/000/slides.html)
+[**000 - Overview (Why predict?)**](https://raw.githack.com/edrubin/EC524W26/master/lecture/000/slides.html)
 
 1. Why do we have a class on prediction?
 2. How is prediction (and how are its tools) different from causal inference?
 3. Motivating examples
 
-**Formats** [.html](https://raw.githack.com/edrubin/EC524W25/master/lecture/000/slides.html) | [.pdf](https://github.com/edrubin/EC524W25/blob/master/lecture/000/slides.pdf) | [.rmd](https://github.com/edrubin/EC524W25/blob/master/lecture/000/slides.rmd)
+**Formats** [.html](https://raw.githack.com/edrubin/EC524W26/master/lecture/000/slides.html) | [.pdf](https://github.com/edrubin/EC524W26/blob/master/lecture/000/slides.pdf) | [.rmd](https://github.com/edrubin/EC524W26/blob/master/lecture/000/slides.rmd)
 
 **Readings** Introduction in *ISL*
 
@@ -221,19 +221,19 @@ Past, present, and future projects.
 
 **In-class exam**: *Tuesday (17 March 2026) at [8:00a–10:00a](https://registrar.uoregon.edu/dates-deadlines/exams)*
 <br>
-*Note:* Previous years had a take-home portion of the final exam. This year, we will only have an in-class exam.
+*Note:* Some previous years had a take-home portion of the final exam. This year, we will only have an in-class exam.
 
 **Prep materials**
 <br>
+Previous in-class exams: [2023](exam/past-class/inclass-23.pdf) | [2024](exam/past-class/inclass-24.pdf) | [2025](exam/past-class/inclass-25.pdf)
+<br>
 Previous take-home exam: [2023](exam/past-home/home-23.md) | [2024](exam/past-home/home-24.md) 
 <br>
-Previous in-class exams: [2023](exam/past-class/inclass-23.pdf) | [2024](exam/past-class/inclass-24.pdf)
-<br>
-*Note:* I am not providing keys.
+*Note:* We will not provide keys.
 
 ## Lab notes
 
-Approximate/planned topics...
+Approximate/planned topics... or at least for reference...
 
 [**000 - Workflow and cleaning**](https://raw.githack.com/edrubin/EC524W22/master/lab/000-cleaning/000-slides.html)
 
@@ -296,58 +296,35 @@ Setting up decision trees, with and without `tidymodels`.
 
 **Formats** [.html](https://raw.githack.com/edrubin/EC524W25/refs/heads/master/lab/004-decision-trees/doc004.html) | [.qmd](https://github.com/edrubin/EC524W25/blob/master/lab/004-decision-trees/doc004.qmd)
 
-<!-- **006 - Summarizing `tidymodels`** -->
-<!---->
-<!-- 1. Summarizing `tidymodels` -->
-<!-- 2. [Combining pre-split data together and then defining a custom split](https://www.kaggle.com/edwardarubin/intro-tidymodels-split-kaggle) -->
-<!---->
-<!---->
-<!-- [**007 - Penalized regression in `tidymodels` + functions + loops**](https://raw.githack.com/edrubin/EC524W22/master/lab/006-function_loops/006_functions_loops.html) -->
-<!---->
-<!-- 1. Running a Ridge, Lasso or Elasticnet logistic regression in `tidymodels`. -->
-<!-- 2. [A short lesson in writing functions and loops in R)](https://raw.githack.com/edrubin/EC524W22/master/lab/006-function_loops/006_functions_loops.html) -->
-<!---->
-<!-- [**008 - Finalizing a workflow in `tidymodels`: Example using a random forest**](https://raw.githack.com/edrubin/EC524W22/master/lab/007-finalize/finalize_wf.html) -->
-<!---->
-<!-- 1. [Finalizing a workflow in `tidymodels`: Example using a random forest](https://raw.githack.com/edrubin/EC524W22/master/lab/007-finalize/finalize_wf.html) -->
-<!-- 2. [A short lesson in writing functions and loops in R (continued)](https://raw.githack.com/edrubin/EC524W22/master/lab/006-function_loops/006_functions_loops.html) -->
-
-## Prediction in the media
-
-- NPR: [Google's new AI chatbot made a $100 billion mistake in a demo ad](https://www.npr.org/2023/02/09/1155650909/google-chatbot--error-bard-shares)
-- NYT: [Disinformation Researchers Raise Alarms About A.I. Chatbots](https://www.nytimes.com/2023/02/08/technology/ai-chatbots-disinformation.html)
-- NPR: [She was denied entry to a Rockettes show — then the facial recognition debate ignited](https://www.npr.org/2023/01/21/1150289272/facial-recognition-technology-madison-square-garden-law-new-york)
-- LA Times: [Nobody knows how widespread illegal cannabis grows are in California. So we mapped them](https://www.latimes.com/california/story/2022-09-08/how-we-mapped-illegal-cannabis-farms-in-california)
-- NYT: [Can A.I. Write Recipes Better Than Humans? We Put It to the Ultimate Test](https://www.nytimes.com/2022/11/04/dining/ai-thanksgiving-menu.html)
-- [ChatGPT](https://chat.openai.com/chat)
-  - Business Insider: [List of exams ChatGPT has passed](https://www.businessinsider.com/list-here-are-the-exams-chatgpt-has-passed-so-far-2023-1?op=1#-5)
-  - NPR: ['Everybody is cheating': Why this teacher has adopted an open ChatGPT policy](https://www.npr.org/2023/01/26/1151499213/chatgpt-ai-education-cheating-classroom-wharton-school)
-  - [How Should Schools Respond to ChatGPT?](https://www.nytimes.com/2023/01/24/learning/how-should-schools-respond-to-chatgpt.html)
-  - Energy Institute: [Can ChatGPT Save the Planet?](https://energyathaas.wordpress.com/2023/01/23/can-chatgpt-save-the-planet/)
-  - MIT Tech Review: [Here’s how Microsoft could use ChatGPT](https://www.technologyreview.com/2023/01/17/1067014/heres-how-microsoft-could-use-chatgpt/)
-  - NPR: [This 22-year-old is trying to save us from ChatGPT before it changes writing forever](https://www.npr.org/sections/money/2023/01/17/1149206188/this-22-year-old-is-trying-to-save-us-from-chatgpt-before-it-changes-writing-for)
-  - NYT: [How ChatGPT Hijacks Democracy](https://www.nytimes.com/2023/01/15/opinion/ai-chatgpt-lobbying-democracy.html)
-  - NYT: [Don’t Ban ChatGPT in Schools. Teach With It.](https://www.nytimes.com/2023/01/12/technology/chatgpt-schools-teachers.html)
-  - NYT: [How to Use ChatGPT and Still Be a Good Person](https://www.nytimes.com/2022/12/21/technology/personaltech/how-to-use-chatgpt-ethically.html)
-  - NPR: [A new AI chatbot might do your homework for you. But it's still not an A+ student](https://www.npr.org/2022/12/19/1143912956/chatgpt-ai-chatbot-homework-academia)
-  - NYT: [The Brilliance and Weirdness of ChatGPT](https://www.nytimes.com/2022/12/05/technology/chatgpt-ai-twitter.html)
-- Military applications
-  - The Drive: [M1 Abrams Tank Tested With Artificial Intelligence Targeting System](https://www.thedrive.com/the-war-zone/m1-abrams-tank-tested-with-artificial-intelligence-targeting-system)
-  - Task and Purpose: [Marines outwitted an AI security camera by hiding in a cardboard box and pretending to be trees](https://taskandpurpose.com/news/marines-ai-paul-scharre/)
-  - WP: [The next U.S. battle tank could use AI to identify targets](https://www.washingtonpost.com/technology/2022/10/12/abramsx-ai-hybrid-military-battle-tank/)
-
 ## Additional resources
 
 ### Jobs
 
 I wrote a very short guide to [finding a job](jobs).
 
+For programming-related jobs, get some practice on 
+
+- [LeetCode](https://leetcode.com/)
+- [StataScratch](https://www.stratascratch.com/)
+- [Kaggle](https://www.kaggle.com/)
+- [Codewars](https://www.codewars.com/)
+- [HackerRank](https://www.hackerrank.com/)
+
 ### R
 
 - [UO library resources/workshops](https://researchguides.uoregon.edu/library_workshops)
 - [RStudio's recommendations for learning R](https://education.rstudio.com/learn/), plus cheatsheets, books, and tutorials
 - [YaRrr! The Pirate’s Guide to R](https://bookdown.org/ndphillips/YaRrr/) (free online)
-- [Eugene R Users](https://www.meetup.com/meetup-group-cwPiAlnB/)
+- [Advanced R](https://adv-r.hadley.nz/) (free online)
+- [R for Data Science](https://r4ds.had.co.nz/) (free online)
+- [R Graphics Cookbook](https://r-graphics.org/) (free online)
+- [Data Visualization](https://socviz.co/) (free online)
+
+### SQL
+
+- [Learn SQL with interactive exercises](https://sqlbolt.com/)
+- [Mode SQL Tutorial](https://mode.com/sql-tutorial/)
+- [W3Schools SQL Tutorial](https://www.w3schools.com/sql/)
 
 ### Data Science
 
@@ -359,9 +336,11 @@ I wrote a very short guide to [finding a job](jobs).
   - [Machine-learning crash course](https://developers.google.com/machine-learning/crash-course/ml-intro)
   - [Google Cloud training for data and machine learning](https://cloud.google.com/training/data-ml)
   - [General Google education platform](https://ai.google/education/)
+- [3Blue1Brown's Youtube channel](https://www.youtube.com/c/3blue1brown) (has great videos on neural networks and other math topics)
+- [Fast.ai](https://www.fast.ai/) (free online courses on deep learning and machine learning)
 
 ### Spatial data
 
 - [Geocomputation with R](https://geocompr.robinlovelace.net) (free online)
-- [Spatial Data Science](https://keen-swartz-3146c4.netlify.com) (free online)
+- [Spatial Data Science](https://r-spatial.org/book/) (free online)
 - [Applied Spatial Data Analysis with R](https://asdar-book.org)

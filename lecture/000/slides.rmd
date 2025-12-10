@@ -2,8 +2,6 @@
 title: "Lecture .mono[000]"
 subtitle: "Why are we here?"
 author: "Edward Rubin"
-#date: "`r format(Sys.time(), '%d %B %Y')`"
-# date: "January 2022"
 output:
   xaringan::moon_reader:
     css: ['default', 'metropolis', 'metropolis-fonts', 'my-css.css']
@@ -67,8 +65,8 @@ name: admin
 
 .hi-slate[In-class today]
 
-- .note[Course website:] [https://github.com/edrubin/EC524W25/](https://github.com/edrubin/EC524W25/)
-- [Syllabus](https://raw.githack.com/edrubin/EC524W25/master/syllabus/syllabus.pdf) (on website)
+- .note[Course website:] [https://github.com/edrubin/EC524W26/](https://github.com/edrubin/EC524W26/)
+- [Syllabus](https://raw.githack.com/edrubin/EC524W26/master/syllabus/syllabus.pdf) (on website)
 
 .hi-slate[.mono[TODO] list]
 
@@ -323,17 +321,16 @@ knitr::include_graphics("images/ml-methane.png")
 ```{r, ny image, echo = F, out.width = '90%'}
 knitr::include_graphics("images/ml-writing.png")
 ```
-
----
-```{r, gender-race image, echo = F, out.width = '90%'}
-knitr::include_graphics("images/ml-issues.jpeg")
-```
-
 ---
 
 And of course...
 
 [**OpenAI**](https://openai.com/), [**ChatGPT**](https://openai.com/blog/chatgpt/), [**Copilot**](https://github.com/features/copilot), [**Claude**](https://claude.ai/), [**Midjourney**](https://www.midjourney.com/) ...
+
+---
+```{r, gender-race image, echo = F, out.width = '90%'}
+knitr::include_graphics("images/ml-issues.jpeg")
+```
 
 ---
 layout: false
@@ -345,10 +342,20 @@ Any main takeaways/thoughts from these examples?
 
 .note[Mine]
 
-- Interactions and nonlinearities likely matter
-- .it[Engineering] features/variables can be important
-- .it[Related:] We might not even know the features that matter
-- Flexibility is huge—but we still want to avoid overfitting
+- .hi-slate[interactions and nonlinearities] likely matter;
+- .hi-slate[engineering] features/variables can be important;
+- .it[related:] we might not even know .hi-slate[which features] that matter;
+- .hi-slate[flexibility] is huge—but we still want to avoid .hi-slate[overfitting].
+
+--
+
+.note[Ideal] We want to
+
+- flexibly approximate complex relationships...
+- while still generalizing to new data...
+- and understanding weaknesses/biases.
+
+Bonus for interpretability. (Computation might matter too.)
 
 ---
 class: clear, middle
