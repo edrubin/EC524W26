@@ -27,18 +27,6 @@ By 11:59p on **March 11th**, submit **two documents** on Canvas (share links or 
 | *Topic 1* | A Name |
 | *Topic 2* | Another name |
 
-**Day 2 Presentations** Friday, 14 March 2025, 2p–2:50p
-
-| Topic | Name |
-|:---------|:---------|
-| *Het. trt. effects with S- and T-learners* | Sanam Haddadian |
-| *Double-debiased ML* | Tom Ben-Shahar |
-| *Causal forests* | Mira Cross |
-| *Fraud/anomaly detection* | Yulisa Lopez Jeronimo |
-| *Clustering algorithms* | Setareh Shiralian |
-| *Discriminant analysis* | Jack Schlosser |
-| *LightGBM and Catboost (esp. with imbalance)* | Woojin Kim |
-
 ## Some ideas for topics
 
 You are not limited to these ideas, but here are some suggestions (some of the topics below are very broad; you might want to choose something more specific):
@@ -48,7 +36,7 @@ You are not limited to these ideas, but here are some suggestions (some of the t
 - Discriminant analysis
 - Bayesian machine learning methods
 - Relaxing IID assumptions
-	- Time-series prediction (esp. CV)
+	- Time-series prediction (CV but also alternative algorithms)
 	- Spatial prediction (esp. CV)
 - Image processing (e.g., facial recognition or satellite imagery)
 - Natural Language Processing (NLP)
@@ -59,7 +47,10 @@ You are not limited to these ideas, but here are some suggestions (some of the t
 - Adversarial learning
 - Unsupervised learning (esp. clustering algorithms)
 - Semi-supervised learning
-- Graphical methods
+- Active learning
+- Bandit problems
 - Experiments
-- Heterogeneous treatment effect estimation
+- Graphical methods
+- Heterogeneous treatment effect estimation (e.g., causal forests)
+- other "causal ML/AI"
 - Extensions on standard "boosting"

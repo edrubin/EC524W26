@@ -46,13 +46,13 @@ Welcome to Economics 524 (424): Prediction and machine-learning in econometrics,
 
 **Readings** Introduction in *ISL*
 
-[**001 - Statistical learning foundations**](https://raw.githack.com/edrubin/EC524W25/master/lecture/001/slides.html)
+[**001 - Statistical learning foundations**](https://raw.githack.com/edrubin/EC524W26/master/lecture/001/slides.html)
 
 1. Why do we have a class on prediction?
 2. How is prediction (and how are its tools) different from causal inference?
 3. Motivating examples
 
-**Formats** [.html](https://raw.githack.com/edrubin/EC524W25/master/lecture/001/slides.html) | [.pdf](https://github.com/edrubin/EC524W25/blob/master/lecture/001/slides.pdf) | [.rmd](https://github.com/edrubin/EC524W25/blob/master/lecture/001/slides.rmd)
+**Formats** [.html](https://raw.githack.com/edrubin/EC524W26/master/lecture/001/slides.html) | [.pdf](https://github.com/edrubin/EC524W26/blob/master/lecture/001/slides.pdf) | [.rmd](https://github.com/edrubin/EC524W26/blob/master/lecture/001/slides.rmd)
 
 **Readings**
 

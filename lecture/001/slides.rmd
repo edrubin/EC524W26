@@ -70,23 +70,12 @@ name: admin-today
 
 .hi-slate[In-class]
 
-- .note[Course website:] [https://github.com/edrubin/EC524W25/](https://github.com/edrubin/EC524W25/)
+- .note[Course website:] [https://github.com/edrubin/EC524W26/](https://github.com/edrubin/EC525W25/)
 - .note[Resources]
   - [RStudio](https://education.rstudio.com/learn/) cheatsheets, books, and tutorials
-  - [UO library](https://library.uoregon.edu/data-services): [Workshops](https://uoregon.libcal.com/calendar/dataservices?cid=11979&t=d&d=0000-00-00&cal=11979,11173,6522,3731&inc=0), [Help Desk](https://map.uoregon.edu/d991368cc), [Consultation](https://uoregon.libcal.com/appointments/data_services), and more!
-  - See course page for more...
+  - [UO library](https://library.uoregon.edu/data-services): [Workshops](https://uoregon.libcal.com/calendar/dataservices?cid=11979&t=d&d=0000-00-00&cal=11979&inc=0), [Help Desk](https://map.uoregon.edu/d991368cc), [Consultation](https://uoregon.libcal.com/appointments/data_services), [Coffee & Code](https://uoregon.libcal.com/calendar/dataservices?t=d&q=coffee&cid=11979&cal=11979&inc=0), and more!
+  - See [course page](https://github.com/edrubin/EC524w26?tab=readme-ov-file#additional-resources) for more...
 - .note[Content:] Formalize statistical learning, notation, goals (and problems)
-
----
-layout: false
-class: clear, middle
-
-Lots of other opportunities to learn about statistical learning, *e.g.*,
-
-```{r, eugene r, echo = F}
-knitr::include_graphics("images/eugene-r.png")
-```
-.smaller[[Tweet](https://twitter.com/ryann_crowley/status/1216880767072002048); [h/t: Grant McDermott](https://grantmcdermott.com/)]
 
 ---
 name: admin-soon
@@ -102,7 +91,7 @@ name: admin-soon
 - .note[Next]
   - .it[ISL] Ch. 3–4
 
-.hi-slate[Problem set] Soon.
+.hi-slate[Problem set] Soon!
 
 ---
 layout: true
@@ -163,7 +152,11 @@ that accurately describes $\color{#FFA500}{\mathbf{y}}$ given some values of $\c
 layout: false
 class: clear, middle
 
+.grey-light[(there's more, of course...)]
+
 .hi-slate[Semi-supervised learning] falls somewhere between these supervised and unsupervised learning—generally applied to supervised tasks when labeled .hi-orange[outputs] are incomplete.
+
+.hi-slate[Active learning] is basically .hi-orange[supervised learning] where the algorithm .hi-orange["requests" new labels] to improve performance.
 
 ---
 class: clear, middle
@@ -186,7 +179,7 @@ We tend to further break .hi-slate[supervised learning] into two groups, based u
 --
 
 1. .hi-slate[Classification tasks] for which the values of $\color{#FFA500}{\mathbf{y}}$ are discrete categories
-<br>*E.g.*, race, sex, loan default, hazard, disease, flight status
+<br>*E.g.*, existence (hazard, disease), race, sex, loan default, flight status
 
 2. .hi-slate[Regression tasks] in which $\color{#FFA500}{\mathbf{y}}$ takes on continuous, numeric values.
 <br>*E.g.*, price, arrival time, number of emails, temperature
