@@ -91,6 +91,8 @@ name: admin-soon
 - .note[Next]
   - .it[ISL] Ch. 3–4
 
+.hi-slate[Mondays] Upload link + summary of pred. application. Bonus for coolest.
+
 .hi-slate[Problem set] Soon!
 
 ---
@@ -110,7 +112,7 @@ name: sl-definition
 
 --
 
-Examples
+.grey-light[_Examples_]
 
 - .hi-slate[Regression analysis] quantifies the relationship between an outcome and a set of explanatory variables—most usefully in a causal setting.
 --
