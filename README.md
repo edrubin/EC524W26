@@ -188,6 +188,20 @@ Welcome to Economics 524 (424): Prediction and machine-learning in econometrics,
 
 **Formats** [.html](https://raw.githack.com/edrubin/EC524W25/master/lecture/010/notebook.html) | [.qmd](https://github.com/edrubin/EC524W22/blob/master/lecture/010/notebook.qmd)
 
+## Application examples
+
+Starting in week 2, you will submit brief write-ups for machine-learning/AI applications that you find interesting. These nine write-ups together will count for a single "project" grade.
+
+Submit by Monday at 11:59p (Pacific) each week (on Canvas):
+
+- What is the application?
+- What kind of prediction problem is it?
+- What ML/AI methods are they using?
+- Why is this interesting/useful?
+- URL/file for the article or post.
+
+The "coolest" applications will be highlighted in class and will receive extra credit.
+
 ## Projects
 
 Past, present, and future projects.
