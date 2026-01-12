@@ -24,8 +24,7 @@ By 11:59p on **March 11th**, submit **two documents** on Canvas (share links or 
 
 | Topic | Name |
 |:---------|:---------|
-| *Topic 1* | A Name |
-| *Topic 2* | Another name |
+| *Bayesian neural networks* | Jules Netze |
 
 ## Some ideas for topics
 

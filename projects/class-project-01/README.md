@@ -31,5 +31,4 @@ The document should be something that you could send to a potential employer to 
 
 | Topic | Name |
 |:---------|:---------|
-| *Predicting favorite numbers* | A person |
-| *Predicting zip codes* | Another person |
+| *Empirical asset pricing via machine learning with a focus on shorting* | Jules Netze |
