@@ -310,6 +310,15 @@ Setting up decision trees, with and without `tidymodels`.
 
 **Formats** [.html](https://raw.githack.com/edrubin/EC524W25/refs/heads/master/lab/004-decision-trees/doc004.html) | [.qmd](https://github.com/edrubin/EC524W25/blob/master/lab/004-decision-trees/doc004.qmd)
 
+## Interesting ML/AI applications
+
+**Week 2**
+
+- [Youtube's recommendation algorithm](https://medium.com/techtalkers/how-youtube-knows-what-you-want-to-watch-212a24d79f49)
+- [AI detection of tumors in CT scans](https://www.nytimes.com/2026/01/02/world/asia/china-ai-cancer-pancreatic.html)
+- [Google's species identification AI](https://techcrunch.com/2025/03/03/google-releases-speciesnet-an-ai-model-designed-to-identify-wildlife/)
+- [AI plays video games](https://www.sciencedirect.com/science/article/pii/S0957417425008735) (and many others, e.g., [here](https://www.youtube.com/watch?v=QOJfyp0KMmM))
+
 ## Additional resources
 
 ### Jobs
