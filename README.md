@@ -249,7 +249,7 @@ Previous take-home exam: [2023](exam/past-home/home-23.md) | [2024](exam/past-ho
 
 Approximate/planned topics... or at least for reference...
 
-[**000 - Workflow and cleaning**](https://raw.githack.com/edrubin/EC524W22/master/lab/000-cleaning/000-slides.html)
+[**000 - RStudio Review**](https://raw.githack.com/edrubin/EC524W22/master/lab/000-cleaning/000-slides.html)
 
 1. General "best practices" for coding
 2. Working with RStudio
@@ -258,7 +258,7 @@ Approximate/planned topics... or at least for reference...
 
 **Formats** [.html](https://raw.githack.com/edrubin/EC524W22/master/lab/000-cleaning/000-slides.html) | [.pdf](https://raw.githack.com/edrubin/EC524W22/master/lab/000-cleaning/000-slides.pdf) | [.Rmd](https://raw.githack.com/edrubin/EC524W22/master/lab/000-cleaning/000-slides.Rmd)
 
-[**01 - RStudio Review**]
+[**01 - Workflow and Resampling**]
 
 1. Install Quarto. Follow this [link](https://quarto.org/docs/getting-started/installation.html), download the installer for your operating system, and follow the instructions to install Quarto
 2. Download (_and unzip_) the [Lab Files](https://github.com/edrubin/EC524W26/blob/master/lab/02-workflow-and-sampling/02-lab.zip) 
