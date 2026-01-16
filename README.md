@@ -258,6 +258,14 @@ Approximate/planned topics... or at least for reference...
 
 **Formats** [.html](https://raw.githack.com/edrubin/EC524W22/master/lab/000-cleaning/000-slides.html) | [.pdf](https://raw.githack.com/edrubin/EC524W22/master/lab/000-cleaning/000-slides.pdf) | [.Rmd](https://raw.githack.com/edrubin/EC524W22/master/lab/000-cleaning/000-slides.Rmd)
 
+[**01 - RStudio Review**]
+
+1. Install Quarto. Follow this [link](https://quarto.org/docs/getting-started/installation.html), download the installer for your operating system, and follow the instructions to install Quarto
+2. Download (_and unzip_) the [Lab Files](https://github.com/edrubin/EC524W26/blob/master/lab/02-workflow-and-sampling/02-lab.zip) 
+
+**Formats** Coming Soon [.html]() | [.pdf]() | [.qmd]()
+
+<!--
 [**001 - Workflow and cleaning: An example**](https://raw.githack.com/edrubin/EC524W25/refs/heads/master/lab/001-projects/doc001.html)
 
 Follow these steps to get started on the lab this week.
@@ -309,6 +317,8 @@ Setting up decision trees, with and without `tidymodels`.
 **Download**: [Quarto document](https://github.com/edrubin/EC524W25/blob/master/lab/004-decision-trees/doc004.qmd)
 
 **Formats** [.html](https://raw.githack.com/edrubin/EC524W25/refs/heads/master/lab/004-decision-trees/doc004.html) | [.qmd](https://github.com/edrubin/EC524W25/blob/master/lab/004-decision-trees/doc004.qmd)
+
+--->
 
 ## Interesting ML/AI applications
 
