@@ -1,0 +1,157 @@
+---
+name: project setup
+---
+
+## Setup
+
+[_0._]{.hp} [Create a new directory for EC524, somewhere (e.g., Desktop, Documents, iCloud, Dropbox, etc.)]{.h}
+
+::: {.faded}
+[_1._]{.hp} Within this directory, create subdirectories
+
+[_2._]{.hp} Open RStudio
+
+[_3._]{.hp} Click on **File** \> **New Project...** \> **Existing Directory** and navigate to the separate project folder under "lab" \> "001-projects" and click **Create Project**. RSudio will open a new session with the working directory set to the project folder
+
+[_4._]{.hp} Move the data files and Quarto document into the project folder
+
+[_5._]{.hp} Open the `doc001.qmd` file in the project folder to get started
+:::
+
+::: {.notes}
+Before we can start any analysis, we need to load the data in RStudio. 
+There are many ways to do this, but just a little forward thinking on project work flow will save us headaches later.
+
+As discussed last week, we will be using RStudio projects to manage our work. 
+This is a great way to keep organized between separate projects (assignments) and simplify the process of loading data and saving files. 
+Here are the steps to create a new project:
+:::
+
+---
+
+## Setup
+
+::: {.faded .small}
+[_0._]{.hp} Create a new directory for EC524, somewhere (e.g., Desktop, Documents, iCloud, Dropbox, etc.)
+:::
+
+[_1._]{.hp} [Within this directory, create subdirectories]{.h}
+
+```
+      EC524W25              # Class folder
+      └── lab               # Lab folder
+          └── 02-projects   # Separate folder for the lab 02 project
+```
+
+::: {.faded .small}
+[_2._]{.hp} Open RStudio
+
+[_3._]{.hp} Click on **File** \> **New Project...** \> **Existing Directory** and navigate to the separate project folder under "lab" \> "001-projects" and click **Create Project**. RSudio will open a new session with the working directory set to the project folder
+
+[_4._]{.hp} Move the data files and Quarto document into the project folder
+
+[_5._]{.hp} Open the `w02-lab.qmd` file in the project folder to get started
+:::
+
+---
+
+## Setup
+
+::: {.faded}
+[_0._]{.hp} Create a new directory for EC524, somewhere (e.g., Desktop, Documents, iCloud, Dropbox, etc.)
+
+[_1._]{.hp} Within this directory, create subdirectories
+:::
+
+[_2._]{.hp} Open RStudio
+
+[_3._]{.hp} Click on **File** \> **New Project...** \> **Existing Directory** and navigate to the separate project folder under "lab" \> "001-projects" and click **Create Project**. 
+RSudio will open a new session with the working directory set to the project folder
+
+[_4._]{.hp} Move the data files and Quarto document into the project folder
+
+[_5._]{.hp} Open the `w02-lab.qmd` file in the project folder to get started
+
+---
+
+## Setup
+
+After completing these steps, here is an visualization of a well organized directory structure:
+
+```
+
+   EC524W25                                # Class folder  
+   └──lab                                  # Lab folder
+      ├── 002-projects                     # Project folder
+      │   ├── 002-projects.Rproj           # Rproj file (we are here)
+      │   ├── data                         # Data folder
+      │   │   ├── data_description.txt     
+      │   │   ├── sample_submission.csv    
+      │   │   ├── test.csv                 
+      │   │   └── train.csv                
+      │   └── w02-lab.qmd                  # Quarto document
+      └── 003-...                          # Future lab projects
+      
+```
+
+Download the zip file under lab 02 on the course GitHub repo. 
+
+Unzip the file in your "lab" folder. 
+
+---
+
+## Getting Started
+
+First, install `pacman`, a package manager that will help us install and load packages. Recall we only need to install packages once. Ex.
+
+``` r
+install.packages("pacman")
+```
+
+However, we always have to load them in each new R session. We so by running the following code:
+
+```{r setup-pacman, echo=TRUE}
+library(pacman)
+```
+
+Sometimes we have to load a bunch of packages at once, which can be wordy. Ex.
+
+``` r
+# Load ALL packages
+library(tidyverse)
+library(tidymodels)
+library(broom)
+library(magrittr)
+library(janitor)
+library(here)
+```
+
+---
+
+## Getting Started
+
+The `pacman` package can simplify our code with the `p_load` function. 
+This function allows us to load mulitple pacakges at once. 
+Further, if you do not have it installed, it will install it for you. 
+
+```{r setup-pload, echo=TRUE}
+# Load ALL packages
+pacman::p_load(tidyverse, data.table, broom, magrittr, janitor, skimr)
+```
+
+You can use either method to load packages. 
+The `p_load` function is a bit more concise and I use it often.
+
+::: {.fragment}
+::: callout-tip 
+New packages can be scary. To learn more, read the vignette.
+
+```{r vignette-tip, eval=FALSE}
+browseVignettes(package = 'here')
+```
+
+Vignettes are a short introduction to the package and its functions. 
+Great for a quick overview and reference. 
+But not all packages have them.
+:::
+:::

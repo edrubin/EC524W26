@@ -1,0 +1,290 @@
+---
+name: resampling methods
+---
+
+## Randomization seeds
+
+Since we are using some randomization, let's set a seed so we all get the same results. A random seed is a number used to initialize a pseudorandom number generator. Ex.
+
+```{r set-seed}
+# Set seed
+set.seed(123)
+```
+
+<br> 
+
+These functions are used to ensure that the results of our code are reproducible. 
+This is important for debugging and sharing code and it is a good practice to include them at the beginning of your script whenever you are using randomization.
+
+---
+
+## Data 
+
+Load both the `train.csv` and `test.csv` data sets. We will be using both.
+
+```{r read-data, message=FALSE}
+# Clean Environment
+rm(list = ls())
+
+# Load training data
+house_df = read_csv("data/train.csv")
+```
+
+Double check that everything is loaded correctly. Ex.
+
+```{r check-data, eval=FALSE}
+# Print first 10 observations
+head(house_df, 10)
+```
+
+These data have really crappy column names. Let's clean them up using the `clean_names` function from the `janitor` package.
+
+```{r}
+# Clean column names
+house_df = house_df %>% clean_names()
+```
+
+---
+
+## Data {.small}
+
+For today, we only need a subset. Let's trim down our data set to four columns:
+
+-   `id`: house id
+-   `sale_price`: sale price of the house
+-   `age`: age of the house at the time of the sale (difference between year sold and year built)
+-   `area`: the non-basement square-foot area of the house
+
+We can do this in a few different ways but `dplyr::transmute()` is a very convenient function to use here
+
+```{r subset-data}
+# Subset our data and create new columns
+house_df %<>% transmute(
+    id = id,
+    sale_price = sale_price / 10000,
+    age = yr_sold - year_built,
+    area = gr_liv_area
+)
+```
+
+---
+
+## Data {.small}
+
+It's always a good idea to look at the new dataframe and make sure it is exactly what we expect it to be. Any of the following is a great way to check:
+
+- `summary()`: provides a quick overview of the data
+- `glimpse()`: provides a more detailed overview of each column
+- `skimr::skim()`: provides a "nicer" looking overview of the data
+- `View()`: opens spreadsheet view of the data
+
+```{r subset-data-check}
+summary(house_df)
+
+glimpse(house_df)
+```
+
+---
+
+## Resampling
+
+::: {.vertical-center}
+- Today we are introducing resampling via [holdout sets]{.h} 
+    - A very straightforward method that is used to estimate the performance
+
+- The key concept here is that we are partitioning our data into two sets: 
+    - a training set 
+    - a validation set
+
+- The training set is used to fit the model, while the validation set is used to evaluate the model's performance
+:::
+
+---
+
+## Create a Validation Set
+
+Start by creating a single validation set composed of 30% of our training data. 
+
+- We can draw the validation sample randomly using the `dplyr` function `sample_frac()`. 
+
+- The argument `size` will allow us to choose the desired sample of 30%.
+
+- `dplyr`'s function `setdiff()` will give us the remaining, non-validation observation from the original training data.
+
+```{r split}
+# Draw validation set
+validation_df = house_df %>% sample_frac(size = 0.3)
+# Find remaining training set
+train_df = setdiff(house_df, validation_df)
+```
+
+---
+
+## Verify We Did It Right
+
+Finally, let's check our work and make sure that
+
+[`training_df` + `validation_df` = `house_df`]{.align-center}
+
+- To do so, we can use `nrow()`
+
+<br>
+
+::: {.solution .fragment}
+```{r check-split}
+# Check that dimensions make sense
+nrow(house_df) == nrow(validation_df) + nrow(train_df)
+```
+:::
+
+---
+
+## Model fit
+
+With training and validation sets we can start train a learner on the training set and evaluate its performance on the validation set. We will use a linear regression model to predict `sale_price` using `age` and `area`. We will give some flexibility to the model by including polynomial terms for `age` and `area`.
+
+We proceed with the following steps (algorithm):
+
+[_1._]{.hp} Train a regression model with various degrees of flexibility
+
+[_2._]{.hp}  Calculate MSE on the `training_df`
+
+[_3._]{.hp}  Determine which degree of flexibility minimizes validation MSE
+
+---
+
+## Model specification
+
+We will fit a model of the form:
+
+\begin{align*}
+Price_i = &\beta_0 + \beta_1 * age_i^2 + \beta_2 * age_i + \beta_3 * area_i^2 +  \\ 
+          &\beta_4 * area_i + \beta_5 * age_i^2 \cdot area_i^2 + \beta_6 * age_i^2 \cdot area_i + \\
+          & \beta_7 * age_i \cdot area_i^2 + \beta_8 * area_i \cdot age_i
+\end{align*}
+
+Often in programming, we want to automate the process of fitting a model to different specifications. 
+We can do this by defining a function.
+
+---
+
+## Model Fit: Creating a Function
+
+We define a function that will fit a model to the training data and return the validation MSE. 
+The function takes two arguments: 
+
+:::: {.columns}
+
+::: {.column .align-center}
+`deg_age` 
+:::
+::: {.column .align-center}
+`deg_area`
+:::
+::::
+
+These arguments represent the degree of polynomial for [age]{.h} and [area]{.h} that we want to fit our model. 
+
+```{r}
+# Define function
+fit_model = function(deg_age, deg_area) {
+    # Estimate the model with training data
+    est_model = lm(
+      sale_price ~ poly(age, deg_age, raw = T) * poly(area, deg_area, raw = T),
+      data = train_df)
+    # Make predictions on the validation data
+    y_hat = predict(est_model, newdata = validation_df, se.fit = F)
+    # Calculate our validation MSE
+    mse = mean((validation_df$sale_price - y_hat)^2)
+    # Return the output of the function
+    return(mse)
+}
+```
+
+---
+
+## Model Fit
+
+First let's create a dataframe that is 2 by 4x6 using the `expand_grid()` function. We will attach each model fit MSE to an additional column.
+
+```{r}
+# Take all possible combinations of our degrees
+deg_df = expand_grid(deg_age = 1:6, deg_area = 1:4)
+deg_df
+```
+
+---
+
+## Function
+
+Now let's iterate over all possible combinations (4x6) of polynomial specifications and see which model fit produces the smallest MSE.
+
+```{r}
+# Iterate over set of possibilities (returns a vector of validation-set MSEs)
+mse_v = mapply(
+    FUN = fit_model,
+    deg_age = deg_df$deg_age,
+    deg_area = deg_df$deg_area
+)
+```
+
+---
+
+## Funtcion
+
+Now that we have a 1 by 24 length vector of all possible polynomial combinations, lets attach this vector as an additional column to the `deg_df` dataframe we assigned a moment ago and arrange by the smalled MSE parameter.
+
+```{r mse-result}
+# Add validation-set MSEs to 'deg_df'
+deg_df$mse = mse_v
+# Which set of parameters minimizes validation-set MSE?
+arrange(deg_df, mse)
+```
+
+---
+
+## Plot the MSE (Code)
+
+Now let's turn this table into a more visual appealing plot. I used `ggplot2` to make the following heat map. Recall, less MSE is better.
+
+```{r mse-plot-code, eval=FALSE, fig.width=8, fig.height=6}
+#| fig-align: center
+# Plot
+ggplot(data = deg_df, aes(x = deg_age, y = deg_area, fill = mse)) +
+  geom_tile() +
+  #hrbrthemes::theme_ipsum(base_size = 12) +
+  scale_fill_viridis_c("MSE", option = "inferno", begin = 0.1, direction = -1) +
+  scale_x_continuous(breaks = seq(1, 6, 1)) +
+  scale_y_continuous(breaks = seq(1, 6, 1)) +
+  theme(panel.grid.major = element_blank(),
+        panel.grid.minor = element_blank()) +
+  labs(
+    title = 'Model fit MSE',
+    subtitle = 'Fill values denote MSE',
+    x = "Degrees of age",
+    y = 'Degrees of area',
+    colour = 'Log of MSE')
+```
+
+---
+
+## Plot the MSE (Graph)
+
+```{r mse-plot, echo=FALSE, fig.width=8, fig.height=6}
+#| fig-align: center
+# Plot
+ggplot(data = deg_df, aes(x = deg_age, y = deg_area, fill = mse)) +
+  geom_tile() +
+  #hrbrthemes::theme_ipsum(base_size = 12) +
+  scale_fill_viridis_c("MSE", option = "inferno", begin = 0.1, direction = -1) +
+  scale_x_continuous(breaks = seq(1, 6, 1)) +
+  scale_y_continuous(breaks = seq(1, 6, 1)) +
+  theme(panel.grid.major = element_blank(),
+        panel.grid.minor = element_blank()) +
+  labs(
+    title = 'Model fit MSE',
+    subtitle = 'Fill values denote MSE',
+    x = "Degrees of age",
+    y = 'Degrees of area',
+    colour = 'Log of MSE')
+```

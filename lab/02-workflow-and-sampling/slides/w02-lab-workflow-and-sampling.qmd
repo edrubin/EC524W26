@@ -1,0 +1,54 @@
+---
+title: "EC524: Lab 02"
+subtitle: "Workflow and Sampling"
+author: Jose Rojas-Fallas
+date: last-modified
+date-format: "YYYY"
+format:
+    revealjs:
+        theme: [default, styles.scss]
+        slide-number: true
+        footer: "EC 524 Week 02 Lab | Workflow and Sampling"
+        preview-links: auto
+        code-f  old: FALSE
+        scrollable: true
+title-slide-attributes: 
+  data-background-position: left
+---
+
+```{r knitr-opts, echo=FALSE, message=FALSE}
+# Code chunk options
+knitr::opts_chunk$set(
+  echo = TRUE,
+  message = FALSE,
+  warning = FALSE,
+  fig.width = 6,
+  fig.height = 4
+)
+```
+
+## Lab Agenda
+
+<br>
+
+[_1._]{.hp} [Setup]{.hp}: Learn a basic and efficient setup structure for projects
+
+<br>
+
+[_2._]{.hp} [Coding Practice]{.hp}: View some data cleaning problems and their solutions
+
+<br>
+
+[_3._]{.hp} [Resampling Methods]{.hp}: Introduction to using [hold-out groups]{.h} and a quick analysis
+
+# Project Setup {.inverse .note}
+
+{{< include w02-01-project-setup.qmd >}}
+
+# Coding Practice {.inverse .note}
+
+{{< include w02-02-practice.qmd >}}
+
+# Resampling Methods {.inverse .note}
+
+{{< include w02-03-resampling-methods.qmd >}}
