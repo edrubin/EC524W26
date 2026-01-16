@@ -262,6 +262,9 @@ Approximate/planned topics... or at least for reference...
 
 1. Install Quarto. Follow this [link](https://quarto.org/docs/getting-started/installation.html), download the installer for your operating system, and follow the instructions to install Quarto
 2. Download (_and unzip_) the [Lab Files](https://github.com/edrubin/EC524W26/blob/master/lab/02-workflow-and-sampling/02-lab.zip?raw=true) 
+3. Create a project in Rstudio in a separate folder
+4. Copy/move the **Lab Files** to a folder dedicated to this lab
+5. Open the Quarto document in Rstudio and follow the instructions 
 
 **Formats** Coming Soon [.html]() | [.pdf]() | [.qmd]()
 
