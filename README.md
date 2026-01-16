@@ -261,7 +261,7 @@ Approximate/planned topics... or at least for reference...
 [**01 - Workflow and Resampling**]
 
 1. Install Quarto. Follow this [link](https://quarto.org/docs/getting-started/installation.html), download the installer for your operating system, and follow the instructions to install Quarto
-2. Download (_and unzip_) the [Lab Files](https://github.com/edrubin/EC524W26/blob/master/lab/02-workflow-and-sampling/02-lab.zip) 
+2. Download (_and unzip_) the [Lab Files](https://github.com/edrubin/EC524W26/blob/master/lab/02-workflow-and-sampling/02-lab.zip?raw=true) 
 
 **Formats** Coming Soon [.html]() | [.pdf]() | [.qmd]()
 
