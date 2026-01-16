@@ -258,7 +258,7 @@ Approximate/planned topics... or at least for reference...
 
 **Formats** [.html](https://raw.githack.com/edrubin/EC524W22/master/lab/000-cleaning/000-slides.html) | [.pdf](https://raw.githack.com/edrubin/EC524W22/master/lab/000-cleaning/000-slides.pdf) | [.Rmd](https://raw.githack.com/edrubin/EC524W22/master/lab/000-cleaning/000-slides.Rmd)
 
-[**01 - Workflow and Resampling**]
+[**01 - Workflow and Resampling**](https://rawcdn.githack.com/edrubin/EC524W26/0e4e86229decd603823a4f1d93f7fbe74994054c/lab/02-workflow-and-sampling/slides/w02-lab-workflow-and-sampling.html#/title-slide)
 
 1. Install Quarto. Follow this [link](https://quarto.org/docs/getting-started/installation.html), download the installer for your operating system, and follow the instructions to install Quarto
 2. Download (_and unzip_) the [Lab Files](https://github.com/edrubin/EC524W26/blob/master/lab/02-workflow-and-sampling/02-lab.zip?raw=true) 
@@ -266,7 +266,7 @@ Approximate/planned topics... or at least for reference...
 4. Copy/move the **Lab Files** to a folder dedicated to this lab
 5. Open the Quarto document in Rstudio and follow the instructions 
 
-**Formats** Coming Soon [.html]() | [.pdf]() | [.qmd]()
+**Formats** Coming Soon [.html](https://rawcdn.githack.com/edrubin/EC524W26/0e4e86229decd603823a4f1d93f7fbe74994054c/lab/02-workflow-and-sampling/slides/w02-lab-workflow-and-sampling.html#/title-slide) | [.pdf](https://rawcdn.githack.com/edrubin/EC524W26/33c0d7eda7675ebeba7abc0645cf7890f6b50198/lab/02-workflow-and-sampling/slides/w02-lab-workflow-and-sampling.pdf) | [.qmd](https://github.com/edrubin/EC524W26/blob/master/lab/02-workflow-and-sampling/slides/w02-lab-workflow-and-sampling.qmd)
 
 <!--
 [**001 - Workflow and cleaning: An example**](https://raw.githack.com/edrubin/EC524W25/refs/heads/master/lab/001-projects/doc001.html)
