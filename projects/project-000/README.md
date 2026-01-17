@@ -72,7 +72,7 @@ sales_df = 'assessor-residential-sales.fst' |> read_fst()
 
 12. Which model would you choose to use for actual prediction? Why?
 
-13. How well is your best model doing at predicting `Sale Price`?
+13. How well is your best model doing at predicting `Sale Price`? Explain/justify your answer. 
 
 14. Do you think you could improve your predictions further? If so, how? In other words: What modeling decisions do you think you could change to get better predictions?
 
