@@ -188,7 +188,7 @@ Welcome to Economics 524 (424): Prediction and machine-learning in econometrics,
 
 **Formats** [.html](https://raw.githack.com/edrubin/EC524W25/master/lecture/010/notebook.html) | [.qmd](https://github.com/edrubin/EC524W22/blob/master/lecture/010/notebook.qmd)
 
-## Application examples
+## Interesting ML/AI applications
 
 Starting in week 2, you will submit brief write-ups for machine-learning/AI applications that you find interesting. These nine write-ups together will count for a single "project" grade.
 
@@ -202,16 +202,24 @@ Submit by Monday at 11:59p (Pacific) each week (on Canvas):
 
 The "coolest" applications will be highlighted in class and will receive extra credit.
 
+
+**Week 2**
+
+- [Youtube's recommendation algorithm](https://medium.com/techtalkers/how-youtube-knows-what-you-want-to-watch-212a24d79f49)
+- [AI detection of tumors in CT scans](https://www.nytimes.com/2026/01/02/world/asia/china-ai-cancer-pancreatic.html)
+- [Google's species identification AI](https://techcrunch.com/2025/03/03/google-releases-speciesnet-an-ai-model-designed-to-identify-wildlife/)
+- [AI plays video games](https://www.sciencedirect.com/science/article/pii/S0957417425008735) (and many others, e.g., [here](https://www.youtube.com/watch?v=QOJfyp0KMmM))
+
+
 ## Projects
 
 Past, present, and future projects.
 
-**000** Predicting sales price in housing data (Kaggle)
+**000** An introduction to prediction and resampling
+  - [Instructions](projects/project-000/README.md)
+  - [Data](projects/project-000/sales-data.fst)
+  - _Due:_ 20 January 2026
 
-**Help:** 
-
-- [A simple example/walkthrough](https://www.kaggle.com/edwardarubin/project-000-example)
-- [Kaggle notebooks](https://rpubs.com/Clennon/KagNotes) (from Connor Lennon)
 
 **001** Validation and out-of-sample performance
 
@@ -322,15 +330,6 @@ Setting up decision trees, with and without `tidymodels`.
 **Formats** [.html](https://raw.githack.com/edrubin/EC524W25/refs/heads/master/lab/004-decision-trees/doc004.html) | [.qmd](https://github.com/edrubin/EC524W25/blob/master/lab/004-decision-trees/doc004.qmd)
 
 --->
-
-## Interesting ML/AI applications
-
-**Week 2**
-
-- [Youtube's recommendation algorithm](https://medium.com/techtalkers/how-youtube-knows-what-you-want-to-watch-212a24d79f49)
-- [AI detection of tumors in CT scans](https://www.nytimes.com/2026/01/02/world/asia/china-ai-cancer-pancreatic.html)
-- [Google's species identification AI](https://techcrunch.com/2025/03/03/google-releases-speciesnet-an-ai-model-designed-to-identify-wildlife/)
-- [AI plays video games](https://www.sciencedirect.com/science/article/pii/S0957417425008735) (and many others, e.g., [here](https://www.youtube.com/watch?v=QOJfyp0KMmM))
 
 ## Additional resources
 
