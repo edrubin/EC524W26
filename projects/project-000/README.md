@@ -2,6 +2,8 @@
 
 **Due Tuesday, 20 January 2026 11:59 PM (Pacific Time)**
 
+Submit your write up with code and output (a knitted/rendered PDF or HTML) on Canvas.
+
 It's time to do some actual prediction.
 
 We're going to start with a classic: predicting housing-sales prices using a pretty rich set of housing features. With _real-life data_.
@@ -14,7 +16,7 @@ We're going to start with a classic: predicting housing-sales prices using a pre
 
 ## Getting started
 
-1. [Read](https://datacatalog.cookcountyil.gov/Property-Taxation/Assessor-Archived-05-11-2022-Residential-Sales-Dat/5pge-nu6u/about_data) about [the dataset](https://github.com/edrubin/EC524W26/blob/master/projects/project-000/sales-data.fst).
+1. [Read](https://datacatalog.cookcountyil.gov/Property-Taxation/Assessor-Archived-05-11-2022-Residential-Sales-Dat/5pge-nu6u/about_data) about [the dataset](https://github.com/edrubin/EC524W26/blob/master/projects/project-000/sales-data.fst). (To download from Github: look for the download button on the top right of the file view.)
 <br>
 _Note:_ I took a subset of the original dataset that focuses on the "regression classes" of residential properties listed by the [Cook County Assessor's Office](https://prodassets.cookcountyassessoril.gov/s3fs-public/form_documents/classcode.pdf).
 
