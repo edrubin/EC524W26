@@ -3,18 +3,15 @@
 lecture/00[2-9]*
 
 # Temporary holds: Projects
-projects/project-00[0-9]*
+projects/project-00[1-9]*
+projects/OLD*
 
 # Exams
 exam/exam*
 
 # Project-specific files
 # Project 000 code and data
-projects/project-000/code*
-projects/project-000/data*
-projects/project-000/*.Rproj
-# Project 003 key
-projects/project-003/key*
+projects/project-000/assessor-residential-sales.fst
 
 # Data
 lecture/010/train.csv
