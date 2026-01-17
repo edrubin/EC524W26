@@ -76,4 +76,4 @@ sales_df = 'assessor-residential-sales.fst' |> read_fst()
 
 14. Do you think you could improve your predictions further? If so, how? In other words: What modeling decisions do you think you could change to get better predictions?
 
-15. Suppose you are a validation-set RMSE is lower than a classmate's validation-set RMSE. Does that imply your model is better than their model? Explain your answer. 
+15. Suppose your validation-set RMSE is lower than a classmate's validation-set RMSE. Does that imply your model is better than their model? Explain your answer. 
