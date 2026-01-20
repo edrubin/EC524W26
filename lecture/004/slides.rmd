@@ -73,6 +73,11 @@ name: admin-today
 - A roadmap (where are we going?)
 - Linear regression and model selection
 
+.b[Out-of-class]
+
+- Assignment due!
+- Start thinking about your project(s)!
+
 ---
 name: admin-soon
 # Admin
