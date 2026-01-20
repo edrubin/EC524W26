@@ -77,7 +77,7 @@ Welcome to Economics 524 (424): Prediction and machine-learning in econometrics,
 - *ISL* Ch2–Ch3
 - *Optional:* *100ML* Preface and Ch1–Ch4
 
-[**003 - Resampling methods**](https://raw.githack.com/edrubin/EC524W25/master/lecture/003/slides.html)
+[**003 - Resampling methods**](https://raw.githack.com/edrubin/EC524W26/master/lecture/003/slides.html)
 
 1. Review
 1. The validation-set approach
@@ -85,21 +85,21 @@ Welcome to Economics 524 (424): Prediction and machine-learning in econometrics,
 1. k-fold cross validation
 1. The bootstrap
 
-**Formats** [.html](https://raw.githack.com/edrubin/EC524W25/master/lecture/003/slides.html) | [.pdf](https://github.com/edrubin/EC524W25/blob/master/lecture/003/slides.pdf) | [.rmd](https://github.com/edrubin/EC524W25/blob/master/lecture/003/slides.rmd)
+**Formats** [.html](https://raw.githack.com/edrubin/EC524W26/master/lecture/003/slides.html) | [.pdf](https://github.com/edrubin/EC524W26/blob/master/lecture/003/slides.pdf) | [.rmd](https://github.com/edrubin/EC524W26/blob/master/lecture/003/slides.rmd)
 
 **Readings**
 
 - *ISL* Ch5
 - *Optional:* *100ML* Ch5
 
-[**004 - Linear regression strikes back**](https://raw.githack.com/edrubin/EC524W23/master/lecture/004/004-slides.html)
+[**004 - Linear regression strikes back**](https://raw.githack.com/edrubin/EC524W26/master/lecture/004/004-slides.html)
 
 1. Returning to linear regression
 1. Model performance and overfit
 1. Model selection—best subset and stepwise
 1. Selection criteria
 
-**Formats** [.html](https://raw.githack.com/edrubin/EC524W23/master/lecture/004/004-slides.html) | [.pdf](https://github.com/edrubin/EC524W23/blob/master/lecture/004/004-slides.pdf) | [.Rmd](https://github.com/edrubin/EC524W23/blob/master/lecture/004/004-slides.Rmd)
+**Formats** [.html](https://raw.githack.com/edrubin/EC524W26/master/lecture/004/004-slides.html) | [.pdf](https://github.com/edrubin/EC524W26/blob/master/lecture/004/004-slides.pdf) | [.Rmd](https://github.com/edrubin/EC524W26/blob/master/lecture/004/004-slides.Rmd)
 
 **Readings**
 
