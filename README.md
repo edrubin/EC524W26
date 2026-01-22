@@ -210,6 +210,12 @@ The "coolest" applications will be highlighted in class and will receive extra c
 - [Google's species identification AI](https://techcrunch.com/2025/03/03/google-releases-speciesnet-an-ai-model-designed-to-identify-wildlife/)
 - [AI plays video games](https://www.sciencedirect.com/science/article/pii/S0957417425008735) (and many others, e.g., [here](https://www.youtube.com/watch?v=QOJfyp0KMmM))
 
+**Week 3**
+
+- New ML/AI approaches boost [weather](https://deepmind.google/blog/graphcast-ai-model-for-faster-and-more-accurate-global-weather-forecasting/) and [flood](https://news.agu.org/press-release/ai-boosts-national-weather-model-flood-prediction-accuracy-sixfold/) prediction/forecast accuracy.
+- [Predicting political leaning with Facebook activity](https://repository.uantwerpen.be/docman/irua/e7ffcf/155787.pdf) (maybe broke the world).
+- [Claude Code](https://www.removepaywall.com/search?url=https://nymag.com/intelligencer/article/how-claude-code-cowork-reset-the-ai-assistant-race.html) seems good.
+- [A finace paper about generating finance papers with AI](https://www.nber.org/system/files/working_papers/w33363/w33363.pdf) (insert finance joke here).
 
 ## Projects
 
