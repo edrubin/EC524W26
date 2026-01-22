@@ -4,7 +4,7 @@
     <title>Lecture .mono[005]</title>
     <meta charset="utf-8" />
     <meta name="author" content="Edward Rubin" />
-    <script src="slides_files/header-attrs-2.26/header-attrs.js"></script>
+    <script src="slides_files/header-attrs-2.29/header-attrs.js"></script>
     <link href="slides_files/remark-css-0.0.1/default.css" rel="stylesheet" />
     <link href="slides_files/remark-css-0.0.1/metropolis.css" rel="stylesheet" />
     <link href="slides_files/remark-css-0.0.1/metropolis-fonts.css" rel="stylesheet" />
@@ -65,7 +65,9 @@ name: admin-soon
 - .note[Today] .it[ISL] Ch. 6
 - .note[Next] .it[ISL] 4
 
-.b[Problem sets] Soon!
+.b[Problem set] Soon!
+
+.b[Project topics] Getting closer...
 
 ---
 layout: true
@@ -294,7 +296,7 @@ Let's return to the credit dataset—and [pre-processing with `tidymodels`](http
 We can standardize our .b[predictors] using `step_normalize()` from `recipes`:
 
 
-```r
+``` r
 # Load the credit dataset
 credit_df = ISLR::Credit %&gt;% clean_names()
 # Processing recipe: Define ID, standardize, create dummies, rename (lowercase)
@@ -337,7 +339,7 @@ The .hi-slate[key arguments] for `glmnet()` are
 We just need to define a decreasing sequence for `\(\lambda\)`, and then we're set.
 
 
-```r
+``` r
 # Define our range of lambdas (glmnet wants decreasing range)
 lambdas = 10^seq(from = 5, to = -2, length = 100)
 # Fit ridge regression
@@ -367,7 +369,7 @@ layout: true
 `glmnet` also provides convenient cross-validation function: `cv.glmnet()`.
 
 
-```r
+``` r
 # Define our lambdas
 lambdas = 10^seq(from = 5, to = -2, length = 100)
 # Cross validation
@@ -423,7 +425,7 @@ class: clear, middle
 - Use the `glmnet` engine.
 
 
-```r
+``` r
 # Define the model
 model_ridge = linear_reg(penalty = tune(), mixture = 0) %&gt;% set_engine("glmnet")
 ```
@@ -434,7 +436,7 @@ class: clear
 .b.purple[Example of ridge regression with] .purple[`tidymodels`]
 
 
-```r
+``` r
 # Our range of lambdas
 lambdas = 10^seq(from = 5, to = -2, length = 1e3)
 # Define the 5-fold split
@@ -475,7 +477,7 @@ Otherwise: Once you find your `\(\lambda\)` via cross validation,
 
 1\. Fit your model on the full dataset using the optimal `\(\lambda\)`
 
-```r
+``` r
 # Fit final model
 final_ridge =  glmnet(
   x = credit_clean %&gt;% dplyr::select(-balance, -id) %&gt;% as.matrix(),
@@ -496,7 +498,7 @@ Once you find your `\(\lambda\)` via cross validation
 
 2\. Make predictions
 
-```r
+``` r
 predict(
   final_ridge,
   type = "response",
@@ -607,7 +609,7 @@ We can also use `glmnet()` for lasso.
 Again, we define a decreasing sequence for `\(\lambda\)`, and we're set.
 
 
-```r
+``` r
 # Define our range of lambdas (glmnet wants decreasing range)
 lambdas = 10^seq(from = 5, to = -2, length = 100)
 # Fit lasso regression
@@ -647,7 +649,7 @@ class: clear, middle
 We can also cross validate `\(\lambda\)` with `cv.glmnet()`.
 
 
-```r
+``` r
 # Define our lambdas
 lambdas = 10^seq(from = 5, to = -2, length = 100)
 # Cross validation
@@ -778,7 +780,7 @@ class: clear, middle
 .b[Cross validating elasticnet in] `tidymodels`
 
 
-```r
+``` r
 # Our range of λ and α
 lambdas = 10^seq(from = 5, to = -2, length = 1e2)
 alphas = seq(from = 0, to = 1, by = 0.1)
@@ -809,7 +811,7 @@ class: clear, middle
 .b[Cross validating elasticnet in] `tidymodels` with .orange[`grid_regular()`]
 
 
-```r
+``` r
 # Our range of λ and α
 lambdas = 10^seq(from = 5, to = -2, length = 1e2)
 alphas = seq(from = 0, to = 1, by = 0.1)
@@ -889,10 +891,10 @@ These notes draw upon
 <style data-target="print-only">@media screen {.remark-slide-container{display:block;}.remark-slide-scaler{box-shadow:none;}}</style>
 <script src="https://remarkjs.com/downloads/remark-latest.min.js"></script>
 <script>var slideshow = remark.create({
-"highlightStyle": "github",
-"highlightLines": true,
-"highlightSpans": true,
-"countIncrementalSlides": false
+  "highlightStyle": "github",
+  "highlightLines": true,
+  "highlightSpans": true,
+  "countIncrementalSlides": false
 });
 if (window.HTMLWidgets) slideshow.on('afterShowSlide', function (slide) {
   window.dispatchEvent(new Event('resize'));

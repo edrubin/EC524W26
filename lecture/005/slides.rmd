@@ -88,7 +88,9 @@ name: admin-soon
 - .note[Today] .it[ISL] Ch. 6
 - .note[Next] .it[ISL] 4
 
-.b[Problem sets] Soon!
+.b[Problem set] Soon!
+
+.b[Project topics] Getting closer...
 
 ---
 layout: true
