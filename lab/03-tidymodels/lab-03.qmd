@@ -1,0 +1,246 @@
+---
+title: "EC524W25: Lab 03"
+subtitle: "Introduction to `tidymodels`"
+author: "Jose Rojas-Fallas"
+format: 
+  html:
+    embed-resources: true
+---
+
+```{r knitr-opts, echo=FALSE, message=FALSE}
+# Code chunk options
+knitr::opts_chunk$set(
+  echo = TRUE,
+  message = FALSE,
+  warning = FALSE,
+  fig.width = 6,
+  fig.height = 4
+)
+```
+
+## Lab Goals
+
+1. **Motivate**: Why using `tidymodels` may be good practice
+2. **Understanding Preprocessing**: Learn the basics of preprocessing data using `tidymodels`
+
+### First Step
+
+Load our necessary packages
+
+``` {r packages}
+library(pacman)
+p_load(tidyverse, modeldata, skimr, janitor, kknn, magrittr, tidymodels)
+```
+
+### Load in Our Data
+
+We will be using credit data from the `modeldata` package 
+
+``` {r modeldata}
+# Load credit data
+data(credit_data)
+# Assign it a new name
+credit_df <- credit_data
+```
+
+Let's see what it looks like
+
+``` {r data-glimpse}
+# Take a glimpse at the data
+credit_df %>% glimpse()
+```
+
+Gross, let's clean it up a bit
+
+``` {r clean-data}
+# "Fix" the variable names
+credit_df %<>% clean_names()
+```
+
+And a deeper look at the data gives us:
+
+``` {r data-skim}
+credit_df %>% skim()
+```
+
+**Notice there is missing data, that'll come up later**
+
+### Creating Our Outcome Variable
+
+We want to create an indicator for individuals' whose credit `status` is ***good***
+
+We can keep it simple and use `tidyverse` to do that and remove the "old" `status` variable:
+
+``` {r credit-good-outcome}
+# Create a dummy variable for "good" credit status
+# Create a dummy variable for "good" credit status
+credit_df %<>% 
+    # There are many ways to do this. You could also use ifelse() or case_when().
+    mutate(status_good = 1 * (status == "good")) %>% 
+    # Drop the old status variable
+    select(-status)
+```
+
+### Introducing `tidymodels`
+
+Imagine we want to clean **each variable**. 
+Then our `tidyverse` approach will take a lot of effort for each one. 
+
+This is where `tidymodels` helps us! 
+By using `recipes` we can set the stage for our data cleaning.
+
+#### The How of `tidymodels`
+
+`tidymodels` workflow begins with a `recipe`, where we tell R what role each variable plays
+
+Our first `recipe`:
+
+``` {r recipe-01, message=TRUE}
+# Define the recipe: What is an outcome and what is an explanatory variable
+recipe_all <- recipe(status_good ~ ., data = credit_df)
+
+# What is it?
+recipe_all
+```
+
+R now knows what is what in the data.
+
+So we can start cleaning/transforming the data:
+
+We can apply whatever steps we want to clean/pre-process/manipulate our data. 
+The [`tidymodels` universe](https://recipes.tidymodels.org/reference/index.html){target="_blank"} has many possible steps for:
+:::
+
+:::: {.columns}
+::: {.column .small .align-center}
+[Imputation]{.hp} 
+
+- `step_impute_mean()` 
+- `step_impute_mode()` 
+- `step_impute_knn()` 
+- `step_impute_bag()`
+:::
+::: {.column .small .align-center}
+[Transformation]{.hp}
+
+- `step_log()` 
+- `step_poly()` 
+- `step_mutate()` 
+- `step_interact()`
+:::
+::: {.column .small .align-center}
+[Dummies & Discretization]{.hp}
+
+- `step_dummy()` 
+- `step_num2factor()` 
+- `step_discretize()` 
+- `step_cut()`
+:::
+::: {.column .small .align-center}
+[Many More]{.hp}
+
+- `step_center()` 
+- `step_normalize()` 
+- `step_date()` 
+- `step_lag()`
+:::
+::::
+
+To apply any of these, you need to also tell the function `step_*()` [which variables]{.h} you want it to target. 
+
+:::: {.columns}
+::: {.column .small}
+- [All:]{.hp} `all_vars()`
+- [Role:]{.hp} `all_predictors(), all_outcomes(), has_role()`
+:::
+
+::: {.column .small}
+- [Type:]{.hp} `all_nominal(), all_numeric()`
+- [Variable Names:]{.hp} Listing the name of the variables or [using selectors](https://recipes.tidymodels.org/reference/selections.html){target="_blank"} `starts_with(), contains()`, etc.
+:::
+::::
+
+Let's practice: try writing a **simple imputation for all variables that are (1) predictors AND (2) numeric**
+
+``` {r imputation-ex, message=TRUE}
+# Mean imputation for all numeric predictors
+
+```
+
+**Note: We haven't done much yet, we still do NOT have a dataframe**
+
+This is where `prep()` and `juice()` enter the picture
+
+``` {r prep-ex-01, message=TRUE}
+# Add prep()
+recipe_all %>%
+    step_impute_mean(all_predictors() & all_numeric()) %>%
+    prep()
+```
+
+Notice that the output is still a `recipe`, but now it has been **trained** the preprocessing operations on the *training data*. 
+It now is aware of the number of observations and the number of incomplete rows.
+
+Let's throw in (a dash of) `juice()` to get a cleaned dataset
+
+``` {r prep-ex-02, message=TRUE}
+# Add juice()
+credit_clean <- recipe_all %>% 
+    step_impute_mean(all_predictors() & all_numeric()) %>%
+    prep() %>%
+    juice()
+
+# Skim it
+credit_clean %>% skim()
+```
+
+Nice! There are no more **missing values for our numeric predictors**.
+
+But there are still **some missing values in our categorical variables**
+
+We gotta fix those too!
+
+Let's define our **preprocessing** as: 
+
+[_1._]{.hp} Impute the numeric predictors using the [means](https://recipes.tidymodels.org/reference/step_meanimpute.html){target="_blank"}
+
+[_2._]{.hp} Impute the categorical predictors using [knn](https://recipes.tidymodels.org/reference/step_knnimpute.html){target="_blank"} (k = 5)
+
+[_3._]{.hp} Create [dummy variables](https://recipes.tidymodels.org/reference/step_dummy.html){target="_blank"} for all categorical predictors
+
+- [Note: by default, `step_dummy()` drops the original column]{.note .tiny}
+
+[_4._]{.hp} [Interact](https://recipes.tidymodels.org/reference/step_interact.html){target="_blank"} the outputted `home_` dummies with `income`
+
+#### Putting it All Together 
+
+Go ahead and take a crack at it. 
+Make sure you do all of the **preprocessing** steps above:
+
+``` {r preprocessing-all}
+# Start by defining the recipe again (pretend its gone)
+
+# Preprocessing Steps
+credit_clean <- recipe_all %>%
+    # 1. Impute the numerical predictors using the means
+
+    # 2. Impute the categorical variables using KNN (k = 5)
+
+    # 3. Create dummies for categorical variables
+
+    # 4. Interact the created dummies with `income`
+
+    # Prep
+
+    # And Juice
+```
+
+If you did it correctly, you should have:
+
+- No more missing values
+
+- Created dummies 
+
+- Created interactions between `home` and `income`
+
+Next, we will explore modeling using `tidymodels`
