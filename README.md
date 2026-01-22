@@ -284,7 +284,7 @@ Approximate/planned topics... or at least for reference...
 
 **02 - Introduction to `tidymodels`**
 
-1. Download the [Lab File](https://github.com/edrubin/EC524W26/blob/master/lab/03-tidymodels/lab-03.qmd?raw=true)
+1. Download the [Lab File](https://github.com/edrubin/EC524W26/blob/master/lab/03-tidymodels/lab-03.qmd)
 2. We will learn about cleaning data quickly and efficiently with `tidymodels`
 
 **Formats** Posted after lab [.html] | [.pdf] | [.qmd]
