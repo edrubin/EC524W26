@@ -282,12 +282,12 @@ Approximate/planned topics... or at least for reference...
 
 **Formats** [.html](https://rawcdn.githack.com/edrubin/EC524W26/0e4e86229decd603823a4f1d93f7fbe74994054c/lab/02-workflow-and-sampling/slides/w02-lab-workflow-and-sampling.html#/title-slide) | [.pdf](https://rawcdn.githack.com/edrubin/EC524W26/33c0d7eda7675ebeba7abc0645cf7890f6b50198/lab/02-workflow-and-sampling/slides/w02-lab-workflow-and-sampling.pdf) | [.qmd](https://github.com/edrubin/EC524W26/blob/master/lab/02-workflow-and-sampling/slides/w02-lab-workflow-and-sampling.qmd)
 
-**02 - Introduction to `tidymodels`**
+[**02 - Introduction to `tidymodels`**](https://rawcdn.githack.com/edrubin/EC524W26/ca984bd356099678a8651dc3387f971f51803e28/lab/03-tidymodels/slides/w03-tidymodels-i.html#/title-slide)
 
 1. Download the [Lab File](https://github.com/edrubin/EC524W26/blob/master/lab/03-tidymodels/lab-03.qmd)
 2. We will learn about cleaning data quickly and efficiently with `tidymodels`
 
-**Formats** Posted after lab [.html] | [.pdf] | [.qmd]
+**Formats** [.html](https://rawcdn.githack.com/edrubin/EC524W26/ca984bd356099678a8651dc3387f971f51803e28/lab/03-tidymodels/slides/w03-tidymodels-i.html#/title-slide)
 
 <!--
 [**001 - Workflow and cleaning: An example**](https://raw.githack.com/edrubin/EC524W25/refs/heads/master/lab/001-projects/doc001.html)
