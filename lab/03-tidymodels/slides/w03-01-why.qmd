@@ -1,0 +1,83 @@
+---
+name: slow and steady
+---
+
+## Setup
+
+Let's begin by loading in some packages
+
+``` {r packages}
+library(pacman)
+p_load(tidyverse, modeldata, skimr, janitor, kknn, magrittr, tidymodels)
+```
+
+<br>
+
+For these examples we will use data from the `modeldata` package. 
+
+The dataset is (amazingly) named `credit_data`
+
+``` {r load-data}
+# Load credit dataset
+data(credit_data)
+# (Optional) Assign it a new name
+credit_df <- credit_data
+```
+
+Remember you should always familiarize yourself with the data you are working with
+
+``` {r data-skim}
+# Glimpse at it
+credit_df %>% glimpse()
+```
+
+---
+
+## Look at Your Data
+
+Ugly data should be cleaned:
+
+``` {r clean-data}
+# "Fix" variable names
+credit_df %<>% clean_names()
+```
+
+And we can take a deeper peak in the data [(we are looking for NAs and distributions)]{.h}
+
+``` {r data-skmir}
+credit_df %>% skim()
+```
+
+---
+
+## Create Our Outcome Variable
+
+Suppose we want to create an indicator for individuals' whose credit `status` is `"good"`.
+Easy enough, can use `tidyverse` to do that.
+
+::: {.solution .fragment}
+``` {r credit-good-basic}
+# Create a dummy variable for "good" credit status
+credit_df %<>% 
+    # There are many ways to do this. You could also use ifelse() or case_when().
+    mutate(status_good = 1 * (status == "good")) %>% 
+    # Drop the old status variable
+    select(-status)
+```
+:::
+
+::: {.fragment}
+That's great! We have an outcome that we want to test our model on
+
+<br>
+
+[But we still have some missing data that could be of use]{.hp}
+
+<br>
+
+Here's where `tidymodels` can come in handy in the [preprocessing part]{.h}
+:::
+
+::: {.notes}
+It is very useful in the modeling and processing part
+:::

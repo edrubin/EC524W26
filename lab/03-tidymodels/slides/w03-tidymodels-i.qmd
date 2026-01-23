@@ -1,0 +1,64 @@
+---
+title: "EC524: Lab 03"
+subtitle: "Introduction to `tidymodels`"
+author: Jose Rojas-Fallas
+date: last-modified
+date-format: "YYYY"
+format:
+    revealjs:
+        theme: [default, styles.scss]
+        slide-number: true
+        footer: "EC 524 Week 02 Lab | Intro. to `tidymodels`"
+        preview-links: auto
+        code-f  old: FALSE
+        scrollable: true
+title-slide-attributes: 
+  data-background-position: left
+---
+
+```{r knitr-opts, echo=FALSE, message=FALSE}
+# Code chunk options
+knitr::opts_chunk$set(
+  echo = TRUE,
+  message = FALSE,
+  warning = FALSE,
+  fig.width = 6,
+  fig.height = 4
+)
+```
+
+## Lab Agenda
+
+<br>
+
+[_1._]{.hp} [Why]{.hp}: Using `tidymodels` may be useful
+
+<br>
+
+[_2._]{.hp} [Preprocessing]{.hp}: Learn the basics of preprocessing data using `tidymodels`
+
+<br>
+
+---
+
+## Why `tidymodels`?
+
+It is a [unified, _tidy_ framework for building, tuning, and evaluating statistical and machine-learning models in R]{.h} 
+
+<br>
+
+[What problem does it solve?]{.hp}
+
+- It standardizes the [modeling workflow]{.hi}
+
+::: {.align-center}
+[data]{.h} $\Rightarrow$ [preprocessing]{.h} $\Rightarrow$ [model]{.h} $\Rightarrow$ [tuning]{.h} $\Rightarrow$ [validation]{.h} $\Rightarrow$ [evaluation]{.h}
+:::
+
+<br>
+
+[To better understand it, let's see it in action]{.hp .align-center}
+
+{{< include w03-01-why.qmd >}}
+
+{{< include w03-02-how.qmd >}}
