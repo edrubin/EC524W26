@@ -32,3 +32,5 @@ The document should be something that you could send to a potential employer to 
 | Topic | Name |
 |:---------|:---------|
 | *Empirical asset pricing via machine learning with a focus on shorting* | Jules Netze |
+| *Beef cattle slaughter live weight* | Bill Martin |
+| *Stock prices* | Sidney Estes |

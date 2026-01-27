@@ -94,7 +94,7 @@ name: admin-soon
 - .it[Cross validation and shrinkage] Due next week.
 - .it[Classification] After that...
 
-.b[Project] Topic due Sunday!
+.b[Project] Topic due 
 
 ---
 layout: true
