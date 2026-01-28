@@ -125,10 +125,13 @@ Now let's see how `tidymodels` does with cross-validation and penalized regressi
 
 16. Tune the model via cross validation—i.e., use `tune_grid` to estimate the out-of-sample RMSE for a grid of penalty (and possibly mixture) values.
 
-17. Create a visualization that shows how the out-of-sample RMSE varies with the penalty (and possibly mixture) parameter.
+17. Create a visualization that shows how the out-of-sample RMSE varies with the penalty (and possibly mixture) parameter. Which value of the penalty (and possibly mixture) parameter minimizes the out-of-sample RMSE? (Use your visualization and/or the `show_best` function from `tune`.)
 
-18. Which value of the penalty (and possibly mixture) parameter minimizes the out-of-sample RMSE? (Use your visualization and/or the `show_best` function from `tune`.)
+18. What does the chosen value of lambda/mixture tell you about the need to restrain model flexibility in this problem?
 
-19. What does the chosen value of lambda/mixture tell you about the need to restrain model flexibility in this problem?
 
-20. Do you think you gave the model enough flexibility? How could you do better?
+## Zooming out
+
+19. How does the best penalized regression model from `tidymodels` compare to the three models you defined in your DIY cross-validation routine? Which performed best? Why do you think that is the case?
+
+20. Do you think any of these approaches gave the models sufficient flexibility for this prediction context? Explain. How could you do better?

@@ -226,8 +226,10 @@ Past, present, and future projects.
   - [Data](projects/project-000/sales-data.fst)
   - _Due:_ 20 January 2026
 
-
 **001** Validation and out-of-sample performance
+  - [Instructions](projects/project-001/README.md)
+  - [Data](projects/project-000/sales-data.fst)
+  - _Due:_ 28 January 2026
 
 **002** Penalized regression, logistic regression, and classification
 
