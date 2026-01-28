@@ -226,12 +226,12 @@ Past, present, and future projects.
   - [Data](projects/project-000/sales-data.fst)
   - _Due:_ 20 January 2026
 
-**001** Validation and out-of-sample performance
-  - [Instructions](projects/project-001/README.md)
+**001** Cross validation and penalized regression
+  - [Instructions](https://raw.githack.com/edrubin/EC524W26/master/projects/project-001/README.html) (also in [plain Github markdown](projects/project-001/README.md))
   - [Data](projects/project-000/sales-data.fst)
   - _Due:_ 28 January 2026
 
-**002** Penalized regression, logistic regression, and classification
+**002** Classification
 
 **003** Trees, ensembles, and imputation
 
