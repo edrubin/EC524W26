@@ -133,6 +133,7 @@ Welcome to Economics 524 (424): Prediction and machine-learning in econometrics,
 1. Introduction to classification
 1. Why not regression?
 1. But also: Logistic regression
+1. And maximum likelihood estimation
 1. Assessment: Confusion matrix, assessment criteria, ROC, and AUC
 
 **Formats** [.html](https://raw.githack.com/edrubin/EC524W26/master/lecture/006/slides.html) | [.pdf](https://github.com/edrubin/EC524W26/blob/master/lecture/006/slides.pdf) | [.Rmd](https://github.com/edrubin/EC524W26/blob/master/lecture/006/slides.Rmd)
@@ -140,6 +141,7 @@ Welcome to Economics 524 (424): Prediction and machine-learning in econometrics,
 **Readings**
 
 - *ISL* Ch4
+- *ISL* Ch6
 
 [**007 - Decision trees**](https://raw.githack.com/edrubin/EC524W25/master/lecture/007/slides.html)
 

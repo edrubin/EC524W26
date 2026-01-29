@@ -20,55 +20,55 @@ lec009 : lecture/009/slides.html lecture/009/slides.pdf
 syllabus/syllabus.pdf : syllabus/syllabus.tex
 	tectonic syllabus/syllabus.tex
 # Lecture 00
-lecture/000/slides.html : lecture/000/slides.rmd
+lecture/000/slides.html : lecture/000/slides.rmd lecture/000/my-css.css
 	Rscript -e "rmarkdown::render('$<')"
-lecture/000/slides.pdf : lecture/000/slides.html
-	Rscript -e "pagedown::chrome_print('$<', wait = 4, timeout = 120)"
+lecture/000/slides.pdf : lecture/000/slides.html lecture/000/my-css.css
+	Rscript -e "xaringan::decktape(file = '$<', output = '$@')"
 # Lecture 01
-lecture/001/slides.html : lecture/001/slides.rmd
+lecture/001/slides.html : lecture/001/slides.rmd lecture/001/my-css.css
 	Rscript -e "rmarkdown::render('$<')"
-lecture/001/slides.pdf : lecture/001/slides.html
-	Rscript -e "pagedown::chrome_print('$<', wait = 4, timeout = 120)"
+lecture/001/slides.pdf : lecture/001/slides.html lecture/001/my-css.css
+	Rscript -e "xaringan::decktape(file = '$<', output = '$@')"
 # Lecture 02
-lecture/002/slides.html : lecture/002/slides.rmd
+lecture/002/slides.html : lecture/002/slides.rmd lecture/002/my-css.css
 	Rscript -e "rmarkdown::render('$<')"
-lecture/002/slides.pdf : lecture/002/slides.html
-	Rscript -e "pagedown::chrome_print('$<', wait = 4, timeout = 120)"
+lecture/002/slides.pdf : lecture/002/slides.html lecture/002/my-css.css
+	Rscript -e "xaringan::decktape(file = '$<', output = '$@')"
 # Lecture 03
-lecture/003/slides.html : lecture/003/slides.rmd
+lecture/003/slides.html : lecture/003/slides.rmd lecture/003/my-css.css
 	Rscript -e "rmarkdown::render('$<')"
-lecture/003/slides.pdf : lecture/003/slides.html
-	Rscript -e "pagedown::chrome_print('$<', wait = 4, timeout = 120)"
+lecture/003/slides.pdf : lecture/003/slides.html lecture/003/my-css.css
+	Rscript -e "xaringan::decktape(file = '$<', output = '$@')"
 # Lecture 04
-lecture/004/slides.html : lecture/004/slides.rmd
+lecture/004/slides.html : lecture/004/slides.rmd lecture/004/my-css.css
 	Rscript -e "rmarkdown::render('$<')"
-lecture/004/slides.pdf : lecture/004/slides.html
-	Rscript -e "pagedown::chrome_print('$<', wait = 4, timeout = 120)"
+lecture/004/slides.pdf : lecture/004/slides.html lecture/004/my-css.css
+	Rscript -e "xaringan::decktape(file = '$<', output = '$@')"
 # Lecture 05
-lecture/005/slides.html : lecture/005/slides.rmd
+lecture/005/slides.html : lecture/005/slides.rmd lecture/005/my-css.css
 	Rscript -e "rmarkdown::render('$<')"
-lecture/005/slides.pdf : lecture/005/slides.html
-	Rscript -e "pagedown::chrome_print('$<', wait = 4, timeout = 120)"
+lecture/005/slides.pdf : lecture/005/slides.html lecture/005/my-css.css
+	Rscript -e "xaringan::decktape(file = '$<', output = '$@')"
 # Lecture 06
-lecture/006/slides.html : lecture/006/slides.rmd
+lecture/006/slides.html : lecture/006/slides.rmd lecture/006/my-css.css
 	Rscript -e "rmarkdown::render('$<')"
-lecture/006/slides.pdf : lecture/006/slides.html
-	Rscript -e "pagedown::chrome_print('$<', wait = 4, timeout = 120)"
+lecture/006/slides.pdf : lecture/006/slides.html lecture/006/my-css.css
+	Rscript -e "xaringan::decktape(file = '$<', output = '$@')"
 # Lecture 07
-lecture/007/slides.html : lecture/007/slides.rmd
+lecture/007/slides.html : lecture/007/slides.rmd lecture/007/my-css.css
 	Rscript -e "rmarkdown::render('$<')"
-lecture/007/slides.pdf : lecture/007/slides.html
-	Rscript -e "pagedown::chrome_print('$<', wait = 4, timeout = 120)"
+lecture/007/slides.pdf : lecture/007/slides.html lecture/007/my-css.css
+	Rscript -e "xaringan::decktape(file = '$<', output = '$@')"
 # Lecture 08
-lecture/008/slides.html : lecture/008/slides.rmd
+lecture/008/slides.html : lecture/008/slides.rmd lecture/008/my-css.css
 	Rscript -e "rmarkdown::render('$<')"
-lecture/008/slides.pdf : lecture/008/slides.html
-	Rscript -e "pagedown::chrome_print('$<', wait = 4, timeout = 120)"
+lecture/008/slides.pdf : lecture/008/slides.html lecture/008/my-css.css
+	Rscript -e "xaringan::decktape(file = '$<', output = '$@')"
 # Lecture 09
-lecture/009/slides.html : lecture/009/slides.rmd
+lecture/009/slides.html : lecture/009/slides.rmd lecture/009/my-css.css
 	Rscript -e "rmarkdown::render('$<')"
-lecture/009/slides.pdf : lecture/009/slides.html
-	Rscript -e "pagedown::chrome_print('$<', wait = 4, timeout = 120)"
+lecture/009/slides.pdf : lecture/009/slides.html lecture/009/my-css.css
+	Rscript -e "xaringan::decktape(file = '$<', output = '$@')"
 
 # Global targets ---------------------------------------------------------------
 lec-all: lec000 lec001 lec002 lec003 lec004 lec005 lec006 lec007 lec008 lec009

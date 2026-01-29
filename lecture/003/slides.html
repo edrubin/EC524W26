@@ -4,7 +4,7 @@
     <title>Lecture .mono[003]</title>
     <meta charset="utf-8" />
     <meta name="author" content="Edward Rubin" />
-    <script src="slides_files/header-attrs-2.28/header-attrs.js"></script>
+    <script src="slides_files/header-attrs-2.29/header-attrs.js"></script>
     <link href="slides_files/remark-css-0.0.1/default.css" rel="stylesheet" />
     <link href="slides_files/remark-css-0.0.1/metropolis.css" rel="stylesheet" />
     <link href="slides_files/remark-css-0.0.1/metropolis-fonts.css" rel="stylesheet" />
@@ -688,7 +688,7 @@ name: boot-graph
 Running this bootstrap 10,000 times
 
 
-```r
+``` r
 plan(multisession, workers = 10)
 # Set a seed
 set.seed(123)
@@ -816,9 +816,9 @@ layout: false
 <style data-target="print-only">@media screen {.remark-slide-container{display:block;}.remark-slide-scaler{box-shadow:none;}}</style>
 <script src="https://remarkjs.com/downloads/remark-latest.min.js"></script>
 <script>var slideshow = remark.create({
-"highlightStyle": "github",
-"highlightLines": true,
-"countIncrementalSlides": false
+  "highlightStyle": "github",
+  "highlightLines": true,
+  "countIncrementalSlides": false
 });
 if (window.HTMLWidgets) slideshow.on('afterShowSlide', function (slide) {
   window.dispatchEvent(new Event('resize'));
