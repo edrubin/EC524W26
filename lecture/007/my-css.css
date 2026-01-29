@@ -479,8 +479,8 @@ hr, .title-slide h2::after, .mline h1::after {
   content: '';
   display: block;
   border: none;
-  background-color: #e5e5e5;
-  color: #e5e5e5;
+  background-color: #ffffff;
+  color: #ffffff;
   height: 1px;
 }
 

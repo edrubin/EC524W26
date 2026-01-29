@@ -15,7 +15,7 @@ output:
 ---
 exclude: true
 
-```{r, setup, include = F}
+```{r, setup, include = FALSE}
 library(pacman)
 p_load(
   ISLR,
@@ -58,6 +58,8 @@ options(device = function(file, width, height) {
 options(knitr.table.format = "html")
 # A few extras
 xaringanExtra::use_xaringan_extra(c("tile_view", "fit_screen"))
+# Fix parallel issue
+Sys.setenv("_R_CHECK_LIMIT_CORES_" = FALSE)
 ```
 
 ---
@@ -305,7 +307,7 @@ class: clear, middle
 
 Let's consider an example: the `Default` dataset from `ISLR`
 
-```{r, datatable-default, echo = F, cache = T}
+```{r, datatable-default, echo = FALSE, cache = TRUE}
 set.seed(1)
 ISLR::Default %>% sample_n(100) %>% datatable(
   rownames = F,
@@ -316,7 +318,7 @@ ISLR::Default %>% sample_n(100) %>% datatable(
 ---
 exclude: true
 
-```{r, clean-default-data, include = F}
+```{r, clean-default-data, include = FALSE}
 # Clean data
 default_df = ISLR::Default %>% dplyr::mutate(i_default = 1 * (default == "Yes"))
 ```
@@ -325,7 +327,7 @@ default_df = ISLR::Default %>% dplyr::mutate(i_default = 1 * (default == "Yes"))
 
 .hi-purple[The data:] The outcome, default, only takes two values (only `r default_df$i_default %>% mean() %>% scales::percent(accuracy = 0.1)` default).
 
-```{r, boxplot-default-balance, echo = F, cache = T}
+```{r, boxplot-default-balance, echo = FALSE, cache = TRUE}
 ggplot(data = default_df, aes(x = default, y = balance)) +
 geom_boxplot(outlier.shape = NA, fill = "grey90") +
 geom_jitter(width = 0.2, alpha = 0.1, color = purple) +
@@ -340,7 +342,7 @@ coord_flip()
 
 .hi-purple[The data:] The outcome, default, only takes two values (only `r default_df$i_default %>% mean() %>% scales::percent(accuracy = 0.1)` default).
 
-```{r, plot-default-points, echo = F, cache = T}
+```{r, plot-default-points, echo = FALSE, cache = TRUE}
 # Plot points
 ggplot(data = default_df, aes(x = balance, y = i_default)) +
 geom_point(alpha = 0.05, size = 3.5, color = purple) +
@@ -353,7 +355,7 @@ theme_minimal(base_size = 20, base_family = "Fira Sans Book")
 
 .hi-pink[The linear probability model] struggles with prediction in this setting.
 
-```{r, plot-default-lpm, echo = F, cache = T}
+```{r, plot-default-lpm, echo = FALSE, cache = TRUE}
 ggplot(data = default_df, aes(x = balance, y = i_default)) +
 geom_point(alpha = 0.05, size = 3.5, color = purple) +
 geom_line(stat = "smooth", color = red_pink, method = lm, size = 1.5) +
@@ -366,7 +368,7 @@ theme_minimal(base_size = 20, base_family = "Fira Sans Book")
 
 .hi-orange[Logistic regression] .it[appears] to offer an improvement.
 
-```{r, plot-default-logistic, echo = F, cache = T}
+```{r, plot-default-logistic, echo = FALSE, cache = TRUE}
 ggplot(data = default_df, aes(x = balance, y = i_default)) +
 geom_point(alpha = 0.05, size = 3.5, color = purple) +
 geom_line(stat = "smooth", color = red_pink, method = lm, size = 1.5, alpha = 0.2) +
@@ -443,9 +445,25 @@ $$
 What does this .it[logistic function] $\left(\frac{e^x}{1+e^x}\right)$ do?
 ]
 
-1. ensures predictions are between 0 $(x\rightarrow-\infty)$ and 1 $(x\rightarrow\infty)$
+1. takes some *score* (any real number) an maps it to a probability (0 to 1);
+1. forces an S-shaped curved through the data (not linear).
 
-1. forces an S-shaped curved through the data (not linear)
+.note[Notice:] We just connect probs. $p(X)$ to $\beta_0 + \beta_1 X$ with diff. transforms.
+
+---
+## What's .it[logistic]?
+
+.note[Aside:] People also call the .pink.it[logistic function] a .hi[Sigmoid function] (_S-shape_).
+
+This shape works well for modeling .b.purple[natural and social phenomena], _e.g._,
+
+- (constrained) population .b[growth/spread],
+- .b[learning] curves and .b[info/tech propagation],
+- .b[dose-response] and (crop) .b[yield] curves,
+  
+and is one of the fundamental elements of .b.orange[neural networks].
+<br>
+.grey-light.it[(Logisitic regression itself is a very simple neural network.)]
 
 ---
 ## What's .it[logistic]?
@@ -491,11 +509,11 @@ We estimate logistic regression using .attn[maximum likelihood estimation].
 
 --
 
-.attn[Maximum likelihood estimation] (MLE) searches for the $\beta_j$s that make our data "most likely" given the model we've written.
+.attn[Maximum likelihood estimation] (MLE) searches for the parameters ($\beta_j$'s) that make our data "most likely" given the model we've written down.
 
 ---
 name: logistic-mle
-## Maximum likelihood
+## Maximum likelihood intuition
 
 .attn[MLE] searches for the $\beta_j$s that make our data "most likely" using our model.
 
@@ -522,25 +540,130 @@ So we want choose $\color{#6A5ACD}{\beta_j}$ such that
 - .pink[log odds] even larger for areas of $x_j$ where most $i$s have $y_i=1$
 
 ---
-## Formally: The likelihood function
+## *Formally:* The likelihood function
 
-We estimate logistic regression by maximizing .attn[the likelihood function].super[.pink[†]]
+Let's formalize the situation.
 
-.footnote[
-.pink[†] Generally, we actually will maximize the .it[log] of the likelihood function.
-]
+Let $\sigma(z) = \dfrac{e^z}{1+e^z}$ be the logistic (sigmoid) function.
 
+Then, for observation $i$,
+
+- .note[outcome] $Y_i \in \{0,1\}$, .grey-light[where 1 indicates *success*,]
+- .note[dist] $Y_i \sim \text{Bernoulli}(p_i)$ .grey-light[with prob. of *success*] $\color{#cccccc}{p_i}$.grey-light[,]
+- .note[prob] $p_i = \sigma(\beta_0 + \beta_1 x_{1,i} + \cdots + \beta_p x_{p,i}) = \sigma(x_i' \beta)$;
+
+A single .attn[Bernoulli] experiment has .pink[probability mass function] (PMF)
 $$
+P(Y_i = y | X_i = x_i) = p_i^y (1-p_i)^{1-y} = \sigma(x_i' \beta)^y [1-\sigma(x_i' \beta)]^{1-y}
+$$
+
+---
+## *Formally:* The likelihood function
+
+.note[Define] The .attn[likelihood function] $\color{#e64173}{\mathcal{L}(\beta)}$ is the .purple[joint probability] of
+<br>observing our data as a function of the parameters $(\beta)$.
+
+.note[Recall] The .purple[joint probability] of independent events is
+<br>the .slate.it[product] of their .pink[individual probabilities].
+
+So the .attn[likelihood function] is the .slate[product] of individual probabilities, given $\beta$
 \begin{align}
-  \mathop{\ell}(\beta_0,\beta_1) = \prod_{i:y_i=1} \mathop{p}(x_i) \prod_{i:y_i=0} (1-\mathop{p}(x_i))
+\color{#e64173}{\mathcal{L}(\beta)} &= \prod_{i=1}^n P(Y_i = y_i | X_i = x_i) 
+\\
+&= \prod_{i=1}^n \sigma(x_i' \beta)^{y_i} [1-\sigma(x_i' \beta)]^{1-y_i}
 \end{align}
+
+--
+.note[Notice:] Different choices of $\beta$ lead to different .pink[likelihoods] (we want to max).
+
+---
+## *Formally:* The log likelihood function
+
+From the .it[likelihood function]
+$$
+\mathcal{L}(\beta) = \prod_{i=1}^n \sigma(x_i' \beta)^{y_i} [1-\sigma(x_i' \beta)]^{1-y_i}
 $$
 
-The likelihood function is maximized by
-- making $p(x_i)$ large for individuals with $y_i = 1$
-- making $p(x_i)$ small for individuals with $y_i = 0$
+we can get the .attn[log-likelihood function]
 
-.it[Put simply:] Maximum likelihood maximizes a predictive performance, conditional on the model we have written down.
+$$
+\color{#e64173}{\ell(\beta)} = \sum_{i=1}^n \left( y_i \log[\sigma(x_i' \beta)] + (1-y_i) \log [1-\sigma(x_i' \beta)] \right)
+$$
+
+which is often nicer to work with and still achieves the same maximum.
+
+---
+## *Formally:* Maximium likelihood estimation
+
+We .pink[estimate] logistic reg. by choosing the $\beta$s that .pink[max.] (log) .pink[likelihood]
+
+\begin{align}
+\ell(\beta)
+&= \sum_{i=1}^n \left( y_i \log[\sigma(x_i' \beta)] + (1-y_i) \log [1-\sigma(x_i' \beta)] \right)
+\\[.5em]
+&= \sum_{i:y_i=1} \log[\sigma(x_i' \beta)] + \sum_{i:y_i=0} \log [1-\sigma(x_i' \beta)]
+\\[.5em]
+&= \sum_{i:y_i=1} \log[p(x_i)] + \sum_{i:y_i=0} \log [1-p(x_i)]
+\end{align}
+
+.note[Intuition] Max. (log) likelihood function by choosing $\beta$s that
+- make $p(x_i)$ large for individuals with $y_i = 1$,
+- make $p(x_i)$ small for individuals with $y_i = 0$.
+
+---
+## *Formally:* Finding the max
+
+MLE wants to find the vector $\beta$ that maximizes $\ell(\beta)$.
+
+.slab.pink[Idea 1] Search blindly over (infinite) parameter space.
+--
+<br>.slab.slate.it[Problem] Inefficient/infeasible.
+
+--
+
+.slab.pink[Idea 2] Use calculus. Set first-order conditions to zero and solve<br>(And check second-order conditions.)
+--
+<br>.slab.slate.it[Problem] No closed-form solution for logistic regression.
+
+--
+
+That said, partial derivatives will still be helpful...
+
+\begin{align}
+  \dfrac{\ell(\beta)}{\beta_j} = \sum_{i=1}^{n} \big[ y_i - \sigma(x_i' \beta) \big] x_{j,i}
+\end{align}
+
+---
+## *Formally:* Numerical optimization
+
+.pink.slab[Idea 1] + .pink.slab[Idea 2] = .slab.pink[Idea 3] Numerical optimization algorithms.
+<br>
+
+.attn[Gradient ascent] uses derivatives (gradients) to iteratively improve guesses.
+- start with a naïve guess of parameters,
+- evaluate the gradient at that guess, .grey-light[(*where is steepest ascent?*)]
+- update your guess in the direction of the gradient. .grey-light[(*move up the hill*)]
+- repeat. .grey-light[(*keep hiking until you reach the peak*)]
+
+\begin{align}
+\beta_j^{(\text{new})}
+&= \beta_j^{(\text{old})} + \eta \dfrac{\partial \ell(\beta)}{\partial \beta_j}(\beta^{(\text{old})})
+\\
+\implies \beta_j^{(\text{new})} &= \beta_j^{(\text{old})} + \eta \sum_{i=1}^{n} \big[ y_i - \sigma(x_i' \beta^{(\text{old})}) \big] x_{j,i}
+\end{align}
+
+---
+## Maximium likelihood estimation
+
+.note[A few notes]
+
+1. $\eta$ is the .attn[learning rate] (step size);<br>too big and you might overshoot, too small and it takes forever.
+
+2. Gradient ascent is one of many numerical optimization algorithms.<br>Others include .attn[Newton-Raphson] and .attn[BFGS].
+
+3. As with other estimators, you'll use .attn[existing software] in practice.
+
+4. *Search algorithms* are centeral to many models, _e.g._, .attn[neural networks].
 
 ---
 name: logistic-r
@@ -644,7 +767,7 @@ class: clear, middle
 
 .hi-orange[Logistic regression]'s predictions of $\mathop{p}(\text{Balance})$
 
-```{r, plot-default-logistic-2, echo = F, cache = T}
+```{r, plot-default-logistic-2, echo = FALSE, cache = TRUE}
 ggplot(data = default_df, aes(x = balance, y = i_default)) +
 geom_point(alpha = 0.05, size = 3.5, color = purple) +
 geom_line(stat = "smooth", color = red_pink, method = lm, size = 1.5, alpha = 0.2) +
@@ -784,7 +907,7 @@ conf_mat = conf_df %>% hux() %>%
 conf_mat[2,2] = ""
 ```
 
-```{r, cm-right-wrong, echo = F, eval = T}
+```{r, cm-right-wrong, echo = FALSE, eval = T}
 conf_mat %>%
 set_text_color(3,3,orange) %>%
 set_text_color(3,4,purple) %>%
@@ -812,7 +935,7 @@ This matrix also helps display many other measures of assessment.
 .b[Sensitivity] = .hi-orange[TP] / (.hi-orange[TP] + .hi-purple[FN])
 ]
 
-```{r, cm-sensitivity, echo = F, eval = T}
+```{r, cm-sensitivity, echo = FALSE, eval = T}
 conf_mat %>%
 set_text_color(2:4,4,purple) %>%
 set_text_color(4,4,orange)
@@ -830,7 +953,7 @@ One minus sensitivity is the .attn[type-II error rate].
 .b[Specificity] = .hi-orange[TN] / (.hi-orange[TN] + .hi-purple[FP])
 ]
 
-```{r, cm-specificity, echo = F, eval = T}
+```{r, cm-specificity, echo = FALSE, eval = T}
 conf_mat %>%
 set_text_color(2:4,3,purple) %>%
 set_text_color(3,3,orange)
@@ -847,7 +970,7 @@ One minus specificity is the .attn[false-positive rate] or .attn[type-I error ra
 .b[Precision] = .hi-orange[TP] / (.hi-orange[TP] + .hi-purple[FP])
 ]
 
-```{r, cm-precision, echo = F, eval = T}
+```{r, cm-precision, echo = FALSE, eval = T}
 conf_mat %>%
 set_text_color(4,2:4,purple) %>%
 set_text_color(4,4,orange)
@@ -862,7 +985,7 @@ set_text_color(4,4,orange)
 .b[NPV] = .hi-orange[TN] / (.hi-orange[TN] + .hi-purple[FN])
 ]
 
-```{r, cm-npv, echo = F, eval = T}
+```{r, cm-npv, echo = FALSE, eval = T}
 conf_mat %>%
 set_text_color(3,2:4,purple) %>%
 set_text_color(3,3,orange)
@@ -960,7 +1083,7 @@ class: clear
 
 As we vary the threshold, our error rates (types .hi-purple[I], .hi-orange[II], and .hi-slate[overall]) change.
 
-```{r, calc-threshold, include = F, cache = T}
+```{r, calc-threshold, include = FALSE, cache = TRUE}
 threshold_df = mclapply(
   X = seq(0, 1, by = 0.00001),
   FUN = function(cutoff) {
@@ -977,11 +1100,11 @@ threshold_df = mclapply(
       type2 = y_df %>% filter(y == 1) %>% transmute(y != y_hat) %>% unlist() %>% mean()
     )
   },
-  mc.cores = 12
+  mc.cores = detectCores()
 ) %>% bind_rows()
 ```
 
-```{r, plot-threshold, echo = F}
+```{r, plot-threshold, echo = FALSE}
 ggplot(data = threshold_df, aes(x = cutoff)) +
 geom_hline(yintercept = 0) +
 geom_line(aes(y = type1, color = "1"), size = 1) +
@@ -1004,14 +1127,14 @@ class: clear
 
 The .attn[ROC curve] plots the true- (TP/P) and the false-positive rates (FP/N).
 
-```{r, calc-roc, include = F, cache = T}
+```{r, calc-roc, include = FALSE, cache = TRUE}
 roc_df = threshold_df %>% transmute(
   fpr = type1,
   tpr = 1 - type2
 ) %>% as_tibble()
 ```
 
-```{r, plot-roc, echo = F, fig.height = 6, cache = T}
+```{r, plot-roc, echo = FALSE, fig.height = 6, cache = TRUE}
 ggplot(data = roc_df, aes(x = fpr, y = tpr)) +
 geom_path(color = red_pink, size = 1) +
 geom_hline(yintercept = 0) +
@@ -1032,7 +1155,7 @@ class: clear
 
 The .hi-orange[AUC] gives the .orange[area under the (ROC) curve].
 
-```{r, plot-auc, echo = F, fig.height = 6, cache = T}
+```{r, plot-auc, echo = FALSE, fig.height = 6, cache = TRUE}
 ggplot(data = roc_df, aes(x = fpr, y = tpr)) +
 geom_ribbon(
   aes(ymin = 0, ymax = tpr),
@@ -1074,7 +1197,7 @@ class: clear
 ---
 exclude: true
 
-```{r, roc-setup, include = F}
+```{r, roc-setup, include = FALSE}
 # Distributions of positive and negative lables
 d_pos = function(x, sep) dbeta(x, 15, 15-sep)
 d_neg = function(x, sep) dbeta(x, 15-sep, 15)
@@ -1087,7 +1210,7 @@ fpr = function(threshold, sep) pbeta(threshold, 15-sep, 15, lower.tail = F)
 
 .ex[Example:] Distributions of probabilities for .hi-orange[negative] and .hi-purple[positive] outcomes.
 
-```{r, roc-ex1-d, echo = F}
+```{r, roc-ex1-d, echo = FALSE}
 ggplot(
   data = tibble(x = seq(0, 1, 0.001)),
   aes(x = x)
@@ -1105,7 +1228,7 @@ theme(legend.position = "bottom")
 
 For any given .hi-pink[threshold]
 
-```{r, roc-ex1-threshold, echo = F}
+```{r, roc-ex1-threshold, echo = FALSE}
 ggplot(
   data = tibble(x = seq(0, 1, 0.001)),
   aes(x = x)
@@ -1123,7 +1246,7 @@ theme(legend.position = "bottom")
 
 For any given .hi-pink[threshold], we get .hi-yellow[false positives]
 
-```{r, roc-ex1-threshold2, echo = F}
+```{r, roc-ex1-threshold2, echo = FALSE}
 ggplot(
   data = tibble(x = seq(0, 1, 0.001)),
   aes(x = x)

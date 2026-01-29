@@ -443,6 +443,12 @@ table th {
   font-family: 'Zilla Slab' !important;
 }
 
+/* Slab */
+.slab {
+  font-weight: 400;
+  font-family: 'Zilla Slab' !important;
+}
+
 /* Question and answer */
 .qa {
   font-weight: 500;
@@ -486,8 +492,8 @@ hr, .title-slide h2::after, .mline h1::after {
   content: '';
   display: block;
   border: none;
-  background-color: #e5e5e5;
-  color: #e5e5e5;
+  background-color: #ffffff;
+  color: #ffffff;
   height: 1px;
 }
 

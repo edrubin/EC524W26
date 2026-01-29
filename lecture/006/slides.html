@@ -4,16 +4,17 @@
     <title>Lecture .mono[006]</title>
     <meta charset="utf-8" />
     <meta name="author" content="Edward Rubin" />
-    <script src="slides_files/header-attrs-2.28/header-attrs.js"></script>
+    <script src="slides_files/header-attrs-2.29/header-attrs.js"></script>
     <link href="slides_files/remark-css-0.0.1/default.css" rel="stylesheet" />
     <link href="slides_files/remark-css-0.0.1/metropolis.css" rel="stylesheet" />
     <link href="slides_files/remark-css-0.0.1/metropolis-fonts.css" rel="stylesheet" />
     <link href="slides_files/tile-view-0.2.6/tile-view.css" rel="stylesheet" />
     <script src="slides_files/tile-view-0.2.6/tile-view.js"></script>
     <script src="slides_files/xaringanExtra_fit-screen-0.2.6/fit-screen.js"></script>
+    <link href="slides_files/htmltools-fill-0.5.8.1/fill.css" rel="stylesheet" />
     <script src="slides_files/htmlwidgets-1.6.4/htmlwidgets.js"></script>
     <link href="slides_files/datatables-css-0.0.0/datatables-crosstalk.css" rel="stylesheet" />
-    <script src="slides_files/datatables-binding-0.33/datatables.js"></script>
+    <script src="slides_files/datatables-binding-0.34.0/datatables.js"></script>
     <script src="slides_files/jquery-3.6.0/jquery-3.6.0.min.js"></script>
     <link href="slides_files/dt-core-1.13.6/css/jquery.dataTables.min.css" rel="stylesheet" />
     <link href="slides_files/dt-core-1.13.6/css/jquery.dataTables.extra.css" rel="stylesheet" />
@@ -76,7 +77,7 @@ name: admin-soon
 - .it[Cross validation and shrinkage] Due next week.
 - .it[Classification] After that...
 
-.b[Project] Topic due Sunday!
+.b[Project] Topic due 
 
 ---
 layout: true
@@ -386,9 +387,25 @@ $$
 What does this .it[logistic function] `\(\left(\frac{e^x}{1+e^x}\right)\)` do?
 ]
 
-1. ensures predictions are between 0 `\((x\rightarrow-\infty)\)` and 1 `\((x\rightarrow\infty)\)`
+1. takes some *score* (any real number) an maps it to a probability (0 to 1);
+1. forces an S-shaped curved through the data (not linear).
 
-1. forces an S-shaped curved through the data (not linear)
+.note[Notice:] We just connect probs. `\(p(X)\)` to `\(\beta_0 + \beta_1 X\)` with diff. transforms.
+
+---
+## What's .it[logistic]?
+
+.note[Aside:] People also call the .pink.it[logistic function] a .hi[Sigmoid function] (_S-shape_).
+
+This shape works well for modeling .b.purple[natural and social phenomena], _e.g._,
+
+- (constrained) population .b[growth/spread],
+- .b[learning] curves and .b[info/tech propagation],
+- .b[dose-response] and (crop) .b[yield] curves,
+  
+and is one of the fundamental elements of .b.orange[neural networks].
+&lt;br&gt;
+.grey-light.it[(Logisitic regression itself is a very simple neural network.)]
 
 ---
 ## What's .it[logistic]?
@@ -434,11 +451,11 @@ We estimate logistic regression using .attn[maximum likelihood estimation].
 
 --
 
-.attn[Maximum likelihood estimation] (MLE) searches for the `\(\beta_j\)`s that make our data "most likely" given the model we've written.
+.attn[Maximum likelihood estimation] (MLE) searches for the parameters (`\(\beta_j\)`'s) that make our data "most likely" given the model we've written down.
 
 ---
 name: logistic-mle
-## Maximum likelihood
+## Maximum likelihood intuition
 
 .attn[MLE] searches for the `\(\beta_j\)`s that make our data "most likely" using our model.
 
@@ -465,25 +482,130 @@ So we want choose `\(\color{#6A5ACD}{\beta_j}\)` such that
 - .pink[log odds] even larger for areas of `\(x_j\)` where most `\(i\)`s have `\(y_i=1\)`
 
 ---
-## Formally: The likelihood function
+## *Formally:* The likelihood function
 
-We estimate logistic regression by maximizing .attn[the likelihood function].super[.pink[†]]
+Let's formalize the situation.
 
-.footnote[
-.pink[†] Generally, we actually will maximize the .it[log] of the likelihood function.
-]
+Let `\(\sigma(z) = \dfrac{e^z}{1+e^z}\)` be the logistic (sigmoid) function.
 
+Then, for observation `\(i\)`,
+
+- .note[outcome] `\(Y_i \in \{0,1\}\)`, .grey-light[where 1 indicates *success*,]
+- .note[dist] `\(Y_i \sim \text{Bernoulli}(p_i)\)` .grey-light[with prob. of *success*] `\(\color{#cccccc}{p_i}\)`.grey-light[,]
+- .note[prob] `\(p_i = \sigma(\beta_0 + \beta_1 x_{1,i} + \cdots + \beta_p x_{p,i}) = \sigma(x_i' \beta)\)`;
+
+A single .attn[Bernoulli] experiment has .pink[probability mass function] (PMF)
 $$
+P(Y_i = y | X_i = x_i) = p_i^y (1-p_i)^{1-y} = \sigma(x_i' \beta)^y [1-\sigma(x_i' \beta)]^{1-y}
+$$
+
+---
+## *Formally:* The likelihood function
+
+.note[Define] The .attn[likelihood function] `\(\color{#e64173}{\mathcal{L}(\beta)}\)` is the .purple[joint probability] of
+&lt;br&gt;observing our data as a function of the parameters `\((\beta)\)`.
+
+.note[Recall] The .purple[joint probability] of independent events is
+&lt;br&gt;the .slate.it[product] of their .pink[individual probabilities].
+
+So the .attn[likelihood function] is the .slate[product] of individual probabilities, given `\(\beta\)`
 `\begin{align}
-  \mathop{\ell}(\beta_0,\beta_1) = \prod_{i:y_i=1} \mathop{p}(x_i) \prod_{i:y_i=0} (1-\mathop{p}(x_i))
+\color{#e64173}{\mathcal{L}(\beta)} &amp;= \prod_{i=1}^n P(Y_i = y_i | X_i = x_i) 
+\\
+&amp;= \prod_{i=1}^n \sigma(x_i' \beta)^{y_i} [1-\sigma(x_i' \beta)]^{1-y_i}
 \end{align}`
+
+--
+.note[Notice:] Different choices of `\(\beta\)` lead to different .pink[likelihoods] (we want to max).
+
+---
+## *Formally:* The log likelihood function
+
+From the .it[likelihood function]
+$$
+\mathcal{L}(\beta) = \prod_{i=1}^n \sigma(x_i' \beta)^{y_i} [1-\sigma(x_i' \beta)]^{1-y_i}
 $$
 
-The likelihood function is maximized by
-- making `\(p(x_i)\)` large for individuals with `\(y_i = 1\)`
-- making `\(p(x_i)\)` small for individuals with `\(y_i = 0\)`
+we can get the .attn[log-likelihood function]
 
-.it[Put simply:] Maximum likelihood maximizes a predictive performance, conditional on the model we have written down.
+$$
+\color{#e64173}{\ell(\beta)} = \sum_{i=1}^n \left( y_i \log[\sigma(x_i' \beta)] + (1-y_i) \log [1-\sigma(x_i' \beta)] \right)
+$$
+
+which is often nicer to work with and still achieves the same maximum.
+
+---
+## *Formally:* Maximium likelihood estimation
+
+We .pink[estimate] logistic reg. by choosing the `\(\beta\)`s that .pink[max.] (log) .pink[likelihood]
+
+`\begin{align}
+\ell(\beta)
+&amp;= \sum_{i=1}^n \left( y_i \log[\sigma(x_i' \beta)] + (1-y_i) \log [1-\sigma(x_i' \beta)] \right)
+\\[.5em]
+&amp;= \sum_{i:y_i=1} \log[\sigma(x_i' \beta)] + \sum_{i:y_i=0} \log [1-\sigma(x_i' \beta)]
+\\[.5em]
+&amp;= \sum_{i:y_i=1} \log[p(x_i)] + \sum_{i:y_i=0} \log [1-p(x_i)]
+\end{align}`
+
+.note[Intuition] Max. (log) likelihood function by choosing `\(\beta\)`s that
+- make `\(p(x_i)\)` large for individuals with `\(y_i = 1\)`,
+- make `\(p(x_i)\)` small for individuals with `\(y_i = 0\)`.
+
+---
+## *Formally:* Finding the max
+
+MLE wants to find the vector `\(\beta\)` that maximizes `\(\ell(\beta)\)`.
+
+.slab.pink[Idea 1] Search blindly over (infinite) parameter space.
+--
+&lt;br&gt;.slab.slate.it[Problem] Inefficient/infeasible.
+
+--
+
+.slab.pink[Idea 2] Use calculus. Set first-order conditions to zero and solve&lt;br&gt;(And check second-order conditions.)
+--
+&lt;br&gt;.slab.slate.it[Problem] No closed-form solution for logistic regression.
+
+--
+
+That said, partial derivatives will still be helpful...
+
+`\begin{align}
+  \dfrac{\ell(\beta)}{\beta_j} = \sum_{i=1}^{n} \big[ y_i - \sigma(x_i' \beta) \big] x_{j,i}
+\end{align}`
+
+---
+## *Formally:* Numerical optimization
+
+.pink.slab[Idea 1] + .pink.slab[Idea 2] = .slab.pink[Idea 3] Numerical optimization algorithms.
+&lt;br&gt;
+
+.attn[Gradient ascent] uses derivatives (gradients) to iteratively improve guesses.
+- start with a naïve guess of parameters,
+- evaluate the gradient at that guess, .grey-light[(*where is steepest ascent?*)]
+- update your guess in the direction of the gradient. .grey-light[(*move up the hill*)]
+- repeat. .grey-light[(*keep hiking until you reach the peak*)]
+
+`\begin{align}
+\beta_j^{(\text{new})}
+&amp;= \beta_j^{(\text{old})} + \eta \dfrac{\partial \ell(\beta)}{\partial \beta_j}(\beta^{(\text{old})})
+\\
+\implies \beta_j^{(\text{new})} &amp;= \beta_j^{(\text{old})} + \eta \sum_{i=1}^{n} \big[ y_i - \sigma(x_i' \beta^{(\text{old})}) \big] x_{j,i}
+\end{align}`
+
+---
+## Maximium likelihood estimation
+
+.note[A few notes]
+
+1. `\(\eta\)` is the .attn[learning rate] (step size);&lt;br&gt;too big and you might overshoot, too small and it takes forever.
+
+2. Gradient ascent is one of many numerical optimization algorithms.&lt;br&gt;Others include .attn[Newton-Raphson] and .attn[BFGS].
+
+3. As with other estimators, you'll use .attn[existing software] in practice.
+
+4. *Search algorithms* are centeral to many models, _e.g._, .attn[neural networks].
 
 ---
 name: logistic-r
@@ -708,15 +830,17 @@ The .attn[confusion matrix] is us a convenient way to display
 
 
 
-<table class="huxtable" data-quarto-disable-processing="true" style="border-collapse: collapse; border: 0px; margin-bottom: 2em; margin-top: 2em; ; margin-left: auto; margin-right: auto;  " id="tab:cm-right-wrong">
-<col><col><col><col><tr>
-<td style="vertical-align: top; text-align: center; white-space: normal; border-style: solid solid solid solid; border-width: 0pt 0pt 0pt 0pt;    padding: 6pt 6pt 6pt 6pt; font-weight: bold;"></td><th style="vertical-align: top; text-align: center; white-space: normal; border-style: solid solid solid solid; border-width: 0pt 0pt 0pt 0pt;    padding: 6pt 6pt 6pt 6pt; font-weight: bold;"></th><td colspan="2" style="vertical-align: top; text-align: center; white-space: normal; border-style: solid solid solid solid; border-width: 0pt 0pt 0pt 0pt;    padding: 6pt 6pt 6pt 6pt; font-weight: bold;">Truth</td></tr>
+<table class="huxtable" data-quarto-disable-processing="true"  style="margin-left: auto; margin-right: auto;" id="tab:cm-right-wrong">
+<col><col><col><col><tbody>
 <tr>
-<td style="vertical-align: top; text-align: center; white-space: normal; border-style: solid solid solid solid; border-width: 0pt 0pt 0pt 0pt;    padding: 6pt 6pt 6pt 6pt; font-weight: bold;"></td><th style="vertical-align: top; text-align: center; white-space: normal; border-style: solid solid solid solid; border-width: 0pt 0pt 0pt 0pt;    padding: 6pt 6pt 6pt 6pt; font-weight: bold;"></th><td style="vertical-align: top; text-align: center; white-space: normal; border-style: solid solid solid solid; border-width: 0pt 0pt 1pt 0pt;    padding: 6pt 6pt 6pt 6pt; font-weight: bold;">No</td><td style="vertical-align: top; text-align: center; white-space: normal; border-style: solid solid solid solid; border-width: 0pt 0pt 1pt 0pt;    padding: 6pt 6pt 6pt 6pt; font-weight: bold;">Yes</td></tr>
+<td class="huxtable-cell" style="text-align: center;  border-style: solid solid solid solid; border-width: 0pt 0pt 0pt 0pt;      font-weight: bold;"></td><th class="huxtable-cell huxtable-header" style="text-align: center;  border-style: solid solid solid solid; border-width: 0pt 0pt 0pt 0pt;"></th><td class="huxtable-cell" colspan="2" style="text-align: center;  border-style: solid solid solid solid; border-width: 0pt 0pt 0pt 0pt;      font-weight: bold;">Truth</td></tr>
 <tr>
-<td rowspan="2" style="vertical-align: middle; text-align: left; white-space: normal; border-style: solid solid solid solid; border-width: 0pt 0pt 0pt 0pt;    padding: 6pt 6pt 6pt 6pt; font-weight: bold;">Prediction</td><th style="vertical-align: top; text-align: left; white-space: normal; border-style: solid solid solid solid; border-width: 0pt 1pt 0pt 0pt;    padding: 6pt 6pt 6pt 6pt; font-weight: bold;">No</th><td style="vertical-align: top; text-align: left; white-space: normal; border-style: solid solid solid solid; border-width: 1pt 0pt 0pt 1pt;    padding: 6pt 6pt 6pt 6pt; font-weight: normal;"><span style="color: rgb(255, 165, 0);">True Negative (TN)</span></td><td style="vertical-align: top; text-align: left; white-space: normal; border-style: solid solid solid solid; border-width: 1pt 0pt 0pt 0pt;    padding: 6pt 6pt 6pt 6pt; font-weight: normal;"><span style="color: rgb(106, 90, 205);">False Negative (FN)</span></td></tr>
+<td class="huxtable-cell" style="text-align: center;  border-style: solid solid solid solid; border-width: 0pt 0pt 0pt 0pt;      font-weight: bold;"></td><th class="huxtable-cell huxtable-header" style="text-align: center;  border-style: solid solid solid solid; border-width: 0pt 0pt 0pt 0pt;"></th><td class="huxtable-cell" style="text-align: center;  border-style: solid solid solid solid; border-width: 0pt 0pt 1pt 0pt;      font-weight: bold;">No</td><td class="huxtable-cell" style="text-align: center;  border-style: solid solid solid solid; border-width: 0pt 0pt 1pt 0pt;      font-weight: bold;">Yes</td></tr>
 <tr>
-<th style="vertical-align: top; text-align: left; white-space: normal; border-style: solid solid solid solid; border-width: 0pt 1pt 0pt 0pt;    padding: 6pt 6pt 6pt 6pt; font-weight: bold;">Yes</th><td style="vertical-align: top; text-align: left; white-space: normal; border-style: solid solid solid solid; border-width: 0pt 0pt 0pt 1pt;    padding: 6pt 6pt 6pt 6pt; font-weight: normal;"><span style="color: rgb(106, 90, 205);">False Positive (FP)</span></td><td style="vertical-align: top; text-align: left; white-space: normal; border-style: solid solid solid solid; border-width: 0pt 0pt 0pt 0pt;    padding: 6pt 6pt 6pt 6pt; font-weight: normal;"><span style="color: rgb(255, 165, 0);">True Positive (TP)</span></td></tr>
+<td class="huxtable-cell" rowspan="2" style="vertical-align: middle;   border-style: solid solid solid solid; border-width: 0pt 0pt 0pt 0pt;      font-weight: bold;">Prediction</td><th class="huxtable-cell huxtable-header" style="border-style: solid solid solid solid; border-width: 0pt 1pt 0pt 0pt;">No</th><td class="huxtable-cell" style="border-style: solid solid solid solid; border-width: 1pt 0pt 0pt 1pt;"><span style="color: rgb(255, 165, 0);">True Negative (TN)</span></td><td class="huxtable-cell" style="border-style: solid solid solid solid; border-width: 1pt 0pt 0pt 0pt;"><span style="color: rgb(106, 90, 205);">False Negative (FN)</span></td></tr>
+<tr>
+<th class="huxtable-cell huxtable-header" style="border-style: solid solid solid solid; border-width: 0pt 1pt 0pt 0pt;">Yes</th><td class="huxtable-cell" style="border-style: solid solid solid solid; border-width: 0pt 0pt 0pt 1pt;"><span style="color: rgb(106, 90, 205);">False Positive (FP)</span></td><td class="huxtable-cell" style="border-style: solid solid solid solid; border-width: 0pt 0pt 0pt 0pt;"><span style="color: rgb(255, 165, 0);">True Positive (TP)</span></td></tr>
+</tbody>
 </table>
 
 
@@ -740,15 +864,17 @@ This matrix also helps display many other measures of assessment.
 .b[Sensitivity] = .hi-orange[TP] / (.hi-orange[TP] + .hi-purple[FN])
 ]
 
-<table class="huxtable" data-quarto-disable-processing="true" style="border-collapse: collapse; border: 0px; margin-bottom: 2em; margin-top: 2em; ; margin-left: auto; margin-right: auto;  " id="tab:cm-sensitivity">
-<col><col><col><col><tr>
-<td style="vertical-align: top; text-align: center; white-space: normal; border-style: solid solid solid solid; border-width: 0pt 0pt 0pt 0pt;    padding: 6pt 6pt 6pt 6pt; font-weight: bold;"></td><th style="vertical-align: top; text-align: center; white-space: normal; border-style: solid solid solid solid; border-width: 0pt 0pt 0pt 0pt;    padding: 6pt 6pt 6pt 6pt; font-weight: bold;"></th><td colspan="2" style="vertical-align: top; text-align: center; white-space: normal; border-style: solid solid solid solid; border-width: 0pt 0pt 0pt 0pt;    padding: 6pt 6pt 6pt 6pt; font-weight: bold;">Truth</td></tr>
+<table class="huxtable" data-quarto-disable-processing="true"  style="margin-left: auto; margin-right: auto;" id="tab:cm-sensitivity">
+<col><col><col><col><tbody>
 <tr>
-<td style="vertical-align: top; text-align: center; white-space: normal; border-style: solid solid solid solid; border-width: 0pt 0pt 0pt 0pt;    padding: 6pt 6pt 6pt 6pt; font-weight: bold;"></td><th style="vertical-align: top; text-align: center; white-space: normal; border-style: solid solid solid solid; border-width: 0pt 0pt 0pt 0pt;    padding: 6pt 6pt 6pt 6pt; font-weight: bold;"></th><td style="vertical-align: top; text-align: center; white-space: normal; border-style: solid solid solid solid; border-width: 0pt 0pt 1pt 0pt;    padding: 6pt 6pt 6pt 6pt; font-weight: bold;">No</td><td style="vertical-align: top; text-align: center; white-space: normal; border-style: solid solid solid solid; border-width: 0pt 0pt 1pt 0pt;    padding: 6pt 6pt 6pt 6pt; font-weight: bold;"><span style="color: rgb(106, 90, 205);">Yes</span></td></tr>
+<td class="huxtable-cell" style="text-align: center;  border-style: solid solid solid solid; border-width: 0pt 0pt 0pt 0pt;      font-weight: bold;"></td><th class="huxtable-cell huxtable-header" style="text-align: center;  border-style: solid solid solid solid; border-width: 0pt 0pt 0pt 0pt;"></th><td class="huxtable-cell" colspan="2" style="text-align: center;  border-style: solid solid solid solid; border-width: 0pt 0pt 0pt 0pt;      font-weight: bold;">Truth</td></tr>
 <tr>
-<td rowspan="2" style="vertical-align: middle; text-align: left; white-space: normal; border-style: solid solid solid solid; border-width: 0pt 0pt 0pt 0pt;    padding: 6pt 6pt 6pt 6pt; font-weight: bold;">Prediction</td><th style="vertical-align: top; text-align: left; white-space: normal; border-style: solid solid solid solid; border-width: 0pt 1pt 0pt 0pt;    padding: 6pt 6pt 6pt 6pt; font-weight: bold;">No</th><td style="vertical-align: top; text-align: left; white-space: normal; border-style: solid solid solid solid; border-width: 1pt 0pt 0pt 1pt;    padding: 6pt 6pt 6pt 6pt; font-weight: normal;">True Negative (TN)</td><td style="vertical-align: top; text-align: left; white-space: normal; border-style: solid solid solid solid; border-width: 1pt 0pt 0pt 0pt;    padding: 6pt 6pt 6pt 6pt; font-weight: normal;"><span style="color: rgb(106, 90, 205);">False Negative (FN)</span></td></tr>
+<td class="huxtable-cell" style="text-align: center;  border-style: solid solid solid solid; border-width: 0pt 0pt 0pt 0pt;      font-weight: bold;"></td><th class="huxtable-cell huxtable-header" style="text-align: center;  border-style: solid solid solid solid; border-width: 0pt 0pt 0pt 0pt;"></th><td class="huxtable-cell" style="text-align: center;  border-style: solid solid solid solid; border-width: 0pt 0pt 1pt 0pt;      font-weight: bold;">No</td><td class="huxtable-cell" style="text-align: center;  border-style: solid solid solid solid; border-width: 0pt 0pt 1pt 0pt;      font-weight: bold;"><span style="color: rgb(106, 90, 205);">Yes</span></td></tr>
 <tr>
-<th style="vertical-align: top; text-align: left; white-space: normal; border-style: solid solid solid solid; border-width: 0pt 1pt 0pt 0pt;    padding: 6pt 6pt 6pt 6pt; font-weight: bold;">Yes</th><td style="vertical-align: top; text-align: left; white-space: normal; border-style: solid solid solid solid; border-width: 0pt 0pt 0pt 1pt;    padding: 6pt 6pt 6pt 6pt; font-weight: normal;">False Positive (FP)</td><td style="vertical-align: top; text-align: left; white-space: normal; border-style: solid solid solid solid; border-width: 0pt 0pt 0pt 0pt;    padding: 6pt 6pt 6pt 6pt; font-weight: normal;"><span style="color: rgb(255, 165, 0);">True Positive (TP)</span></td></tr>
+<td class="huxtable-cell" rowspan="2" style="vertical-align: middle;   border-style: solid solid solid solid; border-width: 0pt 0pt 0pt 0pt;      font-weight: bold;">Prediction</td><th class="huxtable-cell huxtable-header" style="border-style: solid solid solid solid; border-width: 0pt 1pt 0pt 0pt;">No</th><td class="huxtable-cell" style="border-style: solid solid solid solid; border-width: 1pt 0pt 0pt 1pt;">True Negative (TN)</td><td class="huxtable-cell" style="border-style: solid solid solid solid; border-width: 1pt 0pt 0pt 0pt;"><span style="color: rgb(106, 90, 205);">False Negative (FN)</span></td></tr>
+<tr>
+<th class="huxtable-cell huxtable-header" style="border-style: solid solid solid solid; border-width: 0pt 1pt 0pt 0pt;">Yes</th><td class="huxtable-cell" style="border-style: solid solid solid solid; border-width: 0pt 0pt 0pt 1pt;">False Positive (FP)</td><td class="huxtable-cell" style="border-style: solid solid solid solid; border-width: 0pt 0pt 0pt 0pt;"><span style="color: rgb(255, 165, 0);">True Positive (TP)</span></td></tr>
+</tbody>
 </table>
 
 
@@ -764,15 +890,17 @@ One minus sensitivity is the .attn[type-II error rate].
 .b[Specificity] = .hi-orange[TN] / (.hi-orange[TN] + .hi-purple[FP])
 ]
 
-<table class="huxtable" data-quarto-disable-processing="true" style="border-collapse: collapse; border: 0px; margin-bottom: 2em; margin-top: 2em; ; margin-left: auto; margin-right: auto;  " id="tab:cm-specificity">
-<col><col><col><col><tr>
-<td style="vertical-align: top; text-align: center; white-space: normal; border-style: solid solid solid solid; border-width: 0pt 0pt 0pt 0pt;    padding: 6pt 6pt 6pt 6pt; font-weight: bold;"></td><th style="vertical-align: top; text-align: center; white-space: normal; border-style: solid solid solid solid; border-width: 0pt 0pt 0pt 0pt;    padding: 6pt 6pt 6pt 6pt; font-weight: bold;"></th><td colspan="2" style="vertical-align: top; text-align: center; white-space: normal; border-style: solid solid solid solid; border-width: 0pt 0pt 0pt 0pt;    padding: 6pt 6pt 6pt 6pt; font-weight: bold;">Truth</td></tr>
+<table class="huxtable" data-quarto-disable-processing="true"  style="margin-left: auto; margin-right: auto;" id="tab:cm-specificity">
+<col><col><col><col><tbody>
 <tr>
-<td style="vertical-align: top; text-align: center; white-space: normal; border-style: solid solid solid solid; border-width: 0pt 0pt 0pt 0pt;    padding: 6pt 6pt 6pt 6pt; font-weight: bold;"></td><th style="vertical-align: top; text-align: center; white-space: normal; border-style: solid solid solid solid; border-width: 0pt 0pt 0pt 0pt;    padding: 6pt 6pt 6pt 6pt; font-weight: bold;"></th><td style="vertical-align: top; text-align: center; white-space: normal; border-style: solid solid solid solid; border-width: 0pt 0pt 1pt 0pt;    padding: 6pt 6pt 6pt 6pt; font-weight: bold;"><span style="color: rgb(106, 90, 205);">No</span></td><td style="vertical-align: top; text-align: center; white-space: normal; border-style: solid solid solid solid; border-width: 0pt 0pt 1pt 0pt;    padding: 6pt 6pt 6pt 6pt; font-weight: bold;">Yes</td></tr>
+<td class="huxtable-cell" style="text-align: center;  border-style: solid solid solid solid; border-width: 0pt 0pt 0pt 0pt;      font-weight: bold;"></td><th class="huxtable-cell huxtable-header" style="text-align: center;  border-style: solid solid solid solid; border-width: 0pt 0pt 0pt 0pt;"></th><td class="huxtable-cell" colspan="2" style="text-align: center;  border-style: solid solid solid solid; border-width: 0pt 0pt 0pt 0pt;      font-weight: bold;">Truth</td></tr>
 <tr>
-<td rowspan="2" style="vertical-align: middle; text-align: left; white-space: normal; border-style: solid solid solid solid; border-width: 0pt 0pt 0pt 0pt;    padding: 6pt 6pt 6pt 6pt; font-weight: bold;">Prediction</td><th style="vertical-align: top; text-align: left; white-space: normal; border-style: solid solid solid solid; border-width: 0pt 1pt 0pt 0pt;    padding: 6pt 6pt 6pt 6pt; font-weight: bold;">No</th><td style="vertical-align: top; text-align: left; white-space: normal; border-style: solid solid solid solid; border-width: 1pt 0pt 0pt 1pt;    padding: 6pt 6pt 6pt 6pt; font-weight: normal;"><span style="color: rgb(255, 165, 0);">True Negative (TN)</span></td><td style="vertical-align: top; text-align: left; white-space: normal; border-style: solid solid solid solid; border-width: 1pt 0pt 0pt 0pt;    padding: 6pt 6pt 6pt 6pt; font-weight: normal;">False Negative (FN)</td></tr>
+<td class="huxtable-cell" style="text-align: center;  border-style: solid solid solid solid; border-width: 0pt 0pt 0pt 0pt;      font-weight: bold;"></td><th class="huxtable-cell huxtable-header" style="text-align: center;  border-style: solid solid solid solid; border-width: 0pt 0pt 0pt 0pt;"></th><td class="huxtable-cell" style="text-align: center;  border-style: solid solid solid solid; border-width: 0pt 0pt 1pt 0pt;      font-weight: bold;"><span style="color: rgb(106, 90, 205);">No</span></td><td class="huxtable-cell" style="text-align: center;  border-style: solid solid solid solid; border-width: 0pt 0pt 1pt 0pt;      font-weight: bold;">Yes</td></tr>
 <tr>
-<th style="vertical-align: top; text-align: left; white-space: normal; border-style: solid solid solid solid; border-width: 0pt 1pt 0pt 0pt;    padding: 6pt 6pt 6pt 6pt; font-weight: bold;">Yes</th><td style="vertical-align: top; text-align: left; white-space: normal; border-style: solid solid solid solid; border-width: 0pt 0pt 0pt 1pt;    padding: 6pt 6pt 6pt 6pt; font-weight: normal;"><span style="color: rgb(106, 90, 205);">False Positive (FP)</span></td><td style="vertical-align: top; text-align: left; white-space: normal; border-style: solid solid solid solid; border-width: 0pt 0pt 0pt 0pt;    padding: 6pt 6pt 6pt 6pt; font-weight: normal;">True Positive (TP)</td></tr>
+<td class="huxtable-cell" rowspan="2" style="vertical-align: middle;   border-style: solid solid solid solid; border-width: 0pt 0pt 0pt 0pt;      font-weight: bold;">Prediction</td><th class="huxtable-cell huxtable-header" style="border-style: solid solid solid solid; border-width: 0pt 1pt 0pt 0pt;">No</th><td class="huxtable-cell" style="border-style: solid solid solid solid; border-width: 1pt 0pt 0pt 1pt;"><span style="color: rgb(255, 165, 0);">True Negative (TN)</span></td><td class="huxtable-cell" style="border-style: solid solid solid solid; border-width: 1pt 0pt 0pt 0pt;">False Negative (FN)</td></tr>
+<tr>
+<th class="huxtable-cell huxtable-header" style="border-style: solid solid solid solid; border-width: 0pt 1pt 0pt 0pt;">Yes</th><td class="huxtable-cell" style="border-style: solid solid solid solid; border-width: 0pt 0pt 0pt 1pt;"><span style="color: rgb(106, 90, 205);">False Positive (FP)</span></td><td class="huxtable-cell" style="border-style: solid solid solid solid; border-width: 0pt 0pt 0pt 0pt;">True Positive (TP)</td></tr>
+</tbody>
 </table>
 
 
@@ -787,15 +915,17 @@ One minus specificity is the .attn[false-positive rate] or .attn[type-I error ra
 .b[Precision] = .hi-orange[TP] / (.hi-orange[TP] + .hi-purple[FP])
 ]
 
-<table class="huxtable" data-quarto-disable-processing="true" style="border-collapse: collapse; border: 0px; margin-bottom: 2em; margin-top: 2em; ; margin-left: auto; margin-right: auto;  " id="tab:cm-precision">
-<col><col><col><col><tr>
-<td style="vertical-align: top; text-align: center; white-space: normal; border-style: solid solid solid solid; border-width: 0pt 0pt 0pt 0pt;    padding: 6pt 6pt 6pt 6pt; font-weight: bold;"></td><th style="vertical-align: top; text-align: center; white-space: normal; border-style: solid solid solid solid; border-width: 0pt 0pt 0pt 0pt;    padding: 6pt 6pt 6pt 6pt; font-weight: bold;"></th><td colspan="2" style="vertical-align: top; text-align: center; white-space: normal; border-style: solid solid solid solid; border-width: 0pt 0pt 0pt 0pt;    padding: 6pt 6pt 6pt 6pt; font-weight: bold;">Truth</td></tr>
+<table class="huxtable" data-quarto-disable-processing="true"  style="margin-left: auto; margin-right: auto;" id="tab:cm-precision">
+<col><col><col><col><tbody>
 <tr>
-<td style="vertical-align: top; text-align: center; white-space: normal; border-style: solid solid solid solid; border-width: 0pt 0pt 0pt 0pt;    padding: 6pt 6pt 6pt 6pt; font-weight: bold;"></td><th style="vertical-align: top; text-align: center; white-space: normal; border-style: solid solid solid solid; border-width: 0pt 0pt 0pt 0pt;    padding: 6pt 6pt 6pt 6pt; font-weight: bold;"></th><td style="vertical-align: top; text-align: center; white-space: normal; border-style: solid solid solid solid; border-width: 0pt 0pt 1pt 0pt;    padding: 6pt 6pt 6pt 6pt; font-weight: bold;">No</td><td style="vertical-align: top; text-align: center; white-space: normal; border-style: solid solid solid solid; border-width: 0pt 0pt 1pt 0pt;    padding: 6pt 6pt 6pt 6pt; font-weight: bold;">Yes</td></tr>
+<td class="huxtable-cell" style="text-align: center;  border-style: solid solid solid solid; border-width: 0pt 0pt 0pt 0pt;      font-weight: bold;"></td><th class="huxtable-cell huxtable-header" style="text-align: center;  border-style: solid solid solid solid; border-width: 0pt 0pt 0pt 0pt;"></th><td class="huxtable-cell" colspan="2" style="text-align: center;  border-style: solid solid solid solid; border-width: 0pt 0pt 0pt 0pt;      font-weight: bold;">Truth</td></tr>
 <tr>
-<td rowspan="2" style="vertical-align: middle; text-align: left; white-space: normal; border-style: solid solid solid solid; border-width: 0pt 0pt 0pt 0pt;    padding: 6pt 6pt 6pt 6pt; font-weight: bold;">Prediction</td><th style="vertical-align: top; text-align: left; white-space: normal; border-style: solid solid solid solid; border-width: 0pt 1pt 0pt 0pt;    padding: 6pt 6pt 6pt 6pt; font-weight: bold;">No</th><td style="vertical-align: top; text-align: left; white-space: normal; border-style: solid solid solid solid; border-width: 1pt 0pt 0pt 1pt;    padding: 6pt 6pt 6pt 6pt; font-weight: normal;">True Negative (TN)</td><td style="vertical-align: top; text-align: left; white-space: normal; border-style: solid solid solid solid; border-width: 1pt 0pt 0pt 0pt;    padding: 6pt 6pt 6pt 6pt; font-weight: normal;">False Negative (FN)</td></tr>
+<td class="huxtable-cell" style="text-align: center;  border-style: solid solid solid solid; border-width: 0pt 0pt 0pt 0pt;      font-weight: bold;"></td><th class="huxtable-cell huxtable-header" style="text-align: center;  border-style: solid solid solid solid; border-width: 0pt 0pt 0pt 0pt;"></th><td class="huxtable-cell" style="text-align: center;  border-style: solid solid solid solid; border-width: 0pt 0pt 1pt 0pt;      font-weight: bold;">No</td><td class="huxtable-cell" style="text-align: center;  border-style: solid solid solid solid; border-width: 0pt 0pt 1pt 0pt;      font-weight: bold;">Yes</td></tr>
 <tr>
-<th style="vertical-align: top; text-align: left; white-space: normal; border-style: solid solid solid solid; border-width: 0pt 1pt 0pt 0pt;    padding: 6pt 6pt 6pt 6pt; font-weight: bold;"><span style="color: rgb(106, 90, 205);">Yes</span></th><td style="vertical-align: top; text-align: left; white-space: normal; border-style: solid solid solid solid; border-width: 0pt 0pt 0pt 1pt;    padding: 6pt 6pt 6pt 6pt; font-weight: normal;"><span style="color: rgb(106, 90, 205);">False Positive (FP)</span></td><td style="vertical-align: top; text-align: left; white-space: normal; border-style: solid solid solid solid; border-width: 0pt 0pt 0pt 0pt;    padding: 6pt 6pt 6pt 6pt; font-weight: normal;"><span style="color: rgb(255, 165, 0);">True Positive (TP)</span></td></tr>
+<td class="huxtable-cell" rowspan="2" style="vertical-align: middle;   border-style: solid solid solid solid; border-width: 0pt 0pt 0pt 0pt;      font-weight: bold;">Prediction</td><th class="huxtable-cell huxtable-header" style="border-style: solid solid solid solid; border-width: 0pt 1pt 0pt 0pt;">No</th><td class="huxtable-cell" style="border-style: solid solid solid solid; border-width: 1pt 0pt 0pt 1pt;">True Negative (TN)</td><td class="huxtable-cell" style="border-style: solid solid solid solid; border-width: 1pt 0pt 0pt 0pt;">False Negative (FN)</td></tr>
+<tr>
+<th class="huxtable-cell huxtable-header" style="border-style: solid solid solid solid; border-width: 0pt 1pt 0pt 0pt;"><span style="color: rgb(106, 90, 205);">Yes</span></th><td class="huxtable-cell" style="border-style: solid solid solid solid; border-width: 0pt 0pt 0pt 1pt;"><span style="color: rgb(106, 90, 205);">False Positive (FP)</span></td><td class="huxtable-cell" style="border-style: solid solid solid solid; border-width: 0pt 0pt 0pt 0pt;"><span style="color: rgb(255, 165, 0);">True Positive (TP)</span></td></tr>
+</tbody>
 </table>
 
 
@@ -808,15 +938,17 @@ One minus specificity is the .attn[false-positive rate] or .attn[type-I error ra
 .b[NPV] = .hi-orange[TN] / (.hi-orange[TN] + .hi-purple[FN])
 ]
 
-<table class="huxtable" data-quarto-disable-processing="true" style="border-collapse: collapse; border: 0px; margin-bottom: 2em; margin-top: 2em; ; margin-left: auto; margin-right: auto;  " id="tab:cm-npv">
-<col><col><col><col><tr>
-<td style="vertical-align: top; text-align: center; white-space: normal; border-style: solid solid solid solid; border-width: 0pt 0pt 0pt 0pt;    padding: 6pt 6pt 6pt 6pt; font-weight: bold;"></td><th style="vertical-align: top; text-align: center; white-space: normal; border-style: solid solid solid solid; border-width: 0pt 0pt 0pt 0pt;    padding: 6pt 6pt 6pt 6pt; font-weight: bold;"></th><td colspan="2" style="vertical-align: top; text-align: center; white-space: normal; border-style: solid solid solid solid; border-width: 0pt 0pt 0pt 0pt;    padding: 6pt 6pt 6pt 6pt; font-weight: bold;">Truth</td></tr>
+<table class="huxtable" data-quarto-disable-processing="true"  style="margin-left: auto; margin-right: auto;" id="tab:cm-npv">
+<col><col><col><col><tbody>
 <tr>
-<td style="vertical-align: top; text-align: center; white-space: normal; border-style: solid solid solid solid; border-width: 0pt 0pt 0pt 0pt;    padding: 6pt 6pt 6pt 6pt; font-weight: bold;"></td><th style="vertical-align: top; text-align: center; white-space: normal; border-style: solid solid solid solid; border-width: 0pt 0pt 0pt 0pt;    padding: 6pt 6pt 6pt 6pt; font-weight: bold;"></th><td style="vertical-align: top; text-align: center; white-space: normal; border-style: solid solid solid solid; border-width: 0pt 0pt 1pt 0pt;    padding: 6pt 6pt 6pt 6pt; font-weight: bold;">No</td><td style="vertical-align: top; text-align: center; white-space: normal; border-style: solid solid solid solid; border-width: 0pt 0pt 1pt 0pt;    padding: 6pt 6pt 6pt 6pt; font-weight: bold;">Yes</td></tr>
+<td class="huxtable-cell" style="text-align: center;  border-style: solid solid solid solid; border-width: 0pt 0pt 0pt 0pt;      font-weight: bold;"></td><th class="huxtable-cell huxtable-header" style="text-align: center;  border-style: solid solid solid solid; border-width: 0pt 0pt 0pt 0pt;"></th><td class="huxtable-cell" colspan="2" style="text-align: center;  border-style: solid solid solid solid; border-width: 0pt 0pt 0pt 0pt;      font-weight: bold;">Truth</td></tr>
 <tr>
-<td rowspan="2" style="vertical-align: middle; text-align: left; white-space: normal; border-style: solid solid solid solid; border-width: 0pt 0pt 0pt 0pt;    padding: 6pt 6pt 6pt 6pt; font-weight: bold;">Prediction</td><th style="vertical-align: top; text-align: left; white-space: normal; border-style: solid solid solid solid; border-width: 0pt 1pt 0pt 0pt;    padding: 6pt 6pt 6pt 6pt; font-weight: bold;"><span style="color: rgb(106, 90, 205);">No</span></th><td style="vertical-align: top; text-align: left; white-space: normal; border-style: solid solid solid solid; border-width: 1pt 0pt 0pt 1pt;    padding: 6pt 6pt 6pt 6pt; font-weight: normal;"><span style="color: rgb(255, 165, 0);">True Negative (TN)</span></td><td style="vertical-align: top; text-align: left; white-space: normal; border-style: solid solid solid solid; border-width: 1pt 0pt 0pt 0pt;    padding: 6pt 6pt 6pt 6pt; font-weight: normal;"><span style="color: rgb(106, 90, 205);">False Negative (FN)</span></td></tr>
+<td class="huxtable-cell" style="text-align: center;  border-style: solid solid solid solid; border-width: 0pt 0pt 0pt 0pt;      font-weight: bold;"></td><th class="huxtable-cell huxtable-header" style="text-align: center;  border-style: solid solid solid solid; border-width: 0pt 0pt 0pt 0pt;"></th><td class="huxtable-cell" style="text-align: center;  border-style: solid solid solid solid; border-width: 0pt 0pt 1pt 0pt;      font-weight: bold;">No</td><td class="huxtable-cell" style="text-align: center;  border-style: solid solid solid solid; border-width: 0pt 0pt 1pt 0pt;      font-weight: bold;">Yes</td></tr>
 <tr>
-<th style="vertical-align: top; text-align: left; white-space: normal; border-style: solid solid solid solid; border-width: 0pt 1pt 0pt 0pt;    padding: 6pt 6pt 6pt 6pt; font-weight: bold;">Yes</th><td style="vertical-align: top; text-align: left; white-space: normal; border-style: solid solid solid solid; border-width: 0pt 0pt 0pt 1pt;    padding: 6pt 6pt 6pt 6pt; font-weight: normal;">False Positive (FP)</td><td style="vertical-align: top; text-align: left; white-space: normal; border-style: solid solid solid solid; border-width: 0pt 0pt 0pt 0pt;    padding: 6pt 6pt 6pt 6pt; font-weight: normal;">True Positive (TP)</td></tr>
+<td class="huxtable-cell" rowspan="2" style="vertical-align: middle;   border-style: solid solid solid solid; border-width: 0pt 0pt 0pt 0pt;      font-weight: bold;">Prediction</td><th class="huxtable-cell huxtable-header" style="border-style: solid solid solid solid; border-width: 0pt 1pt 0pt 0pt;"><span style="color: rgb(106, 90, 205);">No</span></th><td class="huxtable-cell" style="border-style: solid solid solid solid; border-width: 1pt 0pt 0pt 1pt;"><span style="color: rgb(255, 165, 0);">True Negative (TN)</span></td><td class="huxtable-cell" style="border-style: solid solid solid solid; border-width: 1pt 0pt 0pt 0pt;"><span style="color: rgb(106, 90, 205);">False Negative (FN)</span></td></tr>
+<tr>
+<th class="huxtable-cell huxtable-header" style="border-style: solid solid solid solid; border-width: 0pt 1pt 0pt 0pt;">Yes</th><td class="huxtable-cell" style="border-style: solid solid solid solid; border-width: 0pt 0pt 0pt 1pt;">False Positive (FP)</td><td class="huxtable-cell" style="border-style: solid solid solid solid; border-width: 0pt 0pt 0pt 0pt;">True Positive (TP)</td></tr>
+</tbody>
 </table>
 
 
@@ -1129,17 +1261,13 @@ These notes draw upon
 ]
 ]
 
----
-exclude: true
-
-
     </textarea>
 <style data-target="print-only">@media screen {.remark-slide-container{display:block;}.remark-slide-scaler{box-shadow:none;}}</style>
 <script src="https://remarkjs.com/downloads/remark-latest.min.js"></script>
 <script>var slideshow = remark.create({
-"highlightStyle": "github",
-"highlightLines": true,
-"countIncrementalSlides": false
+  "highlightStyle": "github",
+  "highlightLines": true,
+  "countIncrementalSlides": false
 });
 if (window.HTMLWidgets) slideshow.on('afterShowSlide', function (slide) {
   window.dispatchEvent(new Event('resize'));
