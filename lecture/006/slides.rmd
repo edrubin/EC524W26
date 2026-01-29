@@ -659,7 +659,7 @@ That said, partial derivatives will still be helpful...
 
 1. $\eta$ is the .attn[learning rate] (step size);<br>too big and you might overshoot, too small and it takes forever.
 
-2. Gradient ascent is one of many numerical optimization algorithms.<br>Others include .attn[Newton-Raphson] and .attn[BFGS].
+2. Gradient ascent/descent is one of many numerical optimization algorithms.<br>Others include .attn[Newton-Raphson], .attn[BFGS], and .attn[*Stochastic* gradient descent].
 
 3. As with other estimators, you'll use .attn[existing software] in practice.
 
