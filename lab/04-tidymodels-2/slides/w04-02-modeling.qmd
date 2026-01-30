@@ -1,0 +1,168 @@
+---
+name: modeling
+---
+
+## Fitting Models
+
+Now that we have a nice clean dataset, we can begin to fit a model
+
+In the `tidymodels` universe, we need to do (at least) three things:
+
+[_1_.]{.hi} [Define the Model Specification]{.hp} 
+
+- The [Type]{.hp} of model we want (linear regression, KNN, or random forest)
+
+[_2_.]{.hi} [Define the Engine]{.hp} 
+
+- The [function/package]{.hp} that R will use to fit your model 
+
+[_3_.]{.hi} [Define the data and relationships to fit]{.hp}
+
+- Point R to your data and define output/input
+
+::: {.notes}
+If the model specification defines a general class of models that you are using, then engine defines the specific functions/algorithms R will use to fit these models. 
+
+Using the output(s) and input(s) in the dataset
+:::
+
+---
+
+## Specifying the Type of Model
+
+Your first decision is the type of model you want to use (in `tidymodels` "type" = "specification", but that may be confusing for the econometric mind)
+
+- You have many choices for the type of model you want to specify. Each comes with a different `parsnip` [function](){target="_blank"}
+
+    - Linear Regression: `linear_reg()`
+    - K-Nearest Neighbor: `nearest_neighbor()`
+    - Random Forest: `rand_forest()`
+
+- We can check what the linear regression model function `linear_reg()` tells us:
+
+``` {r linear-reg-check}
+linear_reg()
+```
+
+---
+
+## Setting an Engine
+
+Before we actually fit/train the model, we need to tell R which [engine]{.h} we want to use. 
+
+The [engine]{.h} tells R what algorithms to use, and some algos may differ greatly from others
+
+You define the [engine]{.h} using the `set_engine()` [function](){target="_blank"}
+
+You can see that we can fit a [linear regression]{.h} model using [any of five engines]{.h}
+
+:::: {.columns}
+
+::: {.column}
+- `"lm"`
+- `"glmnet"`
+- `"stan"`
+:::
+
+::: {.column}
+- `"spark"`
+- `"keras"`
+:::
+
+::::
+
+You can use `show_engines()` function to see which engines are available for your model type
+
+``` {r show-engines}
+# Show which engines are available for linear_reg()
+show_engines("linear_reg")
+```
+
+---
+
+## Setting an Engine
+
+We will use the `"lm"` engine to fit a traditional linear regression model. Fancy stuff comes later. 
+
+``` {r set-engine}
+# Define the "lm" engine for `linear_reg()`
+linear_reg() %>% set_engine("lm")
+```
+
+---
+
+## Setting an Engine
+
+We can also use `translate()` to see what is going on under the hood a bit more
+
+``` {r set-engine-translate}
+# Translate our regression model
+linear_reg() %>% set_engine("lm") %>% translate()
+```
+
+---
+
+## Fitting (Training) Your Model
+
+After defining the type of model and the engine, we can now begin to `fit()` the model
+
+- The `fit()` [function](){target="_blank"} wants a few arguments
+
+    - The `model_spec` object comes from setting the [type]{.h} and [engine]{.h} (form before)
+    - A `formula` the defines the outputs and inputs (just like using `lm()`)
+    - The `data`
+
+- In our case, we will have:
+
+    - Model type is `linear_reg()` and our Engine is `"lm"`
+    - The `formula` is our linear regression where `status_good` is our outcome and the other vars. `(.)` are the predictors
+    - Our data is our cleaned dataset `credit_clean`
+
+
+This is a simple linear regression but the `tidymodels` way.
+
+``` {r first-tidymodel-reg}
+est_reg <- 
+    # Model Type
+    linear_reg() %>%
+    # Engine 
+    set_engine("lm") %>%
+    # Formula 
+    fit(status_good ~ ., data = credit_clean)
+```
+
+---
+
+## `tidymodels` Linear Regression
+
+We can use `tidy()` to see the results in a more usual way
+
+``` {r tidy-model}
+est_reg %>% tidy()
+```
+
+We can also use this information and use `predict()` as we have before. 
+
+---
+
+## Changing The Type of Model
+
+Okay, so we have just gone through a complex way to run a simple regression model that you likely knew how to do in a simpler way
+
+But the power of `tidymodels` is coming from its flexibility. 
+
+- It is very easy to change any of our decisions along the way
+
+Let's say instead we wanted to fit a [KNN]{.h} model. We just need to change the type of model and engine. 
+
+- [Note]{.note .hi} Some methods like [KNN]{.h} can be used for either `"regression"` tasks and `"classification"` tasks. We want to se the [mode]{.h} for these methods, either within the `nearest_neighbor()` function (`nearest_neighbor(mode = "regression)`) or using the `set_mode()` function.
+
+We can finally choose a value for our parameters (tuning and CV later). In [KNN]{.h} that is just setting a value of $k$. I'll arbitrarily choose 6. 
+
+``` {r knn-tidymodel}
+est_knn <- nearest_neighbor(mode = "regression", neighbors = 6) %>%
+    set_engine("kknn") %>%
+    fit(status_good ~ ., data = credit_clean)
+
+est_knn %>% class()
+```

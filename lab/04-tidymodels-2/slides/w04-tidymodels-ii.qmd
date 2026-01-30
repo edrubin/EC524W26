@@ -1,0 +1,46 @@
+---
+title: "EC524: Lab 04"
+subtitle: "`tidymodels` Modeling, Resampling, and Prediction"
+author: Jose Rojas-Fallas
+date: last-modified
+date-format: "YYYY"
+format:
+    revealjs:
+        theme: [default, styles.scss]
+        slide-number: true
+        footer: "EC 524 Week 04 Lab | `tidymodels` cont."
+        preview-links: auto
+        code-f  old: FALSE
+        scrollable: true
+title-slide-attributes: 
+  data-background-position: left
+---
+
+```{r knitr-opts, echo=FALSE, message=FALSE}
+# Code chunk options
+knitr::opts_chunk$set(
+  echo = TRUE,
+  message = FALSE,
+  warning = FALSE,
+  fig.width = 6,
+  fig.height = 4
+)
+```
+
+## Lab Agenda
+
+<br>
+
+[_1._]{.hp} Modeling 
+
+<br>
+
+[_2._]{.hp} Resampling and Prediction
+
+{{< include w04-01-setup.qmd >}}
+
+{{< include w04-02-modeling.qmd >}}
+
+{{< include w04-03-resampling.qmd >}}
+
+{{< include w04-04-prediction.qmd >}}

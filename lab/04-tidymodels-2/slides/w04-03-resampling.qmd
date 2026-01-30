@@ -1,0 +1,442 @@
+---
+name: resampling, tuning, and workflows
+---
+
+## Resampling, Tuning, and Validating
+
+We have omitted a big part of the [ML Process]{.hi}: Tuning and Validating models.
+
+As always, we begin with the setup (mostly in case this is not the same week as the other parts)
+
+``` {r setup}
+# Packages
+library(pacman)
+p_load(tidyverse, modeldata, skimr, janitor, tidymodels, magrittr)
+# Load credit data
+data(credit_data)
+credit_df <- credit_data
+# Clean up names
+credit_df %<>% clean_names()
+# Create a dummy variable for our outcome (good credit status)
+credit_df %<>% mutate(status_good = 1 * (status == "good")) %>%
+    # drop old status variable
+    select(-status)
+```
+
+---
+
+## Simple Sample Splitting
+
+First simple task: Split the full `credit_df` dataset into a [training (sub)set]{.h} and a [testing (sub)set]{.h}
+
+To split the sample, lets use the `initial_split()` function from the `rsample` package. 
+
+- It ***splits*** a proportion (`prop` argument) of your data into a [training subset]{.h} and leaves the rest for the [testing subset]{.h}. 
+    - If you wanted to sample by `strata` you could as well
+
+- It is another tool for you to use (we had used `sample_frac()` previously)
+- The output is an `rsplit` object, not a dataframe
+    - We will pass the object given by `initial_split()` to the `training()` and `testing()` functions to get the actual subsets as dataframes
+
+[Note: It can be helpful to set a seed before you split the data for reproducing results]
+
+---
+
+## Simple Sample Splitting
+
+``` {r sample-splitting-setup}
+# Set the seed
+set.seed(123)
+# Create the split (80-20 split)
+credit_split <- credit_df %>%
+    initial_split(prop = 0.8)
+# Check the output
+credit_split
+```
+
+Now we can [impose the split]{.h} by using the `training()` and `testing()` functions. 
+
+---
+
+## Simple Sample Splitting
+
+After we grab the proper split data, we can check the dimensions to make sure it makes sense
+
+``` {r subsetting}
+# Grab the training data (Larger Chunk)
+credit_train <- credit_split %>% training()
+# Grab the testing data (Smaller Chunk)
+credit_test <- credit_split %>% testing()
+# Check dimensions
+dim(credit_df); dim(credit_train); dim(credit_test)
+```
+
+---
+
+## Resampling
+
+As you've seen in class, the goal of prediction exercises is good [out-of-sample]{.h} performance
+
+To avoid overfitting, while still allowing for "optimal" flexibility, we use resampling methods. 
+
+We will use the `vfold_cv()` function to set up 5-fold cross validation for our model
+
+`vfold_cv()` takes the following arguments:
+
+- `data`
+- `v`, the number of folds
+- `repeats` the number of times you want to [repeat]{.h} the cross validation (default is 1)
+- `strata` is an optional variable to use for stratified sampling in the folds
+
+Creating the folds looks like:
+
+``` {r folds}
+# set seed
+set.seed(123)
+# 5-fold CV on the training dataset
+credit_cv <- credit_train %>% vfold_cv(v = 5)
+# Check the output 
+credit_cv %>% tidy()
+```
+
+---
+
+## Define the Data-Processing Recipe
+
+For each split, we want to [process the data]{.h} (`recipes`) and [fit the model]{.h} (`parsnip`)
+
+[Important!]{.hp} We want to preprocess the training subset [in each split]{.h} separately from the split's subset. This helps us avoid data leakage. 
+
+In everything we have done before, we impute using the entire data. We are supposed to be keeping them totally [separate]{.h}.
+
+What we ***really*** want is to process the datasets independently, but using the same `recipe` and steps
+
+---
+
+## Define the Recipe
+
+Only the `recipe`, no `prep()`, `juice()`, or `bake()`
+
+``` {r recipe-def-final, message=TRUE}
+# Data-processing recipe
+    # IMPORTANT! NOTICE I AM USING THE TRAINING DATA HERE NOT THE FULL SAMPLE
+credit_recipe <- recipe(status_good ~ ., data = credit_train) %>%
+    # Mean imputation for numeric predictors
+    step_impute_mean(all_predictors() & all_numeric()) %>% 
+    # KNN imputation for categorical predictors
+    step_impute_knn(all_predictors() & all_nominal(), neighbors = 5) %>%
+    # Create dummies for categorical variables
+    step_dummy(all_predictors() & all_nominal()) %>%
+    # Interactions
+    step_interact(~income:starts_with("home"))
+# Check the result
+credit_recipe
+```
+
+---
+
+## Define the Model
+
+Tell it both the [type of model and the desired engine]{.h}
+
+Keeping it simple with `linear_reg()` and the standard `"lm"`
+
+- Feel free to try whatever you want here in the code to test things out
+
+Although not necessary for `"lm"`, we will set the `mode` using `set_mode()`. Just good to get into the habit of things
+
+``` {r model-def-final, message=TRUE}
+model_lm <- 
+    # Set my model
+    linear_reg() %>%
+    # Set my mode
+    set_mode("regression") %>%
+    # Set my engine
+    set_engine("lm")
+# Check the result
+model_lm
+```
+
+---
+
+## Putting it Together in a Workflow
+
+We have three different objects floating around
+
+1. The defined CV splits for the training dataset (`credit_cv`)
+2. The recipe for processing the data (`credit_recipe`)
+3. The model that we want to fit on the trianing data (folds)
+
+Now we need to put them together.
+
+- Repeating the preprocessing for each training and validation split ***could*** be annoying if you did it all by hand. 
+- Luckily, we will be uwing the `workflows` package within `tidymodels`
+
+How? Literally by defining a workflow with the `workflow()` function and then pipe in your model and then recipe
+
+``` {r workflow, message=TRUE}
+workflow() %>% 
+    add_model(model_lm) %>%
+    add_recipe(credit_recipe)
+```
+
+---
+
+## Putting it Together in a Workflow
+
+The workflow we just wrote defines the model, the data processing, and the engine. 
+
+We will have a couple of options: 
+
+[_1._ Fit a Single Model Without CV]{.hp}
+
+[_2._ Fit a Single Model With CV]{.hp}
+
+[_3._ Tune your model (using CV)]{.hp}
+
+---
+
+## Putting it Together in a Workflow
+
+The workflow we just wrote defines the model, the data processing, and the engine. 
+
+[_1._ Fit a Single Model Without CV]{.hp}
+
+If you [only]{.h} want to fit the model (with no CV), you can pipe the workflow to `fit(data = dataframe)`
+
+- This is not what we will ultimately want as we want to cross-validate using the folds we created
+
+``` {r fit-01}
+# Workflow and model fit
+workflow() %>%
+    add_model(model_lm) %>%
+    add_recipe(credit_recipe) %>%
+    fit(data = credit_df)
+```
+
+---
+
+## Putting it Together in a Workflow
+
+The workflow we just wrote defines the model, the data processing, and the engine. 
+
+[_2._ Fit a Single Model With CV]{.hp}
+
+If you want to estimate your model's out-of-sample performance, then you can use `fit_resamples()`
+And we can use `collect_metrics()` function to assess the performance across the resamples
+
+- By default, it will average across the folds (notice it says `n = 5`, which is our folds).
+
+``` {r fit-02}
+fit_lm_cv <- 
+    workflow() %>%
+    add_model(model_lm) %>%
+    add_recipe(credit_recipe) %>%
+    fit_resamples(credit_cv)
+# Check performance
+fit_lm_cv %>% collect_metrics()
+```
+
+---
+
+## Putting it Together in a Workflow
+
+The workflow we just wrote defines the model, the data processing, and the engine. 
+
+[_2._ Fit a Single Model With CV]{.hp}
+
+- If you wanted to see how the model performs on [each fold]{.h} then you can set `summarize = F` inside `collect_metrics()`
+
+``` {r collect-alt}
+fit_lm_cv %>% collect_metrics(summarize = F)
+```
+
+---
+
+## Putting it Together in a Workflow
+
+RMSE and $R^{2}$ are the default metrics. We can change them using the `metrics` argument inside of `fit_resamples()`
+
+You can pass whichever metric you want to use from the `yardstick` package. 
+
+- Suppose we want Mean Absolute Error (MAE) as well
+
+``` {r add-MAE}
+# Define Workflow, then fit model on folds
+fit_lm_cv <- 
+    workflow() %>%
+    add_model(model_lm) %>%
+    add_recipe(credit_recipe) %>%
+    fit_resamples(credit_cv, metrics = metric_set(rmse, rsq, mae))
+# Check performance
+fit_lm_cv %>% collect_metrics()
+```
+
+---
+
+## Putting it Together in a Workflow
+
+The workflow we just wrote defines the model, the data processing, and the engine. 
+
+[_3._ Tune your model (using CV)]{.hp}
+
+Instead of "just" estimating out-of-sample model performance for a specified model and pre-processing operations, we will often want to [tune a model's hyperparameter(s)]{.h}
+
+Suppose we are using $k$ nearest neighbors instead of a linear regression. Then we either need to specify a $k$ [or]{.h} we need to [tune k]{.hp}. 
+
+By [tune]{.hp} we mean estimate the out-of-sample performance for various values of $k$ and then choose the "best" $k$ (based on some metric that defines "best").
+
+To begin, let's define a KNN model using `nearest_neighbor()`. We will tell it to [tune]{.hp} by specifiying we want to `tune()` as our neighbors value.
+
+``` {r tune-knn}
+# Define our KNN Model
+model_knn <- 
+    nearest_neighbor(neighbors = tune()) %>%
+    set_mode("regression") %>%
+    set_engine("kknn") 
+# Check the Model
+model_knn
+```
+
+---
+
+## Tuning KNN
+
+Almost ready to fit the model, but we still need to let R know which values to try for the parameter we are tuning
+
+To tune our hyperparameter(s), we will use the `tune_grid()` function (instead of `fit()` or `fit_resamples()` functions)
+
+`tune_grid()` works similarly to `fit_resamples()` except it takes an additional argument: `grid`
+
+- We will pass the possible values of our hyperparameter(s) to the `grid` argument and it will evaluate each fold of our samples on each set of hyperparameter(s) we fed it
+
+---
+
+## Tuning KNN
+
+KNN only needs one hyperparameter: `neighbors`. 
+We can give the `grid` argument a `data.frame` of all the values we would like to try, where the [column's name matches the hyperparameter we are trying to tune]{.h} `neighbors`
+
+- If, like me, you don't know what may be "reasonable" values, you can see what is suggested by the function with the same name as the hyperparameter (`neighbors()` in this case)
+
+``` {r check-neighbors}
+# Check "suggested" value of neighbors
+neighbors()
+```
+
+---
+
+## Tuning KNN
+
+[Caution]{.hi-red} 
+
+As you add more values of hyperparameters, you fit more models.
+
+More models means more computation. 
+
+More computation means more time.
+
+Keep in mind that you are already fitting a model on each fold (5 in our example) so if you want to test 100 values of `neighbors` then you need to fit $100 \times 5$ models
+
+Let's try 1 `neighbor` (surely not the best) and then 5, and then 10 to 100 by 10s
+
+---
+
+## Tuning KNN
+
+Let's try 1 `neighbor` (surely not the best) and then 5, and then 10 to 100 by 10s
+
+``` {r workflow-tuning-knn}
+# Define the workflow
+workflow_knn <- workflow() %>%
+    add_model(model_knn) %>%
+    add_recipe(credit_recipe)
+
+# Fit the workflow on our predefined folds and hyperparameters
+fit_knn_cv <- workflow_knn %>%
+    tune_grid(
+        # CV data
+        credit_cv, 
+        # Grid where we put our values
+        grid = data.frame(neighbors = c(1, 5, seq(10,100,10))),
+        metrics = metric_set(rmse, rsq, mae)
+    )
+
+# Check performance
+fit_knn_cv %>% collect_metrics()
+```
+
+---
+
+## Tuning KNN
+
+Recognize what we just did was pretty cool: We changed very little to move from a cross-validated regression model to a CV-tuned KNN model.
+
+The output is also cool, but overwhelming. 
+
+We can use the `show_best()` function to have it tell us which value(s) of the hyperparameters performed best according to the metrics we asked for.
+We either need to give `show_best()` the name of the `metric` to use, or it will choose one for us. 
+
+- `show_best()` also defaults to showing the top 5 models but you can change that with the `n` argument
+- `select_best()` allows us to select the best model (based on the metrics)
+
+``` {r show-best-01}
+# Show the best model in terms of RMSE
+fit_knn_cv %>% show_best(metric = "rmse",, n = 5)
+```
+
+``` {r show-best-02}
+# Show the best model in terms of RMSE
+fit_knn_cv %>% show_best(metric = "rsq", n = 3)
+```
+
+---
+
+## We Can Visualize It 
+
+We can use the `autoplot()` function for a nice and quick picture (we can improve on it too).
+
+We just need to tell it what metric we want to map.
+
+``` {r autoplot-01}
+# Quick plot
+autoplot(fit_knn_cv, metric = "rmse")
+```
+
+---
+
+## Visualize it Part 02
+
+``` {r plot-improve-02}
+# Plot metrics' averages across values of 'k'
+fit_knn_cv %>% 
+    collect_metrics(summarize = T) %>%
+    ggplot(aes(x = neighbors, y = mean)) +
+    geom_line(size = 0.7, alpha = 0.6) +
+    geom_point(size = 2.5) +
+    facet_wrap(~ toupper(.metric), scales = "free", nrow = 1) +
+    scale_x_continuous("Neighbors (k)", labels = scales::label_number()) +
+    scale_y_continuous("Estimate") +
+    scale_color_viridis_d("CV Folds:") +
+    theme_minimal() + 
+    theme(legend.position = "bottom")
+```
+
+---
+
+## Visualize it Part 03
+
+``` {r plot-improve-03}
+# Show each fold's metrics across values of 'k'
+fit_knn_cv %>% 
+    collect_metrics(summarize = F) %>%
+    ggplot(aes(x = neighbors, y = .estimate, color = id)) +
+    geom_line(size = 0.7, alpha = 0.6) +
+    geom_point(size = 2.5) +
+    facet_wrap(~ toupper(.metric), scales = "free", nrow = 1) +
+    scale_x_continuous("Neighbors (k)", labels = scales::label_number()) +
+    scale_y_continuous("Estimate") +
+    scale_color_viridis_d("CV Folds:") +
+    theme_minimal() + 
+    theme(legend.position = "bottom")
+```

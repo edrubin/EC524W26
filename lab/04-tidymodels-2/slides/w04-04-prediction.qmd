@@ -1,0 +1,84 @@
+---
+name: prediction
+---
+
+## Lastly: Prediction!
+
+We are just about finished 
+
+We will wrap it up by taking our selected model (the best model), fitting it on [all]{.h} of the training data, and then predict onto the test data
+
+- Recall we pick our "best" model (using whatever `metric` we prefer) using the `select_best()` function
+
+Once we found the "best" model, we wrap up our `workflow()` using `finalize_workflow()`
+
+- This function wants (1) your initial workflow [and]{.h} (2) your best model
+
+``` {r prediction-01}
+# The final workflow for our KNN model
+final_knn <-
+    workflow_knn %>% 
+    finalize_workflow(select_best(fit_knn_cv, metric = "rmse"))
+# Check out the final workflow object
+final_knn
+```
+
+---
+
+## Prediction
+
+Now we fit this finalized workflow to the [full training]{.h} dataset (`credit_train`). 
+
+Enter `fit()`.
+
+``` {r prediction-02}
+# Fitting our final workflow
+final_fit_knn <- final_knn %>% fit(data = credit_train)
+# Examine the final workflow
+final_fit_knn
+```
+
+---
+
+## Prediction
+
+Finally, we predict onto the [testing data]{.h} by using `predict()`
+
+``` {r prediction-03}
+# Predict onto the test data
+test_hat <- final_fit_knn %>% predict(new_data = credit_test)
+# Check out predictions
+test_hat %>% head()
+```
+
+---
+
+## Prediction but Easier
+
+Once we have a final workflow (`final_knn` is the workflow plus the selected best model), you can pass it to the `last_fit()` function
+
+Along with the initial split (`credit_split` in our case) to both:
+
+- Fit your final model on your full training dataset
+
+- Make predictions onto the testing dataset (defined by the initial split object)
+
+This `last_fit()` approach streamlines your work and also lets you easily collect metrics using the `collect_metrics()` function from before
+
+``` {r last-fit-01}
+# Write over 'final_fit_knn' with this last_fit() approach
+final_fit_knn <- final_knn %>% last_fit(credit_split)
+# Collect metrics on the test data!
+final_fit_knn %>% collect_metrics()
+```
+
+---
+
+## Prediction but Easier
+
+If instead you want predictions, just use the `collect_predictions()` on the output from `last_fit()`
+
+``` {r last-fit-02}
+# Get test-sample predictions
+final_fit_knn %>% collect_predictions() %>% head()
+```

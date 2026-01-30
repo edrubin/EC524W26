@@ -1,0 +1,76 @@
+---
+name: setup
+---
+
+## Preprocessing
+
+[A quick catch-up of what we did:]{.h .align-center}
+
+[_i_]{.hp} Loaded credit data, cleaned it up and created our outcome variable
+
+``` {r preprocessing-01}
+# Setup 
+# Load packages
+library(pacman)
+p_load(tidyverse, modeldata, skimr, janitor, tidymodels, magrittr, visdat)
+# Load the credit dataset
+data(credit_data)
+# (Optional) Assign a new name
+credit_df <- credit_data
+# 'Fix' names
+credit_df %<>% 
+    clean_names() %>%
+    # Create a dummy variable for 'good' credit status
+    mutate(status_good = 1 * (status == "good")) %>%
+    # Drop the old status variable
+    select(-status)
+```
+
+---
+
+## Preprocessing
+
+[_ii_]{.hp} Visualized the data and found there is missing data
+
+- New way: `visdat::vis_dat()` and `visdat::vis_miss()`
+
+``` {r preprocessing-02}
+# Can use skimr::skim() or a new way to visualize is
+
+credit_df %>% visdat::vis_dat()
+credit_df %>% visdat::vis_miss()
+```
+
+---
+
+## Preprocessing
+
+[_iii_]{.hp} Set up a `recipe()` that helped us clean the data and impute necessary missing data
+
+[Note: I am storing the preprocessing steps in an object, that I can call on later]{.note .h}
+
+``` {r preprocessing-03}
+# Define the recipe: status_good predicted by all other variables in credit_df
+recipe_all = recipe(status_good ~ ., data = credit_df)
+# Putting it all together
+preprocessing_steps <- recipe_all %>%
+  # Mean imputation for numeric predictors
+  step_impute_mean(all_predictors() & all_numeric()) %>% 
+  # KNN imputation for categorical predictors
+  step_impute_knn(all_predictors() & all_nominal(), neighbors = 5) %>%
+  # Create dummies for categorical variables
+  step_dummy(all_predictors() & all_nominal()) %>%
+  # Interactions
+  step_interact(~income:starts_with("home"))
+```
+
+---
+
+## Preprocessing
+
+[_iv_]{.hp} Recall that creating a `recipe()` with steps are only instructions, we still need to `prep()` and `juice()` it to get a dataframe
+
+``` {r preprocessing-04}
+credit_clean <- preprocessing_steps %>% prep() %>% juice()
+```
+

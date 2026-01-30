@@ -1,0 +1,1621 @@
+<!DOCTYPE html>
+<html lang="en"><head>
+<script src="w04-tidymodels-ii_files/libs/clipboard/clipboard.min.js"></script>
+<script src="w04-tidymodels-ii_files/libs/quarto-html/tabby.min.js"></script>
+<script src="w04-tidymodels-ii_files/libs/quarto-html/popper.min.js"></script>
+<script src="w04-tidymodels-ii_files/libs/quarto-html/tippy.umd.min.js"></script>
+<link href="w04-tidymodels-ii_files/libs/quarto-html/tippy.css" rel="stylesheet">
+<link href="w04-tidymodels-ii_files/libs/quarto-html/light-border.css" rel="stylesheet">
+<link href="w04-tidymodels-ii_files/libs/quarto-html/quarto-syntax-highlighting-e26003cea8cd680ca0c55a263523d882.css" rel="stylesheet" id="quarto-text-highlighting-styles"><meta charset="utf-8">
+  <meta name="generator" content="quarto-1.6.39">
+
+  <meta name="author" content="Jose Rojas-Fallas">
+  <meta name="dcterms.date" content="2026-01-01">
+  <title>EC524: Lab 04</title>
+  <meta name="apple-mobile-web-app-capable" content="yes">
+  <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, minimal-ui">
+  <link rel="stylesheet" href="w04-tidymodels-ii_files/libs/revealjs/dist/reset.css">
+  <link rel="stylesheet" href="w04-tidymodels-ii_files/libs/revealjs/dist/reveal.css">
+  <style>
+    code{white-space: pre-wrap;}
+    span.smallcaps{font-variant: small-caps;}
+    div.columns{display: flex; gap: min(4vw, 1.5em);}
+    div.column{flex: auto; overflow-x: auto;}
+    div.hanging-indent{margin-left: 1.5em; text-indent: -1.5em;}
+    ul.task-list{list-style: none;}
+    ul.task-list li input[type="checkbox"] {
+      width: 0.8em;
+      margin: 0 0.8em 0.2em -1em; /* quarto-specific, see https://github.com/quarto-dev/quarto-cli/issues/4556 */ 
+      vertical-align: middle;
+    }
+    /* CSS for syntax highlighting */
+    pre > code.sourceCode { white-space: pre; position: relative; }
+    pre > code.sourceCode > span { line-height: 1.25; }
+    pre > code.sourceCode > span:empty { height: 1.2em; }
+    .sourceCode { overflow: visible; }
+    code.sourceCode > span { color: inherit; text-decoration: inherit; }
+    div.sourceCode { margin: 1em 0; }
+    pre.sourceCode { margin: 0; }
+    @media screen {
+    div.sourceCode { overflow: auto; }
+    }
+    @media print {
+    pre > code.sourceCode { white-space: pre-wrap; }
+    pre > code.sourceCode > span { display: inline-block; text-indent: -5em; padding-left: 5em; }
+    }
+    pre.numberSource code
+      { counter-reset: source-line 0; }
+    pre.numberSource code > span
+      { position: relative; left: -4em; counter-increment: source-line; }
+    pre.numberSource code > span > a:first-child::before
+      { content: counter(source-line);
+        position: relative; left: -1em; text-align: right; vertical-align: baseline;
+        border: none; display: inline-block;
+        -webkit-touch-callout: none; -webkit-user-select: none;
+        -khtml-user-select: none; -moz-user-select: none;
+        -ms-user-select: none; user-select: none;
+        padding: 0 4px; width: 4em;
+        color: #aaaaaa;
+      }
+    pre.numberSource { margin-left: 3em; border-left: 1px solid #aaaaaa;  padding-left: 4px; }
+    div.sourceCode
+      { color: #003b4f; background-color: #f1f3f5; }
+    @media screen {
+    pre > code.sourceCode > span > a:first-child::before { text-decoration: underline; }
+    }
+    code span { color: #003b4f; } /* Normal */
+    code span.al { color: #ad0000; } /* Alert */
+    code span.an { color: #5e5e5e; } /* Annotation */
+    code span.at { color: #657422; } /* Attribute */
+    code span.bn { color: #ad0000; } /* BaseN */
+    code span.bu { } /* BuiltIn */
+    code span.cf { color: #003b4f; font-weight: bold; } /* ControlFlow */
+    code span.ch { color: #20794d; } /* Char */
+    code span.cn { color: #8f5902; } /* Constant */
+    code span.co { color: #5e5e5e; } /* Comment */
+    code span.cv { color: #5e5e5e; font-style: italic; } /* CommentVar */
+    code span.do { color: #5e5e5e; font-style: italic; } /* Documentation */
+    code span.dt { color: #ad0000; } /* DataType */
+    code span.dv { color: #ad0000; } /* DecVal */
+    code span.er { color: #ad0000; } /* Error */
+    code span.ex { } /* Extension */
+    code span.fl { color: #ad0000; } /* Float */
+    code span.fu { color: #4758ab; } /* Function */
+    code span.im { color: #00769e; } /* Import */
+    code span.in { color: #5e5e5e; } /* Information */
+    code span.kw { color: #003b4f; font-weight: bold; } /* Keyword */
+    code span.op { color: #5e5e5e; } /* Operator */
+    code span.ot { color: #003b4f; } /* Other */
+    code span.pp { color: #ad0000; } /* Preprocessor */
+    code span.sc { color: #5e5e5e; } /* SpecialChar */
+    code span.ss { color: #20794d; } /* SpecialString */
+    code span.st { color: #20794d; } /* String */
+    code span.va { color: #111111; } /* Variable */
+    code span.vs { color: #20794d; } /* VerbatimString */
+    code span.wa { color: #5e5e5e; font-style: italic; } /* Warning */
+  </style>
+  <link rel="stylesheet" href="w04-tidymodels-ii_files/libs/revealjs/dist/theme/quarto-06b54d7a4b93827484192dda61919fa4.css">
+  <link href="w04-tidymodels-ii_files/libs/revealjs/plugin/quarto-line-highlight/line-highlight.css" rel="stylesheet">
+  <link href="w04-tidymodels-ii_files/libs/revealjs/plugin/reveal-menu/menu.css" rel="stylesheet">
+  <link href="w04-tidymodels-ii_files/libs/revealjs/plugin/reveal-menu/quarto-menu.css" rel="stylesheet">
+  <link href="w04-tidymodels-ii_files/libs/revealjs/plugin/quarto-support/footer.css" rel="stylesheet">
+  <style type="text/css">
+    .reveal div.sourceCode {
+      margin: 0;
+      overflow: auto;
+    }
+    .reveal div.hanging-indent {
+      margin-left: 1em;
+      text-indent: -1em;
+    }
+    .reveal .slide:not(.center) {
+      height: 100%;
+      overflow-y: auto;
+    }
+    .reveal .slide.scrollable {
+      overflow-y: auto;
+    }
+    .reveal .footnotes {
+      height: 100%;
+      overflow-y: auto;
+    }
+    .reveal .slide .absolute {
+      position: absolute;
+      display: block;
+    }
+    .reveal .footnotes ol {
+      counter-reset: ol;
+      list-style-type: none; 
+      margin-left: 0;
+    }
+    .reveal .footnotes ol li:before {
+      counter-increment: ol;
+      content: counter(ol) ". "; 
+    }
+    .reveal .footnotes ol li > p:first-child {
+      display: inline-block;
+    }
+    .reveal .slide ul,
+    .reveal .slide ol {
+      margin-bottom: 0.5em;
+    }
+    .reveal .slide ul li,
+    .reveal .slide ol li {
+      margin-top: 0.4em;
+      margin-bottom: 0.2em;
+    }
+    .reveal .slide ul[role="tablist"] li {
+      margin-bottom: 0;
+    }
+    .reveal .slide ul li > *:first-child,
+    .reveal .slide ol li > *:first-child {
+      margin-block-start: 0;
+    }
+    .reveal .slide ul li > *:last-child,
+    .reveal .slide ol li > *:last-child {
+      margin-block-end: 0;
+    }
+    .reveal .slide .columns:nth-child(3) {
+      margin-block-start: 0.8em;
+    }
+    .reveal blockquote {
+      box-shadow: none;
+    }
+    .reveal .tippy-content>* {
+      margin-top: 0.2em;
+      margin-bottom: 0.7em;
+    }
+    .reveal .tippy-content>*:last-child {
+      margin-bottom: 0.2em;
+    }
+    .reveal .slide > img.stretch.quarto-figure-center,
+    .reveal .slide > img.r-stretch.quarto-figure-center {
+      display: block;
+      margin-left: auto;
+      margin-right: auto; 
+    }
+    .reveal .slide > img.stretch.quarto-figure-left,
+    .reveal .slide > img.r-stretch.quarto-figure-left  {
+      display: block;
+      margin-left: 0;
+      margin-right: auto; 
+    }
+    .reveal .slide > img.stretch.quarto-figure-right,
+    .reveal .slide > img.r-stretch.quarto-figure-right  {
+      display: block;
+      margin-left: auto;
+      margin-right: 0; 
+    }
+  </style>
+</head>
+<body class="quarto-light">
+  <div class="reveal">
+    <div class="slides">
+
+<section id="title-slide" data-background-position="left" class="quarto-title-block center">
+  <h1 class="title">EC524: Lab 04</h1>
+  <p class="subtitle"><code>tidymodels</code> Modeling, Resampling, and Prediction</p>
+
+<div class="quarto-title-authors">
+<div class="quarto-title-author">
+<div class="quarto-title-author-name">
+Jose Rojas-Fallas 
+</div>
+</div>
+</div>
+
+  <p class="date">2026</p>
+</section>
+<section id="lab-agenda" class="slide level2">
+<h2>Lab Agenda</h2>
+<p><br></p>
+<p><span class="hp"><em>1.</em></span> Modeling</p>
+<p><br></p>
+<p><span class="hp"><em>2.</em></span> Resampling and Prediction</p>
+</section>
+<section id="preprocessing" class="slide level2">
+<h2>Preprocessing</h2>
+<p><span class="h align-center">A quick catch-up of what we did:</span></p>
+<p><span class="hp"><em>i</em></span> Loaded credit data, cleaned it up and created our outcome variable</p>
+<div class="cell">
+<div class="sourceCode cell-code" id="cb1"><pre class="sourceCode numberSource r number-lines code-with-copy"><code class="sourceCode r"><span id="cb1-1"><a href=""></a><span class="co"># Setup </span></span>
+<span id="cb1-2"><a href=""></a><span class="co"># Load packages</span></span>
+<span id="cb1-3"><a href=""></a><span class="fu">library</span>(pacman)</span>
+<span id="cb1-4"><a href=""></a><span class="fu">p_load</span>(tidyverse, modeldata, skimr, janitor, tidymodels, magrittr, visdat)</span>
+<span id="cb1-5"><a href=""></a><span class="co"># Load the credit dataset</span></span>
+<span id="cb1-6"><a href=""></a><span class="fu">data</span>(credit_data)</span>
+<span id="cb1-7"><a href=""></a><span class="co"># (Optional) Assign a new name</span></span>
+<span id="cb1-8"><a href=""></a>credit_df <span class="ot">&lt;-</span> credit_data</span>
+<span id="cb1-9"><a href=""></a><span class="co"># 'Fix' names</span></span>
+<span id="cb1-10"><a href=""></a>credit_df <span class="sc">%&lt;&gt;%</span> </span>
+<span id="cb1-11"><a href=""></a>    <span class="fu">clean_names</span>() <span class="sc">%&gt;%</span></span>
+<span id="cb1-12"><a href=""></a>    <span class="co"># Create a dummy variable for 'good' credit status</span></span>
+<span id="cb1-13"><a href=""></a>    <span class="fu">mutate</span>(<span class="at">status_good =</span> <span class="dv">1</span> <span class="sc">*</span> (status <span class="sc">==</span> <span class="st">"good"</span>)) <span class="sc">%&gt;%</span></span>
+<span id="cb1-14"><a href=""></a>    <span class="co"># Drop the old status variable</span></span>
+<span id="cb1-15"><a href=""></a>    <span class="fu">select</span>(<span class="sc">-</span>status)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+</div>
+</section>
+<section id="preprocessing-1" class="slide level2">
+<h2>Preprocessing</h2>
+<p><span class="hp"><em>ii</em></span> Visualized the data and found there is missing data</p>
+<ul>
+<li>New way: <code>visdat::vis_dat()</code> and <code>visdat::vis_miss()</code></li>
+</ul>
+<div class="cell">
+<div class="sourceCode cell-code" id="cb2"><pre class="sourceCode numberSource r number-lines code-with-copy"><code class="sourceCode r"><span id="cb2-1"><a href=""></a><span class="co"># Can use skimr::skim() or a new way to visualize is</span></span>
+<span id="cb2-2"><a href=""></a></span>
+<span id="cb2-3"><a href=""></a>credit_df <span class="sc">%&gt;%</span> visdat<span class="sc">::</span><span class="fu">vis_dat</span>()</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output-display">
+<div>
+<figure>
+<p><img data-src="w04-tidymodels-ii_files/figure-revealjs/preprocessing-02-1.png" width="576"></p>
+</figure>
+</div>
+</div>
+<div class="sourceCode cell-code" id="cb3"><pre class="sourceCode numberSource r number-lines code-with-copy"><code class="sourceCode r"><span id="cb3-1"><a href=""></a>credit_df <span class="sc">%&gt;%</span> visdat<span class="sc">::</span><span class="fu">vis_miss</span>()</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output-display">
+<div>
+<figure>
+<p><img data-src="w04-tidymodels-ii_files/figure-revealjs/preprocessing-02-2.png" width="576"></p>
+</figure>
+</div>
+</div>
+</div>
+</section>
+<section id="preprocessing-2" class="slide level2">
+<h2>Preprocessing</h2>
+<p><span class="hp"><em>iii</em></span> Set up a <code>recipe()</code> that helped us clean the data and impute necessary missing data</p>
+<p><span class="note h">Note: I am storing the preprocessing steps in an object, that I can call on later</span></p>
+<div class="cell">
+<div class="sourceCode cell-code" id="cb4"><pre class="sourceCode numberSource r number-lines code-with-copy"><code class="sourceCode r"><span id="cb4-1"><a href=""></a><span class="co"># Define the recipe: status_good predicted by all other variables in credit_df</span></span>
+<span id="cb4-2"><a href=""></a>recipe_all <span class="ot">=</span> <span class="fu">recipe</span>(status_good <span class="sc">~</span> ., <span class="at">data =</span> credit_df)</span>
+<span id="cb4-3"><a href=""></a><span class="co"># Putting it all together</span></span>
+<span id="cb4-4"><a href=""></a>preprocessing_steps <span class="ot">&lt;-</span> recipe_all <span class="sc">%&gt;%</span></span>
+<span id="cb4-5"><a href=""></a>  <span class="co"># Mean imputation for numeric predictors</span></span>
+<span id="cb4-6"><a href=""></a>  <span class="fu">step_impute_mean</span>(<span class="fu">all_predictors</span>() <span class="sc">&amp;</span> <span class="fu">all_numeric</span>()) <span class="sc">%&gt;%</span> </span>
+<span id="cb4-7"><a href=""></a>  <span class="co"># KNN imputation for categorical predictors</span></span>
+<span id="cb4-8"><a href=""></a>  <span class="fu">step_impute_knn</span>(<span class="fu">all_predictors</span>() <span class="sc">&amp;</span> <span class="fu">all_nominal</span>(), <span class="at">neighbors =</span> <span class="dv">5</span>) <span class="sc">%&gt;%</span></span>
+<span id="cb4-9"><a href=""></a>  <span class="co"># Create dummies for categorical variables</span></span>
+<span id="cb4-10"><a href=""></a>  <span class="fu">step_dummy</span>(<span class="fu">all_predictors</span>() <span class="sc">&amp;</span> <span class="fu">all_nominal</span>()) <span class="sc">%&gt;%</span></span>
+<span id="cb4-11"><a href=""></a>  <span class="co"># Interactions</span></span>
+<span id="cb4-12"><a href=""></a>  <span class="fu">step_interact</span>(<span class="sc">~</span>income<span class="sc">:</span><span class="fu">starts_with</span>(<span class="st">"home"</span>))</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+</div>
+</section>
+<section id="preprocessing-3" class="slide level2">
+<h2>Preprocessing</h2>
+<p><span class="hp"><em>iv</em></span> Recall that creating a <code>recipe()</code> with steps are only instructions, we still need to <code>prep()</code> and <code>juice()</code> it to get a dataframe</p>
+<div class="cell">
+<div class="sourceCode cell-code" id="cb5"><pre class="sourceCode numberSource r number-lines code-with-copy"><code class="sourceCode r"><span id="cb5-1"><a href=""></a>credit_clean <span class="ot">&lt;-</span> preprocessing_steps <span class="sc">%&gt;%</span> <span class="fu">prep</span>() <span class="sc">%&gt;%</span> <span class="fu">juice</span>()</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+</div>
+</section>
+<section id="fitting-models" class="slide level2">
+<h2>Fitting Models</h2>
+<p>Now that we have a nice clean dataset, we can begin to fit a model</p>
+<p>In the <code>tidymodels</code> universe, we need to do (at least) three things:</p>
+<p><span class="hi"><em>1</em>.</span> <span class="hp">Define the Model Specification</span></p>
+<ul>
+<li>The <span class="hp">Type</span> of model we want (linear regression, KNN, or random forest)</li>
+</ul>
+<p><span class="hi"><em>2</em>.</span> <span class="hp">Define the Engine</span></p>
+<ul>
+<li>The <span class="hp">function/package</span> that R will use to fit your model</li>
+</ul>
+<p><span class="hi"><em>3</em>.</span> <span class="hp">Define the data and relationships to fit</span></p>
+<ul>
+<li>Point R to your data and define output/input</li>
+</ul>
+<aside class="notes">
+<p>If the model specification defines a general class of models that you are using, then engine defines the specific functions/algorithms R will use to fit these models.</p>
+<p>Using the output(s) and input(s) in the dataset</p>
+<style type="text/css">
+        span.MJX_Assistive_MathML {
+          position:absolute!important;
+          clip: rect(1px, 1px, 1px, 1px);
+          padding: 1px 0 0 0!important;
+          border: 0!important;
+          height: 1px!important;
+          width: 1px!important;
+          overflow: hidden!important;
+          display:block!important;
+      }</style></aside>
+</section>
+<section id="specifying-the-type-of-model" class="slide level2">
+<h2>Specifying the Type of Model</h2>
+<p>Your first decision is the type of model you want to use (in <code>tidymodels</code> “type” = “specification”, but that may be confusing for the econometric mind)</p>
+<ul>
+<li><p>You have many choices for the type of model you want to specify. Each comes with a different <code>parsnip</code> <a href="" target="_blank">function</a></p>
+<ul>
+<li>Linear Regression: <code>linear_reg()</code></li>
+<li>K-Nearest Neighbor: <code>nearest_neighbor()</code></li>
+<li>Random Forest: <code>rand_forest()</code></li>
+</ul></li>
+<li><p>We can check what the linear regression model function <code>linear_reg()</code> tells us:</p></li>
+</ul>
+<div class="cell">
+<div class="sourceCode cell-code" id="cb6"><pre class="sourceCode numberSource r number-lines code-with-copy"><code class="sourceCode r"><span id="cb6-1"><a href=""></a><span class="fu">linear_reg</span>()</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output cell-output-stdout">
+<pre><code>Linear Regression Model Specification (regression)
+
+Computational engine: lm </code></pre>
+</div>
+</div>
+</section>
+<section id="setting-an-engine" class="slide level2">
+<h2>Setting an Engine</h2>
+<p>Before we actually fit/train the model, we need to tell R which <span class="h">engine</span> we want to use.</p>
+<p>The <span class="h">engine</span> tells R what algorithms to use, and some algos may differ greatly from others</p>
+<p>You define the <span class="h">engine</span> using the <code>set_engine()</code> <a href="" target="_blank">function</a></p>
+<p>You can see that we can fit a <span class="h">linear regression</span> model using <span class="h">any of five engines</span></p>
+<div class="columns">
+<div class="column">
+<ul>
+<li><code>"lm"</code></li>
+<li><code>"glmnet"</code></li>
+<li><code>"stan"</code></li>
+</ul>
+</div><div class="column">
+<ul>
+<li><code>"spark"</code></li>
+<li><code>"keras"</code></li>
+</ul>
+</div></div>
+<p>You can use <code>show_engines()</code> function to see which engines are available for your model type</p>
+<div class="cell">
+<div class="sourceCode cell-code" id="cb8"><pre class="sourceCode numberSource r number-lines code-with-copy"><code class="sourceCode r"><span id="cb8-1"><a href=""></a><span class="co"># Show which engines are available for linear_reg()</span></span>
+<span id="cb8-2"><a href=""></a><span class="fu">show_engines</span>(<span class="st">"linear_reg"</span>)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output cell-output-stdout">
+<pre><code># A tibble: 8 × 2
+  engine   mode               
+  &lt;chr&gt;    &lt;chr&gt;              
+1 lm       regression         
+2 glm      regression         
+3 glmnet   regression         
+4 stan     regression         
+5 spark    regression         
+6 keras    regression         
+7 brulee   regression         
+8 quantreg quantile regression</code></pre>
+</div>
+</div>
+</section>
+<section id="setting-an-engine-1" class="slide level2">
+<h2>Setting an Engine</h2>
+<p>We will use the <code>"lm"</code> engine to fit a traditional linear regression model. Fancy stuff comes later.</p>
+<div class="cell">
+<div class="sourceCode cell-code" id="cb10"><pre class="sourceCode numberSource r number-lines code-with-copy"><code class="sourceCode r"><span id="cb10-1"><a href=""></a><span class="co"># Define the "lm" engine for `linear_reg()`</span></span>
+<span id="cb10-2"><a href=""></a><span class="fu">linear_reg</span>() <span class="sc">%&gt;%</span> <span class="fu">set_engine</span>(<span class="st">"lm"</span>)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output cell-output-stdout">
+<pre><code>Linear Regression Model Specification (regression)
+
+Computational engine: lm </code></pre>
+</div>
+</div>
+</section>
+<section id="setting-an-engine-2" class="slide level2">
+<h2>Setting an Engine</h2>
+<p>We can also use <code>translate()</code> to see what is going on under the hood a bit more</p>
+<div class="cell">
+<div class="sourceCode cell-code" id="cb12"><pre class="sourceCode numberSource r number-lines code-with-copy"><code class="sourceCode r"><span id="cb12-1"><a href=""></a><span class="co"># Translate our regression model</span></span>
+<span id="cb12-2"><a href=""></a><span class="fu">linear_reg</span>() <span class="sc">%&gt;%</span> <span class="fu">set_engine</span>(<span class="st">"lm"</span>) <span class="sc">%&gt;%</span> <span class="fu">translate</span>()</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output cell-output-stdout">
+<pre><code>Linear Regression Model Specification (regression)
+
+Computational engine: lm 
+
+Model fit template:
+stats::lm(formula = missing_arg(), data = missing_arg(), weights = missing_arg())</code></pre>
+</div>
+</div>
+</section>
+<section id="fitting-training-your-model" class="slide level2">
+<h2>Fitting (Training) Your Model</h2>
+<p>After defining the type of model and the engine, we can now begin to <code>fit()</code> the model</p>
+<ul>
+<li><p>The <code>fit()</code> <a href="" target="_blank">function</a> wants a few arguments</p>
+<ul>
+<li>The <code>model_spec</code> object comes from setting the <span class="h">type</span> and <span class="h">engine</span> (form before)</li>
+<li>A <code>formula</code> the defines the outputs and inputs (just like using <code>lm()</code>)</li>
+<li>The <code>data</code></li>
+</ul></li>
+<li><p>In our case, we will have:</p>
+<ul>
+<li>Model type is <code>linear_reg()</code> and our Engine is <code>"lm"</code></li>
+<li>The <code>formula</code> is our linear regression where <code>status_good</code> is our outcome and the other vars. <code>(.)</code> are the predictors</li>
+<li>Our data is our cleaned dataset <code>credit_clean</code></li>
+</ul></li>
+</ul>
+<p>This is a simple linear regression but the <code>tidymodels</code> way.</p>
+<div class="cell">
+<div class="sourceCode cell-code" id="cb14"><pre class="sourceCode numberSource r number-lines code-with-copy"><code class="sourceCode r"><span id="cb14-1"><a href=""></a>est_reg <span class="ot">&lt;-</span> </span>
+<span id="cb14-2"><a href=""></a>    <span class="co"># Model Type</span></span>
+<span id="cb14-3"><a href=""></a>    <span class="fu">linear_reg</span>() <span class="sc">%&gt;%</span></span>
+<span id="cb14-4"><a href=""></a>    <span class="co"># Engine </span></span>
+<span id="cb14-5"><a href=""></a>    <span class="fu">set_engine</span>(<span class="st">"lm"</span>) <span class="sc">%&gt;%</span></span>
+<span id="cb14-6"><a href=""></a>    <span class="co"># Formula </span></span>
+<span id="cb14-7"><a href=""></a>    <span class="fu">fit</span>(status_good <span class="sc">~</span> ., <span class="at">data =</span> credit_clean)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+</div>
+</section>
+<section id="tidymodels-linear-regression" class="slide level2">
+<h2><code>tidymodels</code> Linear Regression</h2>
+<p>We can use <code>tidy()</code> to see the results in a more usual way</p>
+<div class="cell">
+<div class="sourceCode cell-code" id="cb15"><pre class="sourceCode numberSource r number-lines code-with-copy"><code class="sourceCode r"><span id="cb15-1"><a href=""></a>est_reg <span class="sc">%&gt;%</span> <span class="fu">tidy</span>()</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output cell-output-stdout">
+<pre><code># A tibble: 28 × 5
+   term           estimate   std.error statistic  p.value
+   &lt;chr&gt;             &lt;dbl&gt;       &lt;dbl&gt;     &lt;dbl&gt;    &lt;dbl&gt;
+ 1 (Intercept)  0.686      0.175           3.91  9.26e- 5
+ 2 seniority    0.00927    0.000880       10.5   1.19e-25
+ 3 time        -0.0000822  0.000473       -0.174 8.62e- 1
+ 4 age         -0.00153    0.000720       -2.12  3.37e- 2
+ 5 expenses    -0.00212    0.000376       -5.63  1.95e- 8
+ 6 income       0.00125    0.000981        1.27  2.03e- 1
+ 7 assets       0.00000249 0.000000559     4.46  8.53e- 6
+ 8 debt        -0.0000175  0.00000489     -3.58  3.42e- 4
+ 9 amount      -0.000234   0.0000207     -11.3   2.21e-29
+10 price        0.0000899  0.0000142       6.33  2.70e-10
+# ℹ 18 more rows</code></pre>
+</div>
+</div>
+<p>We can also use this information and use <code>predict()</code> as we have before.</p>
+</section>
+<section id="changing-the-type-of-model" class="slide level2">
+<h2>Changing The Type of Model</h2>
+<p>Okay, so we have just gone through a complex way to run a simple regression model that you likely knew how to do in a simpler way</p>
+<p>But the power of <code>tidymodels</code> is coming from its flexibility.</p>
+<ul>
+<li>It is very easy to change any of our decisions along the way</li>
+</ul>
+<p>Let’s say instead we wanted to fit a <span class="h">KNN</span> model. We just need to change the type of model and engine.</p>
+<ul>
+<li><span class="note hi">Note</span> Some methods like <span class="h">KNN</span> can be used for either <code>"regression"</code> tasks and <code>"classification"</code> tasks. We want to se the <span class="h">mode</span> for these methods, either within the <code>nearest_neighbor()</code> function (<code>nearest_neighbor(mode = "regression)</code>) or using the <code>set_mode()</code> function.</li>
+</ul>
+<p>We can finally choose a value for our parameters (tuning and CV later). In <span class="h">KNN</span> that is just setting a value of <span class="math inline">\(k\)</span>. I’ll arbitrarily choose 6.</p>
+<div class="cell">
+<div class="sourceCode cell-code" id="cb17"><pre class="sourceCode numberSource r number-lines code-with-copy"><code class="sourceCode r"><span id="cb17-1"><a href=""></a>est_knn <span class="ot">&lt;-</span> <span class="fu">nearest_neighbor</span>(<span class="at">mode =</span> <span class="st">"regression"</span>, <span class="at">neighbors =</span> <span class="dv">6</span>) <span class="sc">%&gt;%</span></span>
+<span id="cb17-2"><a href=""></a>    <span class="fu">set_engine</span>(<span class="st">"kknn"</span>) <span class="sc">%&gt;%</span></span>
+<span id="cb17-3"><a href=""></a>    <span class="fu">fit</span>(status_good <span class="sc">~</span> ., <span class="at">data =</span> credit_clean)</span>
+<span id="cb17-4"><a href=""></a></span>
+<span id="cb17-5"><a href=""></a>est_knn <span class="sc">%&gt;%</span> <span class="fu">class</span>()</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output cell-output-stdout">
+<pre><code>[1] "_train.kknn" "model_fit"  </code></pre>
+</div>
+</div>
+</section>
+<section id="resampling-tuning-and-validating" class="slide level2">
+<h2>Resampling, Tuning, and Validating</h2>
+<p>We have omitted a big part of the <span class="hi">ML Process</span>: Tuning and Validating models.</p>
+<p>As always, we begin with the setup (mostly in case this is not the same week as the other parts)</p>
+<div class="cell">
+<div class="sourceCode cell-code" id="cb19"><pre class="sourceCode numberSource r number-lines code-with-copy"><code class="sourceCode r"><span id="cb19-1"><a href=""></a><span class="co"># Packages</span></span>
+<span id="cb19-2"><a href=""></a><span class="fu">library</span>(pacman)</span>
+<span id="cb19-3"><a href=""></a><span class="fu">p_load</span>(tidyverse, modeldata, skimr, janitor, tidymodels, magrittr)</span>
+<span id="cb19-4"><a href=""></a><span class="co"># Load credit data</span></span>
+<span id="cb19-5"><a href=""></a><span class="fu">data</span>(credit_data)</span>
+<span id="cb19-6"><a href=""></a>credit_df <span class="ot">&lt;-</span> credit_data</span>
+<span id="cb19-7"><a href=""></a><span class="co"># Clean up names</span></span>
+<span id="cb19-8"><a href=""></a>credit_df <span class="sc">%&lt;&gt;%</span> <span class="fu">clean_names</span>()</span>
+<span id="cb19-9"><a href=""></a><span class="co"># Create a dummy variable for our outcome (good credit status)</span></span>
+<span id="cb19-10"><a href=""></a>credit_df <span class="sc">%&lt;&gt;%</span> <span class="fu">mutate</span>(<span class="at">status_good =</span> <span class="dv">1</span> <span class="sc">*</span> (status <span class="sc">==</span> <span class="st">"good"</span>)) <span class="sc">%&gt;%</span></span>
+<span id="cb19-11"><a href=""></a>    <span class="co"># drop old status variable</span></span>
+<span id="cb19-12"><a href=""></a>    <span class="fu">select</span>(<span class="sc">-</span>status)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+</div>
+</section>
+<section id="simple-sample-splitting" class="slide level2">
+<h2>Simple Sample Splitting</h2>
+<p>First simple task: Split the full <code>credit_df</code> dataset into a <span class="h">training (sub)set</span> and a <span class="h">testing (sub)set</span></p>
+<p>To split the sample, lets use the <code>initial_split()</code> function from the <code>rsample</code> package.</p>
+<ul>
+<li>It <strong><em>splits</em></strong> a proportion (<code>prop</code> argument) of your data into a <span class="h">training subset</span> and leaves the rest for the <span class="h">testing subset</span>.
+<ul>
+<li>If you wanted to sample by <code>strata</code> you could as well</li>
+</ul></li>
+<li>It is another tool for you to use (we had used <code>sample_frac()</code> previously)</li>
+<li>The output is an <code>rsplit</code> object, not a dataframe
+<ul>
+<li>We will pass the object given by <code>initial_split()</code> to the <code>training()</code> and <code>testing()</code> functions to get the actual subsets as dataframes</li>
+</ul></li>
+</ul>
+<p>[Note: It can be helpful to set a seed before you split the data for reproducing results]</p>
+</section>
+<section id="simple-sample-splitting-1" class="slide level2">
+<h2>Simple Sample Splitting</h2>
+<div class="cell">
+<div class="sourceCode cell-code" id="cb20"><pre class="sourceCode numberSource r number-lines code-with-copy"><code class="sourceCode r"><span id="cb20-1"><a href=""></a><span class="co"># Set the seed</span></span>
+<span id="cb20-2"><a href=""></a><span class="fu">set.seed</span>(<span class="dv">123</span>)</span>
+<span id="cb20-3"><a href=""></a><span class="co"># Create the split (80-20 split)</span></span>
+<span id="cb20-4"><a href=""></a>credit_split <span class="ot">&lt;-</span> credit_df <span class="sc">%&gt;%</span></span>
+<span id="cb20-5"><a href=""></a>    <span class="fu">initial_split</span>(<span class="at">prop =</span> <span class="fl">0.8</span>)</span>
+<span id="cb20-6"><a href=""></a><span class="co"># Check the output</span></span>
+<span id="cb20-7"><a href=""></a>credit_split</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output cell-output-stdout">
+<pre><code>&lt;Training/Testing/Total&gt;
+&lt;3563/891/4454&gt;</code></pre>
+</div>
+</div>
+<p>Now we can <span class="h">impose the split</span> by using the <code>training()</code> and <code>testing()</code> functions.</p>
+</section>
+<section id="simple-sample-splitting-2" class="slide level2">
+<h2>Simple Sample Splitting</h2>
+<p>After we grab the proper split data, we can check the dimensions to make sure it makes sense</p>
+<div class="cell">
+<div class="sourceCode cell-code" id="cb22"><pre class="sourceCode numberSource r number-lines code-with-copy"><code class="sourceCode r"><span id="cb22-1"><a href=""></a><span class="co"># Grab the training data (Larger Chunk)</span></span>
+<span id="cb22-2"><a href=""></a>credit_train <span class="ot">&lt;-</span> credit_split <span class="sc">%&gt;%</span> <span class="fu">training</span>()</span>
+<span id="cb22-3"><a href=""></a><span class="co"># Grab the testing data (Smaller Chunk)</span></span>
+<span id="cb22-4"><a href=""></a>credit_test <span class="ot">&lt;-</span> credit_split <span class="sc">%&gt;%</span> <span class="fu">testing</span>()</span>
+<span id="cb22-5"><a href=""></a><span class="co"># Check dimensions</span></span>
+<span id="cb22-6"><a href=""></a><span class="fu">dim</span>(credit_df); <span class="fu">dim</span>(credit_train); <span class="fu">dim</span>(credit_test)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output cell-output-stdout">
+<pre><code>[1] 4454   14</code></pre>
+</div>
+<div class="cell-output cell-output-stdout">
+<pre><code>[1] 3563   14</code></pre>
+</div>
+<div class="cell-output cell-output-stdout">
+<pre><code>[1] 891  14</code></pre>
+</div>
+</div>
+</section>
+<section id="resampling" class="slide level2">
+<h2>Resampling</h2>
+<p>As you’ve seen in class, the goal of prediction exercises is good <span class="h">out-of-sample</span> performance</p>
+<p>To avoid overfitting, while still allowing for “optimal” flexibility, we use resampling methods.</p>
+<p>We will use the <code>vfold_cv()</code> function to set up 5-fold cross validation for our model</p>
+<p><code>vfold_cv()</code> takes the following arguments:</p>
+<ul>
+<li><code>data</code></li>
+<li><code>v</code>, the number of folds</li>
+<li><code>repeats</code> the number of times you want to <span class="h">repeat</span> the cross validation (default is 1)</li>
+<li><code>strata</code> is an optional variable to use for stratified sampling in the folds</li>
+</ul>
+<p>Creating the folds looks like:</p>
+<div class="cell">
+<div class="sourceCode cell-code" id="cb26"><pre class="sourceCode numberSource r number-lines code-with-copy"><code class="sourceCode r"><span id="cb26-1"><a href=""></a><span class="co"># set seed</span></span>
+<span id="cb26-2"><a href=""></a><span class="fu">set.seed</span>(<span class="dv">123</span>)</span>
+<span id="cb26-3"><a href=""></a><span class="co"># 5-fold CV on the training dataset</span></span>
+<span id="cb26-4"><a href=""></a>credit_cv <span class="ot">&lt;-</span> credit_train <span class="sc">%&gt;%</span> <span class="fu">vfold_cv</span>(<span class="at">v =</span> <span class="dv">5</span>)</span>
+<span id="cb26-5"><a href=""></a><span class="co"># Check the output </span></span>
+<span id="cb26-6"><a href=""></a>credit_cv <span class="sc">%&gt;%</span> <span class="fu">tidy</span>()</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output cell-output-stdout">
+<pre><code># A tibble: 17,815 × 3
+     Row Data     Fold 
+   &lt;int&gt; &lt;chr&gt;    &lt;chr&gt;
+ 1     1 Analysis Fold1
+ 2     1 Analysis Fold2
+ 3     1 Analysis Fold4
+ 4     1 Analysis Fold5
+ 5     2 Analysis Fold2
+ 6     2 Analysis Fold3
+ 7     2 Analysis Fold4
+ 8     2 Analysis Fold5
+ 9     3 Analysis Fold1
+10     3 Analysis Fold3
+# ℹ 17,805 more rows</code></pre>
+</div>
+</div>
+</section>
+<section id="define-the-data-processing-recipe" class="slide level2">
+<h2>Define the Data-Processing Recipe</h2>
+<p>For each split, we want to <span class="h">process the data</span> (<code>recipes</code>) and <span class="h">fit the model</span> (<code>parsnip</code>)</p>
+<p><span class="hp">Important!</span> We want to preprocess the training subset <span class="h">in each split</span> separately from the split’s subset. This helps us avoid data leakage.</p>
+<p>In everything we have done before, we impute using the entire data. We are supposed to be keeping them totally <span class="h">separate</span>.</p>
+<p>What we <strong><em>really</em></strong> want is to process the datasets independently, but using the same <code>recipe</code> and steps</p>
+</section>
+<section id="define-the-recipe" class="slide level2">
+<h2>Define the Recipe</h2>
+<p>Only the <code>recipe</code>, no <code>prep()</code>, <code>juice()</code>, or <code>bake()</code></p>
+<div class="cell">
+<div class="sourceCode cell-code" id="cb28"><pre class="sourceCode numberSource r number-lines code-with-copy"><code class="sourceCode r"><span id="cb28-1"><a href=""></a><span class="co"># Data-processing recipe</span></span>
+<span id="cb28-2"><a href=""></a>    <span class="co"># IMPORTANT! </span><span class="al">NOTICE</span><span class="co"> I AM USING THE TRAINING DATA HERE NOT THE FULL SAMPLE</span></span>
+<span id="cb28-3"><a href=""></a>credit_recipe <span class="ot">&lt;-</span> <span class="fu">recipe</span>(status_good <span class="sc">~</span> ., <span class="at">data =</span> credit_train) <span class="sc">%&gt;%</span></span>
+<span id="cb28-4"><a href=""></a>    <span class="co"># Mean imputation for numeric predictors</span></span>
+<span id="cb28-5"><a href=""></a>    <span class="fu">step_impute_mean</span>(<span class="fu">all_predictors</span>() <span class="sc">&amp;</span> <span class="fu">all_numeric</span>()) <span class="sc">%&gt;%</span> </span>
+<span id="cb28-6"><a href=""></a>    <span class="co"># KNN imputation for categorical predictors</span></span>
+<span id="cb28-7"><a href=""></a>    <span class="fu">step_impute_knn</span>(<span class="fu">all_predictors</span>() <span class="sc">&amp;</span> <span class="fu">all_nominal</span>(), <span class="at">neighbors =</span> <span class="dv">5</span>) <span class="sc">%&gt;%</span></span>
+<span id="cb28-8"><a href=""></a>    <span class="co"># Create dummies for categorical variables</span></span>
+<span id="cb28-9"><a href=""></a>    <span class="fu">step_dummy</span>(<span class="fu">all_predictors</span>() <span class="sc">&amp;</span> <span class="fu">all_nominal</span>()) <span class="sc">%&gt;%</span></span>
+<span id="cb28-10"><a href=""></a>    <span class="co"># Interactions</span></span>
+<span id="cb28-11"><a href=""></a>    <span class="fu">step_interact</span>(<span class="sc">~</span>income<span class="sc">:</span><span class="fu">starts_with</span>(<span class="st">"home"</span>))</span>
+<span id="cb28-12"><a href=""></a><span class="co"># Check the result</span></span>
+<span id="cb28-13"><a href=""></a>credit_recipe</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output cell-output-stderr">
+<pre><code></code></pre>
+</div>
+<div class="cell-output cell-output-stderr">
+<pre><code>── Recipe ──────────────────────────────────────────────────────────────────────</code></pre>
+</div>
+<div class="cell-output cell-output-stderr">
+<pre><code></code></pre>
+</div>
+<div class="cell-output cell-output-stderr">
+<pre><code>── Inputs </code></pre>
+</div>
+<div class="cell-output cell-output-stderr">
+<pre><code>Number of variables by role</code></pre>
+</div>
+<div class="cell-output cell-output-stderr">
+<pre><code>outcome:    1
+predictor: 13</code></pre>
+</div>
+<div class="cell-output cell-output-stderr">
+<pre><code></code></pre>
+</div>
+<div class="cell-output cell-output-stderr">
+<pre><code>── Operations </code></pre>
+</div>
+<div class="cell-output cell-output-stderr">
+<pre><code>• Mean imputation for: all_predictors() &amp; all_numeric()</code></pre>
+</div>
+<div class="cell-output cell-output-stderr">
+<pre><code>• K-nearest neighbor imputation for: all_predictors() &amp; all_nominal()</code></pre>
+</div>
+<div class="cell-output cell-output-stderr">
+<pre><code>• Dummy variables from: all_predictors() &amp; all_nominal()</code></pre>
+</div>
+<div class="cell-output cell-output-stderr">
+<pre><code>• Interactions with: income:starts_with("home")</code></pre>
+</div>
+</div>
+</section>
+<section id="define-the-model" class="slide level2">
+<h2>Define the Model</h2>
+<p>Tell it both the <span class="h">type of model and the desired engine</span></p>
+<p>Keeping it simple with <code>linear_reg()</code> and the standard <code>"lm"</code></p>
+<ul>
+<li>Feel free to try whatever you want here in the code to test things out</li>
+</ul>
+<p>Although not necessary for <code>"lm"</code>, we will set the <code>mode</code> using <code>set_mode()</code>. Just good to get into the habit of things</p>
+<div class="cell">
+<div class="sourceCode cell-code" id="cb41"><pre class="sourceCode numberSource r number-lines code-with-copy"><code class="sourceCode r"><span id="cb41-1"><a href=""></a>model_lm <span class="ot">&lt;-</span> </span>
+<span id="cb41-2"><a href=""></a>    <span class="co"># Set my model</span></span>
+<span id="cb41-3"><a href=""></a>    <span class="fu">linear_reg</span>() <span class="sc">%&gt;%</span></span>
+<span id="cb41-4"><a href=""></a>    <span class="co"># Set my mode</span></span>
+<span id="cb41-5"><a href=""></a>    <span class="fu">set_mode</span>(<span class="st">"regression"</span>) <span class="sc">%&gt;%</span></span>
+<span id="cb41-6"><a href=""></a>    <span class="co"># Set my engine</span></span>
+<span id="cb41-7"><a href=""></a>    <span class="fu">set_engine</span>(<span class="st">"lm"</span>)</span>
+<span id="cb41-8"><a href=""></a><span class="co"># Check the result</span></span>
+<span id="cb41-9"><a href=""></a>model_lm</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output cell-output-stdout">
+<pre><code>Linear Regression Model Specification (regression)
+
+Computational engine: lm </code></pre>
+</div>
+</div>
+</section>
+<section id="putting-it-together-in-a-workflow" class="slide level2 scrollable">
+<h2>Putting it Together in a Workflow</h2>
+<p>We have three different objects floating around</p>
+<ol type="1">
+<li>The defined CV splits for the training dataset (<code>credit_cv</code>)</li>
+<li>The recipe for processing the data (<code>credit_recipe</code>)</li>
+<li>The model that we want to fit on the trianing data (folds)</li>
+</ol>
+<p>Now we need to put them together.</p>
+<ul>
+<li>Repeating the preprocessing for each training and validation split <strong><em>could</em></strong> be annoying if you did it all by hand.</li>
+<li>Luckily, we will be uwing the <code>workflows</code> package within <code>tidymodels</code></li>
+</ul>
+<p>How? Literally by defining a workflow with the <code>workflow()</code> function and then pipe in your model and then recipe</p>
+<div class="cell">
+<div class="sourceCode cell-code" id="cb43"><pre class="sourceCode numberSource r number-lines code-with-copy"><code class="sourceCode r"><span id="cb43-1"><a href=""></a><span class="fu">workflow</span>() <span class="sc">%&gt;%</span> </span>
+<span id="cb43-2"><a href=""></a>    <span class="fu">add_model</span>(model_lm) <span class="sc">%&gt;%</span></span>
+<span id="cb43-3"><a href=""></a>    <span class="fu">add_recipe</span>(credit_recipe)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output cell-output-stdout">
+<pre><code>══ Workflow ════════════════════════════════════════════════════════════════════
+Preprocessor: Recipe
+Model: linear_reg()
+
+── Preprocessor ────────────────────────────────────────────────────────────────
+4 Recipe Steps
+
+• step_impute_mean()
+• step_impute_knn()
+• step_dummy()
+• step_interact()
+
+── Model ───────────────────────────────────────────────────────────────────────
+Linear Regression Model Specification (regression)
+
+Computational engine: lm </code></pre>
+</div>
+</div>
+</section>
+<section id="putting-it-together-in-a-workflow-1" class="slide level2">
+<h2>Putting it Together in a Workflow</h2>
+<p>The workflow we just wrote defines the model, the data processing, and the engine.</p>
+<p>We will have a couple of options:</p>
+<p><span class="hp"><em>1.</em> Fit a Single Model Without CV</span></p>
+<p><span class="hp"><em>2.</em> Fit a Single Model With CV</span></p>
+<p><span class="hp"><em>3.</em> Tune your model (using CV)</span></p>
+</section>
+<section id="putting-it-together-in-a-workflow-2" class="slide level2">
+<h2>Putting it Together in a Workflow</h2>
+<p>The workflow we just wrote defines the model, the data processing, and the engine.</p>
+<p><span class="hp"><em>1.</em> Fit a Single Model Without CV</span></p>
+<p>If you <span class="h">only</span> want to fit the model (with no CV), you can pipe the workflow to <code>fit(data = dataframe)</code></p>
+<ul>
+<li>This is not what we will ultimately want as we want to cross-validate using the folds we created</li>
+</ul>
+<div class="cell">
+<div class="sourceCode cell-code" id="cb45"><pre class="sourceCode numberSource r number-lines code-with-copy"><code class="sourceCode r"><span id="cb45-1"><a href=""></a><span class="co"># Workflow and model fit</span></span>
+<span id="cb45-2"><a href=""></a><span class="fu">workflow</span>() <span class="sc">%&gt;%</span></span>
+<span id="cb45-3"><a href=""></a>    <span class="fu">add_model</span>(model_lm) <span class="sc">%&gt;%</span></span>
+<span id="cb45-4"><a href=""></a>    <span class="fu">add_recipe</span>(credit_recipe) <span class="sc">%&gt;%</span></span>
+<span id="cb45-5"><a href=""></a>    <span class="fu">fit</span>(<span class="at">data =</span> credit_df)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output cell-output-stdout">
+<pre><code>══ Workflow [trained] ══════════════════════════════════════════════════════════
+Preprocessor: Recipe
+Model: linear_reg()
+
+── Preprocessor ────────────────────────────────────────────────────────────────
+4 Recipe Steps
+
+• step_impute_mean()
+• step_impute_knn()
+• step_dummy()
+• step_interact()
+
+── Model ───────────────────────────────────────────────────────────────────────
+
+Call:
+stats::lm(formula = ..y ~ ., data = data)
+
+Coefficients:
+          (Intercept)              seniority                   time  
+            6.855e-01              9.267e-03             -8.311e-05  
+                  age               expenses                 income  
+           -1.525e-03             -2.120e-03              1.250e-03  
+               assets                   debt                 amount  
+            2.493e-06             -1.750e-05             -2.344e-04  
+                price             home_other             home_owner  
+            8.991e-05              6.054e-02              2.588e-01  
+         home_parents              home_priv              home_rent  
+            2.135e-01              1.559e-01              7.157e-02  
+      marital_married      marital_separated         marital_single  
+            7.142e-02             -1.320e-01              8.053e-03  
+        marital_widow            records_yes          job_freelance  
+            1.179e-02             -2.969e-01             -1.174e-01  
+           job_others            job_partime    income_x_home_other  
+           -1.341e-01             -2.979e-01             -4.669e-04  
+  income_x_home_owner  income_x_home_parents     income_x_home_priv  
+           -5.550e-04             -4.636e-04             -5.933e-04  
+   income_x_home_rent  
+           -5.508e-05  </code></pre>
+</div>
+</div>
+</section>
+<section id="putting-it-together-in-a-workflow-3" class="slide level2">
+<h2>Putting it Together in a Workflow</h2>
+<p>The workflow we just wrote defines the model, the data processing, and the engine.</p>
+<p><span class="hp"><em>2.</em> Fit a Single Model With CV</span></p>
+<p>If you want to estimate your model’s out-of-sample performance, then you can use <code>fit_resamples()</code> And we can use <code>collect_metrics()</code> function to assess the performance across the resamples</p>
+<ul>
+<li>By default, it will average across the folds (notice it says <code>n = 5</code>, which is our folds).</li>
+</ul>
+<div class="cell">
+<div class="sourceCode cell-code" id="cb47"><pre class="sourceCode numberSource r number-lines code-with-copy"><code class="sourceCode r"><span id="cb47-1"><a href=""></a>fit_lm_cv <span class="ot">&lt;-</span> </span>
+<span id="cb47-2"><a href=""></a>    <span class="fu">workflow</span>() <span class="sc">%&gt;%</span></span>
+<span id="cb47-3"><a href=""></a>    <span class="fu">add_model</span>(model_lm) <span class="sc">%&gt;%</span></span>
+<span id="cb47-4"><a href=""></a>    <span class="fu">add_recipe</span>(credit_recipe) <span class="sc">%&gt;%</span></span>
+<span id="cb47-5"><a href=""></a>    <span class="fu">fit_resamples</span>(credit_cv)</span>
+<span id="cb47-6"><a href=""></a><span class="co"># Check performance</span></span>
+<span id="cb47-7"><a href=""></a>fit_lm_cv <span class="sc">%&gt;%</span> <span class="fu">collect_metrics</span>()</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output cell-output-stdout">
+<pre><code># A tibble: 2 × 6
+  .metric .estimator  mean     n std_err .config        
+  &lt;chr&gt;   &lt;chr&gt;      &lt;dbl&gt; &lt;int&gt;   &lt;dbl&gt; &lt;chr&gt;          
+1 rmse    standard   0.390     5 0.00428 pre0_mod0_post0
+2 rsq     standard   0.255     5 0.0163  pre0_mod0_post0</code></pre>
+</div>
+</div>
+</section>
+<section id="putting-it-together-in-a-workflow-4" class="slide level2">
+<h2>Putting it Together in a Workflow</h2>
+<p>The workflow we just wrote defines the model, the data processing, and the engine.</p>
+<p><span class="hp"><em>2.</em> Fit a Single Model With CV</span></p>
+<ul>
+<li>If you wanted to see how the model performs on <span class="h">each fold</span> then you can set <code>summarize = F</code> inside <code>collect_metrics()</code></li>
+</ul>
+<div class="cell">
+<div class="sourceCode cell-code" id="cb49"><pre class="sourceCode numberSource r number-lines code-with-copy"><code class="sourceCode r"><span id="cb49-1"><a href=""></a>fit_lm_cv <span class="sc">%&gt;%</span> <span class="fu">collect_metrics</span>(<span class="at">summarize =</span> F)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output cell-output-stdout">
+<pre><code># A tibble: 10 × 5
+   id    .metric .estimator .estimate .config        
+   &lt;chr&gt; &lt;chr&gt;   &lt;chr&gt;          &lt;dbl&gt; &lt;chr&gt;          
+ 1 Fold1 rmse    standard       0.393 pre0_mod0_post0
+ 2 Fold1 rsq     standard       0.257 pre0_mod0_post0
+ 3 Fold2 rmse    standard       0.387 pre0_mod0_post0
+ 4 Fold2 rsq     standard       0.255 pre0_mod0_post0
+ 5 Fold3 rmse    standard       0.377 pre0_mod0_post0
+ 6 Fold3 rsq     standard       0.308 pre0_mod0_post0
+ 7 Fold4 rmse    standard       0.391 pre0_mod0_post0
+ 8 Fold4 rsq     standard       0.246 pre0_mod0_post0
+ 9 Fold5 rmse    standard       0.404 pre0_mod0_post0
+10 Fold5 rsq     standard       0.206 pre0_mod0_post0</code></pre>
+</div>
+</div>
+</section>
+<section id="putting-it-together-in-a-workflow-5" class="slide level2">
+<h2>Putting it Together in a Workflow</h2>
+<p>RMSE and <span class="math inline">\(R^{2}\)</span> are the default metrics. We can change them using the <code>metrics</code> argument inside of <code>fit_resamples()</code></p>
+<p>You can pass whichever metric you want to use from the <code>yardstick</code> package.</p>
+<ul>
+<li>Suppose we want Mean Absolute Error (MAE) as well</li>
+</ul>
+<div class="cell">
+<div class="sourceCode cell-code" id="cb51"><pre class="sourceCode numberSource r number-lines code-with-copy"><code class="sourceCode r"><span id="cb51-1"><a href=""></a><span class="co"># Define Workflow, then fit model on folds</span></span>
+<span id="cb51-2"><a href=""></a>fit_lm_cv <span class="ot">&lt;-</span> </span>
+<span id="cb51-3"><a href=""></a>    <span class="fu">workflow</span>() <span class="sc">%&gt;%</span></span>
+<span id="cb51-4"><a href=""></a>    <span class="fu">add_model</span>(model_lm) <span class="sc">%&gt;%</span></span>
+<span id="cb51-5"><a href=""></a>    <span class="fu">add_recipe</span>(credit_recipe) <span class="sc">%&gt;%</span></span>
+<span id="cb51-6"><a href=""></a>    <span class="fu">fit_resamples</span>(credit_cv, <span class="at">metrics =</span> <span class="fu">metric_set</span>(rmse, rsq, mae))</span>
+<span id="cb51-7"><a href=""></a><span class="co"># Check performance</span></span>
+<span id="cb51-8"><a href=""></a>fit_lm_cv <span class="sc">%&gt;%</span> <span class="fu">collect_metrics</span>()</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output cell-output-stdout">
+<pre><code># A tibble: 3 × 6
+  .metric .estimator  mean     n std_err .config        
+  &lt;chr&gt;   &lt;chr&gt;      &lt;dbl&gt; &lt;int&gt;   &lt;dbl&gt; &lt;chr&gt;          
+1 mae     standard   0.320     5 0.00386 pre0_mod0_post0
+2 rmse    standard   0.390     5 0.00428 pre0_mod0_post0
+3 rsq     standard   0.255     5 0.0163  pre0_mod0_post0</code></pre>
+</div>
+</div>
+</section>
+<section id="putting-it-together-in-a-workflow-6" class="slide level2">
+<h2>Putting it Together in a Workflow</h2>
+<p>The workflow we just wrote defines the model, the data processing, and the engine.</p>
+<p><span class="hp"><em>3.</em> Tune your model (using CV)</span></p>
+<p>Instead of “just” estimating out-of-sample model performance for a specified model and pre-processing operations, we will often want to <span class="h">tune a model’s hyperparameter(s)</span></p>
+<p>Suppose we are using <span class="math inline">\(k\)</span> nearest neighbors instead of a linear regression. Then we either need to specify a <span class="math inline">\(k\)</span> <span class="h">or</span> we need to <span class="hp">tune k</span>.</p>
+<p>By <span class="hp">tune</span> we mean estimate the out-of-sample performance for various values of <span class="math inline">\(k\)</span> and then choose the “best” <span class="math inline">\(k\)</span> (based on some metric that defines “best”).</p>
+<p>To begin, let’s define a KNN model using <code>nearest_neighbor()</code>. We will tell it to <span class="hp">tune</span> by specifiying we want to <code>tune()</code> as our neighbors value.</p>
+<div class="cell">
+<div class="sourceCode cell-code" id="cb53"><pre class="sourceCode numberSource r number-lines code-with-copy"><code class="sourceCode r"><span id="cb53-1"><a href=""></a><span class="co"># Define our KNN Model</span></span>
+<span id="cb53-2"><a href=""></a>model_knn <span class="ot">&lt;-</span> </span>
+<span id="cb53-3"><a href=""></a>    <span class="fu">nearest_neighbor</span>(<span class="at">neighbors =</span> <span class="fu">tune</span>()) <span class="sc">%&gt;%</span></span>
+<span id="cb53-4"><a href=""></a>    <span class="fu">set_mode</span>(<span class="st">"regression"</span>) <span class="sc">%&gt;%</span></span>
+<span id="cb53-5"><a href=""></a>    <span class="fu">set_engine</span>(<span class="st">"kknn"</span>) </span>
+<span id="cb53-6"><a href=""></a><span class="co"># Check the Model</span></span>
+<span id="cb53-7"><a href=""></a>model_knn</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output cell-output-stdout">
+<pre><code>K-Nearest Neighbor Model Specification (regression)
+
+Main Arguments:
+  neighbors = tune()
+
+Computational engine: kknn </code></pre>
+</div>
+</div>
+</section>
+<section id="tuning-knn" class="slide level2">
+<h2>Tuning KNN</h2>
+<p>Almost ready to fit the model, but we still need to let R know which values to try for the parameter we are tuning</p>
+<p>To tune our hyperparameter(s), we will use the <code>tune_grid()</code> function (instead of <code>fit()</code> or <code>fit_resamples()</code> functions)</p>
+<p><code>tune_grid()</code> works similarly to <code>fit_resamples()</code> except it takes an additional argument: <code>grid</code></p>
+<ul>
+<li>We will pass the possible values of our hyperparameter(s) to the <code>grid</code> argument and it will evaluate each fold of our samples on each set of hyperparameter(s) we fed it</li>
+</ul>
+</section>
+<section id="tuning-knn-1" class="slide level2">
+<h2>Tuning KNN</h2>
+<p>KNN only needs one hyperparameter: <code>neighbors</code>. We can give the <code>grid</code> argument a <code>data.frame</code> of all the values we would like to try, where the <span class="h">column’s name matches the hyperparameter we are trying to tune</span> <code>neighbors</code></p>
+<ul>
+<li>If, like me, you don’t know what may be “reasonable” values, you can see what is suggested by the function with the same name as the hyperparameter (<code>neighbors()</code> in this case)</li>
+</ul>
+<div class="cell">
+<div class="sourceCode cell-code" id="cb55"><pre class="sourceCode numberSource r number-lines code-with-copy"><code class="sourceCode r"><span id="cb55-1"><a href=""></a><span class="co"># Check "suggested" value of neighbors</span></span>
+<span id="cb55-2"><a href=""></a><span class="fu">neighbors</span>()</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+</div>
+</section>
+<section id="tuning-knn-2" class="slide level2">
+<h2>Tuning KNN</h2>
+<p><span class="hi-red">Caution</span></p>
+<p>As you add more values of hyperparameters, you fit more models.</p>
+<p>More models means more computation.</p>
+<p>More computation means more time.</p>
+<p>Keep in mind that you are already fitting a model on each fold (5 in our example) so if you want to test 100 values of <code>neighbors</code> then you need to fit <span class="math inline">\(100 \times 5\)</span> models</p>
+<p>Let’s try 1 <code>neighbor</code> (surely not the best) and then 5, and then 10 to 100 by 10s</p>
+</section>
+<section id="tuning-knn-3" class="slide level2">
+<h2>Tuning KNN</h2>
+<p>Let’s try 1 <code>neighbor</code> (surely not the best) and then 5, and then 10 to 100 by 10s</p>
+<div class="cell">
+<div class="sourceCode cell-code" id="cb56"><pre class="sourceCode numberSource r number-lines code-with-copy"><code class="sourceCode r"><span id="cb56-1"><a href=""></a><span class="co"># Define the workflow</span></span>
+<span id="cb56-2"><a href=""></a>workflow_knn <span class="ot">&lt;-</span> <span class="fu">workflow</span>() <span class="sc">%&gt;%</span></span>
+<span id="cb56-3"><a href=""></a>    <span class="fu">add_model</span>(model_knn) <span class="sc">%&gt;%</span></span>
+<span id="cb56-4"><a href=""></a>    <span class="fu">add_recipe</span>(credit_recipe)</span>
+<span id="cb56-5"><a href=""></a></span>
+<span id="cb56-6"><a href=""></a><span class="co"># Fit the workflow on our predefined folds and hyperparameters</span></span>
+<span id="cb56-7"><a href=""></a>fit_knn_cv <span class="ot">&lt;-</span> workflow_knn <span class="sc">%&gt;%</span></span>
+<span id="cb56-8"><a href=""></a>    <span class="fu">tune_grid</span>(</span>
+<span id="cb56-9"><a href=""></a>        <span class="co"># CV data</span></span>
+<span id="cb56-10"><a href=""></a>        credit_cv, </span>
+<span id="cb56-11"><a href=""></a>        <span class="co"># Grid where we put our values</span></span>
+<span id="cb56-12"><a href=""></a>        <span class="at">grid =</span> <span class="fu">data.frame</span>(<span class="at">neighbors =</span> <span class="fu">c</span>(<span class="dv">1</span>, <span class="dv">5</span>, <span class="fu">seq</span>(<span class="dv">10</span>,<span class="dv">100</span>,<span class="dv">10</span>))),</span>
+<span id="cb56-13"><a href=""></a>        <span class="at">metrics =</span> <span class="fu">metric_set</span>(rmse, rsq, mae)</span>
+<span id="cb56-14"><a href=""></a>    )</span>
+<span id="cb56-15"><a href=""></a></span>
+<span id="cb56-16"><a href=""></a><span class="co"># Check performance</span></span>
+<span id="cb56-17"><a href=""></a>fit_knn_cv <span class="sc">%&gt;%</span> <span class="fu">collect_metrics</span>()</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output cell-output-stdout">
+<pre><code># A tibble: 36 × 7
+   neighbors .metric .estimator   mean     n std_err .config         
+       &lt;dbl&gt; &lt;chr&gt;   &lt;chr&gt;       &lt;dbl&gt; &lt;int&gt;   &lt;dbl&gt; &lt;chr&gt;           
+ 1         1 mae     standard   0.298      5 0.00884 pre0_mod01_post0
+ 2         1 rmse    standard   0.546      5 0.00808 pre0_mod01_post0
+ 3         1 rsq     standard   0.0706     5 0.00940 pre0_mod01_post0
+ 4         5 mae     standard   0.301      5 0.00667 pre0_mod02_post0
+ 5         5 rmse    standard   0.449      5 0.00632 pre0_mod02_post0
+ 6         5 rsq     standard   0.129      5 0.0130  pre0_mod02_post0
+ 7        10 mae     standard   0.304      5 0.00520 pre0_mod03_post0
+ 8        10 rmse    standard   0.424      5 0.00488 pre0_mod03_post0
+ 9        10 rsq     standard   0.160      5 0.0126  pre0_mod03_post0
+10        20 mae     standard   0.308      5 0.00469 pre0_mod04_post0
+# ℹ 26 more rows</code></pre>
+</div>
+</div>
+</section>
+<section id="tuning-knn-4" class="slide level2">
+<h2>Tuning KNN</h2>
+<p>Recognize what we just did was pretty cool: We changed very little to move from a cross-validated regression model to a CV-tuned KNN model.</p>
+<p>The output is also cool, but overwhelming.</p>
+<p>We can use the <code>show_best()</code> function to have it tell us which value(s) of the hyperparameters performed best according to the metrics we asked for. We either need to give <code>show_best()</code> the name of the <code>metric</code> to use, or it will choose one for us.</p>
+<ul>
+<li><code>show_best()</code> also defaults to showing the top 5 models but you can change that with the <code>n</code> argument</li>
+<li><code>select_best()</code> allows us to select the best model (based on the metrics)</li>
+</ul>
+<div class="cell">
+<div class="sourceCode cell-code" id="cb58"><pre class="sourceCode numberSource r number-lines code-with-copy"><code class="sourceCode r"><span id="cb58-1"><a href=""></a><span class="co"># Show the best model in terms of RMSE</span></span>
+<span id="cb58-2"><a href=""></a>fit_knn_cv <span class="sc">%&gt;%</span> <span class="fu">show_best</span>(<span class="at">metric =</span> <span class="st">"rmse"</span>,, <span class="at">n =</span> <span class="dv">5</span>)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output cell-output-stdout">
+<pre><code># A tibble: 5 × 7
+  neighbors .metric .estimator  mean     n std_err .config         
+      &lt;dbl&gt; &lt;chr&gt;   &lt;chr&gt;      &lt;dbl&gt; &lt;int&gt;   &lt;dbl&gt; &lt;chr&gt;           
+1        60 rmse    standard   0.404     5 0.00261 pre0_mod08_post0
+2        70 rmse    standard   0.404     5 0.00245 pre0_mod09_post0
+3        50 rmse    standard   0.404     5 0.00283 pre0_mod07_post0
+4        80 rmse    standard   0.404     5 0.00232 pre0_mod10_post0
+5        40 rmse    standard   0.404     5 0.00315 pre0_mod06_post0</code></pre>
+</div>
+</div>
+<div class="cell">
+<div class="sourceCode cell-code" id="cb60"><pre class="sourceCode numberSource r number-lines code-with-copy"><code class="sourceCode r"><span id="cb60-1"><a href=""></a><span class="co"># Show the best model in terms of RMSE</span></span>
+<span id="cb60-2"><a href=""></a>fit_knn_cv <span class="sc">%&gt;%</span> <span class="fu">show_best</span>(<span class="at">metric =</span> <span class="st">"rsq"</span>, <span class="at">n =</span> <span class="dv">3</span>)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output cell-output-stdout">
+<pre><code># A tibble: 3 × 7
+  neighbors .metric .estimator  mean     n std_err .config         
+      &lt;dbl&gt; &lt;chr&gt;   &lt;chr&gt;      &lt;dbl&gt; &lt;int&gt;   &lt;dbl&gt; &lt;chr&gt;           
+1       100 rsq     standard   0.210     5  0.0105 pre0_mod12_post0
+2        90 rsq     standard   0.210     5  0.0105 pre0_mod11_post0
+3        80 rsq     standard   0.209     5  0.0105 pre0_mod10_post0</code></pre>
+</div>
+</div>
+</section>
+<section id="we-can-visualize-it" class="slide level2">
+<h2>We Can Visualize It</h2>
+<p>We can use the <code>autoplot()</code> function for a nice and quick picture (we can improve on it too).</p>
+<p>We just need to tell it what metric we want to map.</p>
+<div class="cell">
+<div class="sourceCode cell-code" id="cb62"><pre class="sourceCode numberSource r number-lines code-with-copy"><code class="sourceCode r"><span id="cb62-1"><a href=""></a><span class="co"># Quick plot</span></span>
+<span id="cb62-2"><a href=""></a><span class="fu">autoplot</span>(fit_knn_cv, <span class="at">metric =</span> <span class="st">"rmse"</span>)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+
+</div>
+<img data-src="w04-tidymodels-ii_files/figure-revealjs/autoplot-01-1.png" width="576" class="r-stretch"></section>
+<section id="visualize-it-part-02" class="slide level2">
+<h2>Visualize it Part 02</h2>
+<div class="cell">
+<div class="sourceCode cell-code" id="cb63"><pre class="sourceCode numberSource r number-lines code-with-copy"><code class="sourceCode r"><span id="cb63-1"><a href=""></a><span class="co"># Plot metrics' averages across values of 'k'</span></span>
+<span id="cb63-2"><a href=""></a>fit_knn_cv <span class="sc">%&gt;%</span> </span>
+<span id="cb63-3"><a href=""></a>    <span class="fu">collect_metrics</span>(<span class="at">summarize =</span> T) <span class="sc">%&gt;%</span></span>
+<span id="cb63-4"><a href=""></a>    <span class="fu">ggplot</span>(<span class="fu">aes</span>(<span class="at">x =</span> neighbors, <span class="at">y =</span> mean)) <span class="sc">+</span></span>
+<span id="cb63-5"><a href=""></a>    <span class="fu">geom_line</span>(<span class="at">size =</span> <span class="fl">0.7</span>, <span class="at">alpha =</span> <span class="fl">0.6</span>) <span class="sc">+</span></span>
+<span id="cb63-6"><a href=""></a>    <span class="fu">geom_point</span>(<span class="at">size =</span> <span class="fl">2.5</span>) <span class="sc">+</span></span>
+<span id="cb63-7"><a href=""></a>    <span class="fu">facet_wrap</span>(<span class="sc">~</span> <span class="fu">toupper</span>(.metric), <span class="at">scales =</span> <span class="st">"free"</span>, <span class="at">nrow =</span> <span class="dv">1</span>) <span class="sc">+</span></span>
+<span id="cb63-8"><a href=""></a>    <span class="fu">scale_x_continuous</span>(<span class="st">"Neighbors (k)"</span>, <span class="at">labels =</span> scales<span class="sc">::</span><span class="fu">label_number</span>()) <span class="sc">+</span></span>
+<span id="cb63-9"><a href=""></a>    <span class="fu">scale_y_continuous</span>(<span class="st">"Estimate"</span>) <span class="sc">+</span></span>
+<span id="cb63-10"><a href=""></a>    <span class="fu">scale_color_viridis_d</span>(<span class="st">"CV Folds:"</span>) <span class="sc">+</span></span>
+<span id="cb63-11"><a href=""></a>    <span class="fu">theme_minimal</span>() <span class="sc">+</span> </span>
+<span id="cb63-12"><a href=""></a>    <span class="fu">theme</span>(<span class="at">legend.position =</span> <span class="st">"bottom"</span>)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+
+</div>
+<img data-src="w04-tidymodels-ii_files/figure-revealjs/plot-improve-02-1.png" width="576" class="r-stretch"></section>
+<section id="visualize-it-part-03" class="slide level2">
+<h2>Visualize it Part 03</h2>
+<div class="cell">
+<div class="sourceCode cell-code" id="cb64"><pre class="sourceCode numberSource r number-lines code-with-copy"><code class="sourceCode r"><span id="cb64-1"><a href=""></a><span class="co"># Show each fold's metrics across values of 'k'</span></span>
+<span id="cb64-2"><a href=""></a>fit_knn_cv <span class="sc">%&gt;%</span> </span>
+<span id="cb64-3"><a href=""></a>    <span class="fu">collect_metrics</span>(<span class="at">summarize =</span> F) <span class="sc">%&gt;%</span></span>
+<span id="cb64-4"><a href=""></a>    <span class="fu">ggplot</span>(<span class="fu">aes</span>(<span class="at">x =</span> neighbors, <span class="at">y =</span> .estimate, <span class="at">color =</span> id)) <span class="sc">+</span></span>
+<span id="cb64-5"><a href=""></a>    <span class="fu">geom_line</span>(<span class="at">size =</span> <span class="fl">0.7</span>, <span class="at">alpha =</span> <span class="fl">0.6</span>) <span class="sc">+</span></span>
+<span id="cb64-6"><a href=""></a>    <span class="fu">geom_point</span>(<span class="at">size =</span> <span class="fl">2.5</span>) <span class="sc">+</span></span>
+<span id="cb64-7"><a href=""></a>    <span class="fu">facet_wrap</span>(<span class="sc">~</span> <span class="fu">toupper</span>(.metric), <span class="at">scales =</span> <span class="st">"free"</span>, <span class="at">nrow =</span> <span class="dv">1</span>) <span class="sc">+</span></span>
+<span id="cb64-8"><a href=""></a>    <span class="fu">scale_x_continuous</span>(<span class="st">"Neighbors (k)"</span>, <span class="at">labels =</span> scales<span class="sc">::</span><span class="fu">label_number</span>()) <span class="sc">+</span></span>
+<span id="cb64-9"><a href=""></a>    <span class="fu">scale_y_continuous</span>(<span class="st">"Estimate"</span>) <span class="sc">+</span></span>
+<span id="cb64-10"><a href=""></a>    <span class="fu">scale_color_viridis_d</span>(<span class="st">"CV Folds:"</span>) <span class="sc">+</span></span>
+<span id="cb64-11"><a href=""></a>    <span class="fu">theme_minimal</span>() <span class="sc">+</span> </span>
+<span id="cb64-12"><a href=""></a>    <span class="fu">theme</span>(<span class="at">legend.position =</span> <span class="st">"bottom"</span>)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+
+</div>
+<img data-src="w04-tidymodels-ii_files/figure-revealjs/plot-improve-03-1.png" width="576" class="r-stretch"></section>
+<section id="lastly-prediction" class="slide level2">
+<h2>Lastly: Prediction!</h2>
+<p>We are just about finished</p>
+<p>We will wrap it up by taking our selected model (the best model), fitting it on <span class="h">all</span> of the training data, and then predict onto the test data</p>
+<ul>
+<li>Recall we pick our “best” model (using whatever <code>metric</code> we prefer) using the <code>select_best()</code> function</li>
+</ul>
+<p>Once we found the “best” model, we wrap up our <code>workflow()</code> using <code>finalize_workflow()</code></p>
+<ul>
+<li>This function wants (1) your initial workflow <span class="h">and</span> (2) your best model</li>
+</ul>
+<div class="cell">
+<div class="sourceCode cell-code" id="cb65"><pre class="sourceCode numberSource r number-lines code-with-copy"><code class="sourceCode r"><span id="cb65-1"><a href=""></a><span class="co"># The final workflow for our KNN model</span></span>
+<span id="cb65-2"><a href=""></a>final_knn <span class="ot">&lt;-</span></span>
+<span id="cb65-3"><a href=""></a>    workflow_knn <span class="sc">%&gt;%</span> </span>
+<span id="cb65-4"><a href=""></a>    <span class="fu">finalize_workflow</span>(<span class="fu">select_best</span>(fit_knn_cv, <span class="at">metric =</span> <span class="st">"rmse"</span>))</span>
+<span id="cb65-5"><a href=""></a><span class="co"># Check out the final workflow object</span></span>
+<span id="cb65-6"><a href=""></a>final_knn</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output cell-output-stdout">
+<pre><code>══ Workflow ════════════════════════════════════════════════════════════════════
+Preprocessor: Recipe
+Model: nearest_neighbor()
+
+── Preprocessor ────────────────────────────────────────────────────────────────
+4 Recipe Steps
+
+• step_impute_mean()
+• step_impute_knn()
+• step_dummy()
+• step_interact()
+
+── Model ───────────────────────────────────────────────────────────────────────
+K-Nearest Neighbor Model Specification (regression)
+
+Main Arguments:
+  neighbors = 60
+
+Computational engine: kknn </code></pre>
+</div>
+</div>
+</section>
+<section id="prediction" class="slide level2">
+<h2>Prediction</h2>
+<p>Now we fit this finalized workflow to the <span class="h">full training</span> dataset (<code>credit_train</code>).</p>
+<p>Enter <code>fit()</code>.</p>
+<div class="cell">
+<div class="sourceCode cell-code" id="cb67"><pre class="sourceCode numberSource r number-lines code-with-copy"><code class="sourceCode r"><span id="cb67-1"><a href=""></a><span class="co"># Fitting our final workflow</span></span>
+<span id="cb67-2"><a href=""></a>final_fit_knn <span class="ot">&lt;-</span> final_knn <span class="sc">%&gt;%</span> <span class="fu">fit</span>(<span class="at">data =</span> credit_train)</span>
+<span id="cb67-3"><a href=""></a><span class="co"># Examine the final workflow</span></span>
+<span id="cb67-4"><a href=""></a>final_fit_knn</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output cell-output-stdout">
+<pre><code>══ Workflow [trained] ══════════════════════════════════════════════════════════
+Preprocessor: Recipe
+Model: nearest_neighbor()
+
+── Preprocessor ────────────────────────────────────────────────────────────────
+4 Recipe Steps
+
+• step_impute_mean()
+• step_impute_knn()
+• step_dummy()
+• step_interact()
+
+── Model ───────────────────────────────────────────────────────────────────────
+
+Call:
+kknn::train.kknn(formula = ..y ~ ., data = data, ks = min_rows(60,     data, 5))
+
+Type of response variable: continuous
+minimal mean absolute error: 0.3129085
+Minimal mean squared error: 0.1606585
+Best kernel: optimal
+Best k: 60</code></pre>
+</div>
+</div>
+</section>
+<section id="prediction-1" class="slide level2">
+<h2>Prediction</h2>
+<p>Finally, we predict onto the <span class="h">testing data</span> by using <code>predict()</code></p>
+<div class="cell">
+<div class="sourceCode cell-code" id="cb69"><pre class="sourceCode numberSource r number-lines code-with-copy"><code class="sourceCode r"><span id="cb69-1"><a href=""></a><span class="co"># Predict onto the test data</span></span>
+<span id="cb69-2"><a href=""></a>test_hat <span class="ot">&lt;-</span> final_fit_knn <span class="sc">%&gt;%</span> <span class="fu">predict</span>(<span class="at">new_data =</span> credit_test)</span>
+<span id="cb69-3"><a href=""></a><span class="co"># Check out predictions</span></span>
+<span id="cb69-4"><a href=""></a>test_hat <span class="sc">%&gt;%</span> <span class="fu">head</span>()</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output cell-output-stdout">
+<pre><code># A tibble: 6 × 1
+  .pred
+  &lt;dbl&gt;
+1 0.955
+2 0.940
+3 0.952
+4 0.290
+5 0.919
+6 0.957</code></pre>
+</div>
+</div>
+</section>
+<section id="prediction-but-easier" class="slide level2">
+<h2>Prediction but Easier</h2>
+<p>Once we have a final workflow (<code>final_knn</code> is the workflow plus the selected best model), you can pass it to the <code>last_fit()</code> function</p>
+<p>Along with the initial split (<code>credit_split</code> in our case) to both:</p>
+<ul>
+<li><p>Fit your final model on your full training dataset</p></li>
+<li><p>Make predictions onto the testing dataset (defined by the initial split object)</p></li>
+</ul>
+<p>This <code>last_fit()</code> approach streamlines your work and also lets you easily collect metrics using the <code>collect_metrics()</code> function from before</p>
+<div class="cell">
+<div class="sourceCode cell-code" id="cb71"><pre class="sourceCode numberSource r number-lines code-with-copy"><code class="sourceCode r"><span id="cb71-1"><a href=""></a><span class="co"># Write over 'final_fit_knn' with this last_fit() approach</span></span>
+<span id="cb71-2"><a href=""></a>final_fit_knn <span class="ot">&lt;-</span> final_knn <span class="sc">%&gt;%</span> <span class="fu">last_fit</span>(credit_split)</span>
+<span id="cb71-3"><a href=""></a><span class="co"># Collect metrics on the test data!</span></span>
+<span id="cb71-4"><a href=""></a>final_fit_knn <span class="sc">%&gt;%</span> <span class="fu">collect_metrics</span>()</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output cell-output-stdout">
+<pre><code># A tibble: 2 × 4
+  .metric .estimator .estimate .config        
+  &lt;chr&gt;   &lt;chr&gt;          &lt;dbl&gt; &lt;chr&gt;          
+1 rmse    standard       0.392 pre0_mod0_post0
+2 rsq     standard       0.225 pre0_mod0_post0</code></pre>
+</div>
+</div>
+</section>
+<section id="prediction-but-easier-1" class="slide level2">
+<h2>Prediction but Easier</h2>
+<p>If instead you want predictions, just use the <code>collect_predictions()</code> on the output from <code>last_fit()</code></p>
+<div class="cell">
+<div class="sourceCode cell-code" id="cb73"><pre class="sourceCode numberSource r number-lines code-with-copy"><code class="sourceCode r"><span id="cb73-1"><a href=""></a><span class="co"># Get test-sample predictions</span></span>
+<span id="cb73-2"><a href=""></a>final_fit_knn <span class="sc">%&gt;%</span> <span class="fu">collect_predictions</span>() <span class="sc">%&gt;%</span> <span class="fu">head</span>()</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output cell-output-stdout">
+<pre><code># A tibble: 6 × 5
+  .pred id               status_good  .row .config        
+  &lt;dbl&gt; &lt;chr&gt;                  &lt;dbl&gt; &lt;int&gt; &lt;chr&gt;          
+1 0.955 train/test split           1     6 pre0_mod0_post0
+2 0.940 train/test split           1     8 pre0_mod0_post0
+3 0.952 train/test split           1    16 pre0_mod0_post0
+4 0.290 train/test split           0    23 pre0_mod0_post0
+5 0.919 train/test split           1    24 pre0_mod0_post0
+6 0.957 train/test split           1    28 pre0_mod0_post0</code></pre>
+</div>
+</div>
+
+</section>
+    </div>
+  <div class="quarto-auto-generated-content" style="display: none;">
+<div class="footer footer-default">
+<p>EC 524 Week 04 Lab | <code>tidymodels</code> cont.</p>
+</div>
+</div></div>
+
+  <script>window.backupDefine = window.define; window.define = undefined;</script>
+  <script src="w04-tidymodels-ii_files/libs/revealjs/dist/reveal.js"></script>
+  <!-- reveal.js plugins -->
+  <script src="w04-tidymodels-ii_files/libs/revealjs/plugin/quarto-line-highlight/line-highlight.js"></script>
+  <script src="w04-tidymodels-ii_files/libs/revealjs/plugin/pdf-export/pdfexport.js"></script>
+  <script src="w04-tidymodels-ii_files/libs/revealjs/plugin/reveal-menu/menu.js"></script>
+  <script src="w04-tidymodels-ii_files/libs/revealjs/plugin/reveal-menu/quarto-menu.js"></script>
+  <script src="w04-tidymodels-ii_files/libs/revealjs/plugin/quarto-support/support.js"></script>
+  
+
+  <script src="w04-tidymodels-ii_files/libs/revealjs/plugin/notes/notes.js"></script>
+  <script src="w04-tidymodels-ii_files/libs/revealjs/plugin/search/search.js"></script>
+  <script src="w04-tidymodels-ii_files/libs/revealjs/plugin/zoom/zoom.js"></script>
+  <script src="w04-tidymodels-ii_files/libs/revealjs/plugin/math/math.js"></script>
+  <script>window.define = window.backupDefine; window.backupDefine = undefined;</script>
+
+  <script>
+
+      // Full list of configuration options available at:
+      // https://revealjs.com/config/
+      Reveal.initialize({
+'controlsAuto': true,
+'previewLinksAuto': true,
+'pdfSeparateFragments': false,
+'autoAnimateEasing': "ease",
+'autoAnimateDuration': 1,
+'autoAnimateUnmatched': true,
+'jumpToSlide': true,
+'menu': {"side":"left","useTextContentForMissingTitles":true,"markers":false,"loadIcons":false,"custom":[{"title":"Tools","icon":"<i class=\"fas fa-gear\"></i>","content":"<ul class=\"slide-menu-items\">\n<li class=\"slide-tool-item active\" data-item=\"0\"><a href=\"#\" onclick=\"RevealMenuToolHandlers.fullscreen(event)\"><kbd>f</kbd> Fullscreen</a></li>\n<li class=\"slide-tool-item\" data-item=\"1\"><a href=\"#\" onclick=\"RevealMenuToolHandlers.speakerMode(event)\"><kbd>s</kbd> Speaker View</a></li>\n<li class=\"slide-tool-item\" data-item=\"2\"><a href=\"#\" onclick=\"RevealMenuToolHandlers.overview(event)\"><kbd>o</kbd> Slide Overview</a></li>\n<li class=\"slide-tool-item\" data-item=\"3\"><a href=\"#\" onclick=\"RevealMenuToolHandlers.togglePdfExport(event)\"><kbd>e</kbd> PDF Export Mode</a></li>\n<li class=\"slide-tool-item\" data-item=\"4\"><a href=\"#\" onclick=\"RevealMenuToolHandlers.toggleScrollView(event)\"><kbd>r</kbd> Scroll View Mode</a></li>\n<li class=\"slide-tool-item\" data-item=\"5\"><a href=\"#\" onclick=\"RevealMenuToolHandlers.keyboardHelp(event)\"><kbd>?</kbd> Keyboard Help</a></li>\n</ul>"}],"openButton":true},
+'smaller': false,
+ 
+        // Display controls in the bottom right corner
+        controls: false,
+
+        // Help the user learn the controls by providing hints, for example by
+        // bouncing the down arrow when they first encounter a vertical slide
+        controlsTutorial: false,
+
+        // Determines where controls appear, "edges" or "bottom-right"
+        controlsLayout: 'edges',
+
+        // Visibility rule for backwards navigation arrows; "faded", "hidden"
+        // or "visible"
+        controlsBackArrows: 'faded',
+
+        // Display a presentation progress bar
+        progress: true,
+
+        // Display the page number of the current slide
+        slideNumber: 'c/t',
+
+        // 'all', 'print', or 'speaker'
+        showSlideNumber: 'all',
+
+        // Add the current slide number to the URL hash so that reloading the
+        // page/copying the URL will return you to the same slide
+        hash: true,
+
+        // Start with 1 for the hash rather than 0
+        hashOneBasedIndex: false,
+
+        // Flags if we should monitor the hash and change slides accordingly
+        respondToHashChanges: true,
+
+        // Push each slide change to the browser history
+        history: true,
+
+        // Enable keyboard shortcuts for navigation
+        keyboard: true,
+
+        // Enable the slide overview mode
+        overview: true,
+
+        // Disables the default reveal.js slide layout (scaling and centering)
+        // so that you can use custom CSS layout
+        disableLayout: false,
+
+        // Vertical centering of slides
+        center: false,
+
+        // Enables touch navigation on devices with touch input
+        touch: true,
+
+        // Loop the presentation
+        loop: false,
+
+        // Change the presentation direction to be RTL
+        rtl: false,
+
+        // see https://revealjs.com/vertical-slides/#navigation-mode
+        navigationMode: 'linear',
+
+        // Randomizes the order of slides each time the presentation loads
+        shuffle: false,
+
+        // Turns fragments on and off globally
+        fragments: true,
+
+        // Flags whether to include the current fragment in the URL,
+        // so that reloading brings you to the same fragment position
+        fragmentInURL: false,
+
+        // Flags if the presentation is running in an embedded mode,
+        // i.e. contained within a limited portion of the screen
+        embedded: false,
+
+        // Flags if we should show a help overlay when the questionmark
+        // key is pressed
+        help: true,
+
+        // Flags if it should be possible to pause the presentation (blackout)
+        pause: true,
+
+        // Flags if speaker notes should be visible to all viewers
+        showNotes: false,
+
+        // Global override for autoplaying embedded media (null/true/false)
+        autoPlayMedia: null,
+
+        // Global override for preloading lazy-loaded iframes (null/true/false)
+        preloadIframes: null,
+
+        // Number of milliseconds between automatically proceeding to the
+        // next slide, disabled when set to 0, this value can be overwritten
+        // by using a data-autoslide attribute on your slides
+        autoSlide: 0,
+
+        // Stop auto-sliding after user input
+        autoSlideStoppable: true,
+
+        // Use this method for navigation when auto-sliding
+        autoSlideMethod: null,
+
+        // Specify the average time in seconds that you think you will spend
+        // presenting each slide. This is used to show a pacing timer in the
+        // speaker view
+        defaultTiming: null,
+
+        // Enable slide navigation via mouse wheel
+        mouseWheel: false,
+
+        // The display mode that will be used to show slides
+        display: 'block',
+
+        // Hide cursor if inactive
+        hideInactiveCursor: true,
+
+        // Time before the cursor is hidden (in ms)
+        hideCursorTime: 5000,
+
+        // Opens links in an iframe preview overlay
+        previewLinks: false,
+
+        // Transition style (none/fade/slide/convex/concave/zoom)
+        transition: 'none',
+
+        // Transition speed (default/fast/slow)
+        transitionSpeed: 'default',
+
+        // Transition style for full page slide backgrounds
+        // (none/fade/slide/convex/concave/zoom)
+        backgroundTransition: 'none',
+
+        // Number of slides away from the current that are visible
+        viewDistance: 3,
+
+        // Number of slides away from the current that are visible on mobile
+        // devices. It is advisable to set this to a lower number than
+        // viewDistance in order to save resources.
+        mobileViewDistance: 2,
+
+        // The "normal" size of the presentation, aspect ratio will be preserved
+        // when the presentation is scaled to fit different resolutions. Can be
+        // specified using percentage units.
+        width: 1050,
+
+        height: 700,
+
+        // Factor of the display size that should remain empty around the content
+        margin: 0.1,
+
+        math: {
+          mathjax: 'https://cdnjs.cloudflare.com/ajax/libs/mathjax/2.7.9/MathJax.js',
+          config: 'TeX-AMS_HTML-full',
+          tex2jax: {
+            inlineMath: [['\\(','\\)']],
+            displayMath: [['\\[','\\]']],
+            balanceBraces: true,
+            processEscapes: false,
+            processRefs: true,
+            processEnvironments: true,
+            preview: 'TeX',
+            skipTags: ['script','noscript','style','textarea','pre','code'],
+            ignoreClass: 'tex2jax_ignore',
+            processClass: 'tex2jax_process'
+          },
+        },
+
+        // reveal.js plugins
+        plugins: [QuartoLineHighlight, PdfExport, RevealMenu, QuartoSupport,
+
+          RevealMath,
+          RevealNotes,
+          RevealSearch,
+          RevealZoom
+        ]
+      });
+    </script>
+    
+    <script>
+      // htmlwidgets need to know to resize themselves when slides are shown/hidden.
+      // Fire the "slideenter" event (handled by htmlwidgets.js) when the current
+      // slide changes (different for each slide format).
+      (function () {
+        // dispatch for htmlwidgets
+        function fireSlideEnter() {
+          const event = window.document.createEvent("Event");
+          event.initEvent("slideenter", true, true);
+          window.document.dispatchEvent(event);
+        }
+
+        function fireSlideChanged(previousSlide, currentSlide) {
+          fireSlideEnter();
+
+          // dispatch for shiny
+          if (window.jQuery) {
+            if (previousSlide) {
+              window.jQuery(previousSlide).trigger("hidden");
+            }
+            if (currentSlide) {
+              window.jQuery(currentSlide).trigger("shown");
+            }
+          }
+        }
+
+        // hookup for slidy
+        if (window.w3c_slidy) {
+          window.w3c_slidy.add_observer(function (slide_num) {
+            // slide_num starts at position 1
+            fireSlideChanged(null, w3c_slidy.slides[slide_num - 1]);
+          });
+        }
+
+      })();
+    </script>
+
+    <script id="quarto-html-after-body" type="application/javascript">
+    window.document.addEventListener("DOMContentLoaded", function (event) {
+      const toggleBodyColorMode = (bsSheetEl) => {
+        const mode = bsSheetEl.getAttribute("data-mode");
+        const bodyEl = window.document.querySelector("body");
+        if (mode === "dark") {
+          bodyEl.classList.add("quarto-dark");
+          bodyEl.classList.remove("quarto-light");
+        } else {
+          bodyEl.classList.add("quarto-light");
+          bodyEl.classList.remove("quarto-dark");
+        }
+      }
+      const toggleBodyColorPrimary = () => {
+        const bsSheetEl = window.document.querySelector("link#quarto-bootstrap");
+        if (bsSheetEl) {
+          toggleBodyColorMode(bsSheetEl);
+        }
+      }
+      toggleBodyColorPrimary();  
+      const tabsets =  window.document.querySelectorAll(".panel-tabset-tabby")
+      tabsets.forEach(function(tabset) {
+        const tabby = new Tabby('#' + tabset.id);
+      });
+      const isCodeAnnotation = (el) => {
+        for (const clz of el.classList) {
+          if (clz.startsWith('code-annotation-')) {                     
+            return true;
+          }
+        }
+        return false;
+      }
+      const onCopySuccess = function(e) {
+        // button target
+        const button = e.trigger;
+        // don't keep focus
+        button.blur();
+        // flash "checked"
+        button.classList.add('code-copy-button-checked');
+        var currentTitle = button.getAttribute("title");
+        button.setAttribute("title", "Copied!");
+        let tooltip;
+        if (window.bootstrap) {
+          button.setAttribute("data-bs-toggle", "tooltip");
+          button.setAttribute("data-bs-placement", "left");
+          button.setAttribute("data-bs-title", "Copied!");
+          tooltip = new bootstrap.Tooltip(button, 
+            { trigger: "manual", 
+              customClass: "code-copy-button-tooltip",
+              offset: [0, -8]});
+          tooltip.show();    
+        }
+        setTimeout(function() {
+          if (tooltip) {
+            tooltip.hide();
+            button.removeAttribute("data-bs-title");
+            button.removeAttribute("data-bs-toggle");
+            button.removeAttribute("data-bs-placement");
+          }
+          button.setAttribute("title", currentTitle);
+          button.classList.remove('code-copy-button-checked');
+        }, 1000);
+        // clear code selection
+        e.clearSelection();
+      }
+      const getTextToCopy = function(trigger) {
+          const codeEl = trigger.previousElementSibling.cloneNode(true);
+          for (const childEl of codeEl.children) {
+            if (isCodeAnnotation(childEl)) {
+              childEl.remove();
+            }
+          }
+          return codeEl.innerText;
+      }
+      const clipboard = new window.ClipboardJS('.code-copy-button:not([data-in-quarto-modal])', {
+        text: getTextToCopy
+      });
+      clipboard.on('success', onCopySuccess);
+      if (window.document.getElementById('quarto-embedded-source-code-modal')) {
+        const clipboardModal = new window.ClipboardJS('.code-copy-button[data-in-quarto-modal]', {
+          text: getTextToCopy,
+          container: window.document.getElementById('quarto-embedded-source-code-modal')
+        });
+        clipboardModal.on('success', onCopySuccess);
+      }
+        var localhostRegex = new RegExp(/^(?:http|https):\/\/localhost\:?[0-9]*\//);
+        var mailtoRegex = new RegExp(/^mailto:/);
+          var filterRegex = new RegExp('/' + window.location.host + '/');
+        var isInternal = (href) => {
+            return filterRegex.test(href) || localhostRegex.test(href) || mailtoRegex.test(href);
+        }
+        // Inspect non-navigation links and adorn them if external
+     	var links = window.document.querySelectorAll('a[href]:not(.nav-link):not(.navbar-brand):not(.toc-action):not(.sidebar-link):not(.sidebar-item-toggle):not(.pagination-link):not(.no-external):not([aria-hidden]):not(.dropdown-item):not(.quarto-navigation-tool):not(.about-link)');
+        for (var i=0; i<links.length; i++) {
+          const link = links[i];
+          if (!isInternal(link.href)) {
+            // undo the damage that might have been done by quarto-nav.js in the case of
+            // links that we want to consider external
+            if (link.dataset.originalHref !== undefined) {
+              link.href = link.dataset.originalHref;
+            }
+          }
+        }
+      function tippyHover(el, contentFn, onTriggerFn, onUntriggerFn) {
+        const config = {
+          allowHTML: true,
+          maxWidth: 500,
+          delay: 100,
+          arrow: false,
+          appendTo: function(el) {
+              return el.closest('section.slide') || el.parentElement;
+          },
+          interactive: true,
+          interactiveBorder: 10,
+          theme: 'light-border',
+          placement: 'bottom-start',
+        };
+        if (contentFn) {
+          config.content = contentFn;
+        }
+        if (onTriggerFn) {
+          config.onTrigger = onTriggerFn;
+        }
+        if (onUntriggerFn) {
+          config.onUntrigger = onUntriggerFn;
+        }
+          config['offset'] = [0,0];
+          config['maxWidth'] = 700;
+        window.tippy(el, config); 
+      }
+      const noterefs = window.document.querySelectorAll('a[role="doc-noteref"]');
+      for (var i=0; i<noterefs.length; i++) {
+        const ref = noterefs[i];
+        tippyHover(ref, function() {
+          // use id or data attribute instead here
+          let href = ref.getAttribute('data-footnote-href') || ref.getAttribute('href');
+          try { href = new URL(href).hash; } catch {}
+          const id = href.replace(/^#\/?/, "");
+          const note = window.document.getElementById(id);
+          if (note) {
+            return note.innerHTML;
+          } else {
+            return "";
+          }
+        });
+      }
+      const findCites = (el) => {
+        const parentEl = el.parentElement;
+        if (parentEl) {
+          const cites = parentEl.dataset.cites;
+          if (cites) {
+            return {
+              el,
+              cites: cites.split(' ')
+            };
+          } else {
+            return findCites(el.parentElement)
+          }
+        } else {
+          return undefined;
+        }
+      };
+      var bibliorefs = window.document.querySelectorAll('a[role="doc-biblioref"]');
+      for (var i=0; i<bibliorefs.length; i++) {
+        const ref = bibliorefs[i];
+        const citeInfo = findCites(ref);
+        if (citeInfo) {
+          tippyHover(citeInfo.el, function() {
+            var popup = window.document.createElement('div');
+            citeInfo.cites.forEach(function(cite) {
+              var citeDiv = window.document.createElement('div');
+              citeDiv.classList.add('hanging-indent');
+              citeDiv.classList.add('csl-entry');
+              var biblioDiv = window.document.getElementById('ref-' + cite);
+              if (biblioDiv) {
+                citeDiv.innerHTML = biblioDiv.innerHTML;
+              }
+              popup.appendChild(citeDiv);
+            });
+            return popup.innerHTML;
+          });
+        }
+      }
+    });
+    </script>
+    
+
+</body></html>
