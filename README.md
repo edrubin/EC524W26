@@ -293,6 +293,8 @@ Approximate/planned topics... or at least for reference...
 
 **Formats** [.html](https://rawcdn.githack.com/edrubin/EC524W26/ca984bd356099678a8651dc3387f971f51803e28/lab/03-tidymodels/slides/w03-tidymodels-i.html#/title-slide)
 
+[**03 - More `tidymodels`**](https://rawcdn.githack.com/edrubin/EC524W26/b954c985ec272abc1503dc6e7297f87e28e3c197/lab/04-tidymodels-2/slides/w04-tidymodels-ii.html#/title-slide)
+
 <!--
 [**001 - Workflow and cleaning: An example**](https://raw.githack.com/edrubin/EC524W25/refs/heads/master/lab/001-projects/doc001.html)
 
