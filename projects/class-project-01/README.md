@@ -31,7 +31,19 @@ The document should be something that you could send to a potential employer to 
 
 | Topic | Name |
 |:---------|:---------|
-| *Empirical asset pricing via machine learning with a focus on shorting* | Jules Netze |
-| *Beef cattle slaughter live weight* | Bill Martin |
+| *Firm exits* | Charlie Anderson |
+| *Real estate* (specific topic pending) | Alex Bolster-White |
+| *Census income* | Kellen Bond |
+| *Polymarket NFL* | Minal Edwards | 
 | *Stock prices* | Sidney Estes |
-| *Firm Exits* | Charlie Anderson |
+| *Job and degree match* | Malcom Fleming |
+| *Labor market outcomes* | Ireland Gomes |
+| *FDI* | Jack Gooding |
+| *Boardgame ratings* | Cooper Lee |
+| *Airbnb performance* | Maya Lim |
+| *Beef cattle slaughter live weight* | Bill Martin |
+| *Empirical asset pricing via machine learning with a focus on shorting* | Jules Netze |
+| *Home ownership* | Oliver Van Aken |
+| *Annual salmon return in the Columbia Basin | Natalie Vogel |
+| *Wages of trade-exposed workers* | Claire Rounds |
+| *Time used on electronics* | Luke Xico |
