@@ -219,6 +219,11 @@ The "coolest" applications will be highlighted in class and will receive extra c
 - [Claude Code](https://www.removepaywall.com/search?url=https://nymag.com/intelligencer/article/how-claude-code-cowork-reset-the-ai-assistant-race.html) seems good.
 - [A finace paper about generating finance papers with AI](https://www.nber.org/system/files/working_papers/w33363/w33363.pdf) (insert finance joke here).
 
+**Week 4**
+
+- Wildfire fuel [mapping](https://www.sciencedirect.com/science/article/pii/S1569843225000834?fr=RR-2&rr=9c7ccb1a1cc63e6d)
+- Wearable fitness trackers to [predict cardiovascular events](https://www.sciencedirect.com/science/article/pii/S2666667725000819?via%3Dihub)
+
 ## Projects
 
 Past, present, and future projects.
