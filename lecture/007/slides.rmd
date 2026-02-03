@@ -72,7 +72,7 @@ name: admin-today
 
 .note[Last time:] Classification
 
-.note[Today!] Decision trees for regression and classification.
+.note[Today!] Decision trees for regression *and* classification.
 
 ---
 name: admin-soon
@@ -83,11 +83,9 @@ name: admin-soon
 - .note[Today] .it[ISL] Ch. 8.1
 - .note[Next] .it[ISL] Ch. 8.2
 
-.b[Problem sets]
-- .it[Penalized regression and CV:] Coming soon!
-- .it[Classification:] Next!
+.b[Problem set] *Classification* soon!
 
-.b[Project] Start putting it together!
+.b[Project 2] Choose your topic.
 
 ---
 layout: true
