@@ -143,39 +143,39 @@ Welcome to Economics 524 (424): Prediction and machine-learning in econometrics,
 - *ISL* Ch4
 - *ISL* Ch6
 
-[**007 - Decision trees**](https://raw.githack.com/edrubin/EC524W25/master/lecture/007/slides.html)
+[**007 - Decision trees**](https://raw.githack.com/edrubin/EC524W26/master/lecture/007/slides.html)
 
 1. Introduction to trees
 1. Regression trees
 1. Classification trees—including the Gini index, entropy, and error rate
 
-**Formats** [.html](https://raw.githack.com/edrubin/EC524W25/master/lecture/007/slides.html) | [.pdf](https://github.com/edrubin/EC524W25/blob/master/lecture/007/slides.pdf) | [.rmd](https://github.com/edrubin/EC524W25/blob/master/lecture/007/slides.rmd)
+**Formats** [.html](https://raw.githack.com/edrubin/EC524W26/master/lecture/007/slides.html) | [.pdf](https://github.com/edrubin/EC524W26/blob/master/lecture/007/slides.pdf) | [.rmd](https://github.com/edrubin/EC524W26/blob/master/lecture/007/slides.rmd)
 
 **Readings**
 
 - *ISL* Ch8.1–Ch8.2
 
-[**008 - Ensemble methods**](https://raw.githack.com/edrubin/EC524S24/master/lecture/008/slides.html)
+[**008 - Ensemble methods**](https://raw.githack.com/edrubin/EC524W26/master/lecture/008/slides.html)
 
 1. Introduction
 1. Bagging
 1. Random forests
 1. Boosting
 
-**Formats** [.html](https://raw.githack.com/edrubin/EC524S24/master/lecture/008/slides.html) | [.pdf](https://github.com/edrubin/EC524S24/blob/master/lecture/008/slides.pdf) | [.rmd](https://github.com/edrubin/EC524S24/blob/master/lecture/008/slides.rmd)
+**Formats** [.html](https://raw.githack.com/edrubin/EC524W26/master/lecture/008/slides.html) | [.pdf](https://github.com/edrubin/EC524W26/blob/master/lecture/008/slides.pdf) | [.rmd](https://github.com/edrubin/EC524W26/blob/master/lecture/008/slides.rmd)
 
 **Readings**
 
 - *ISL* Ch8.2
 
-[**009 - Support vector machines**](https://raw.githack.com/edrubin/EC524S24/master/lecture/009/slides.html)
+[**009 - Support vector machines**](https://raw.githack.com/edrubin/EC524W26/master/lecture/009/slides.html)
 
 1. Hyperplanes and classification
 2. The maximal margin hyperplane/classifier
 3. The support vector classifier
 4. Support vector machines
 
-**Formats** [.html](https://raw.githack.com/edrubin/EC524S24/master/lecture/009/slides.html) | [.pdf](https://github.com/edrubin/EC524S24/blob/master/lecture/009/slides.pdf) | [.rmd](https://github.com/edrubin/EC524S24/blob/master/lecture/009/slides.rmd)
+**Formats** [.html](https://raw.githack.com/edrubin/EC524W26/master/lecture/009/slides.html) | [.pdf](https://github.com/edrubin/EC524W26/blob/master/lecture/009/slides.pdf) | [.rmd](https://github.com/edrubin/EC524W26/blob/master/lecture/009/slides.rmd)
 
 **Readings**
 
