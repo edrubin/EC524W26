@@ -11,7 +11,7 @@
 
 ## Materials due
 
-Your topic is due by the end of the day on **February 6th**.
+Your topic is due by the end of the day on **February 13th**.
 
 By 11:59p on **March 11th**, submit **two documents** on Canvas (share links or upload files):
 

@@ -44,6 +44,6 @@ The document should be something that you could send to a potential employer to 
 | *Beef cattle slaughter live weight* | Bill Martin |
 | *Empirical asset pricing via machine learning with a focus on shorting* | Jules Netze |
 | *Home ownership* | Oliver Van Aken |
-| *Annual salmon return in the Columbia Basin | Natalie Vogel |
+| *Annual salmon return in the Columbia Basin* | Natalie Vogel |
 | *Wages of trade-exposed workers* | Claire Rounds |
 | *Time used on electronics* | Luke Xico |
