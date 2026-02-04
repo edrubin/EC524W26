@@ -37,9 +37,11 @@ The document should be something that you could send to a potential employer to 
 | *Polymarket NFL* | Minal Edwards | 
 | *Stock prices* | Sidney Estes |
 | *Job and degree match* | Malcom Fleming |
+| *What predicts Trump's winning?* | Yuxuan Gao |
 | *Labor market outcomes* | Ireland Gomes |
 | *FDI* | Jack Gooding |
 | *Boardgame ratings* | Cooper Lee |
+| *Cat/dog lifespans* | Nate Lew |
 | *Airbnb performance* | Maya Lim |
 | *Beef cattle slaughter live weight* | Bill Martin |
 | *Empirical asset pricing via machine learning with a focus on shorting* | Jules Netze |
