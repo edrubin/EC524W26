@@ -143,6 +143,8 @@ Welcome to Economics 524 (424): Prediction and machine-learning in econometrics,
 - *ISL* Ch4
 - *ISL* Ch6
 
+**Bonus** Two [nice](https://blog.skz.dev/gradient-descent) [interactive](https://towardsdatascience.com/a-visual-explanation-of-gradient-descent-methods-momentum-adagrad-rmsprop-adam-f898b102325c/) visualizations of gradient descent (and related algorithms)—and a mildly related [game](https://www.i-am.ai/gradient-descent.html).
+
 [**007 - Decision trees**](https://raw.githack.com/edrubin/EC524W26/master/lecture/007/slides.html)
 
 1. Introduction to trees
@@ -223,6 +225,11 @@ The "coolest" applications will be highlighted in class and will receive extra c
 
 - Wildfire fuel [mapping](https://www.sciencedirect.com/science/article/pii/S1569843225000834?fr=RR-2&rr=9c7ccb1a1cc63e6d)
 - Wearable fitness trackers to [predict cardiovascular events](https://www.sciencedirect.com/science/article/pii/S2666667725000819?via%3Dihub)
+
+**Week 5** Insurance week!
+
+- [Logistic regression vs. boosting for insurance claims](https://www.mdpi.com/2227-9091/7/2/70)
+- [A bunch of algorithms for life (insurance) risk](https://link.springer.com/article/10.1007/s40747-018-0072-1)
 
 ## Projects
 
