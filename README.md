@@ -258,7 +258,7 @@ Past, present, and future projects.
 <br>*Project due 04 March 2026*
 
 [**Class project 02: Extension**](https://github.com/edrubin/EC524W26/tree/master/projects/class-project-02)
-<br>*Selected topic due by 06 February 2026*
+<br>*Selected topic due by 13 February 2026*
 <br>*Project due 11 March 2026*
 
 ## Final exam
