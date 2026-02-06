@@ -1,6 +1,6 @@
 ---
 title: "EC524W25: Lab 05"
-subtitle: "Penalized Regression using `gmlnet`"
+subtitle: "Classification"
 author: "Jose Rojas-Fallas with a lot of help from Andrew D."
 format: 
   html:
