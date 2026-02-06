@@ -307,6 +307,8 @@ Approximate/planned topics... or at least for reference...
 
 [**03 - More `tidymodels`**](https://rawcdn.githack.com/edrubin/EC524W26/b954c985ec272abc1503dc6e7297f87e28e3c197/lab/04-tidymodels-2/slides/w04-tidymodels-ii.html#/title-slide)
 
+[**04 - Classification**](https://github.com/edrubin/EC524W26/blob/master/lab/05-classification/lab05.qmd)
+
 <!--
 [**001 - Workflow and cleaning: An example**](https://raw.githack.com/edrubin/EC524W25/refs/heads/master/lab/001-projects/doc001.html)
 
