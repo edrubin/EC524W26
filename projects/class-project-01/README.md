@@ -31,6 +31,7 @@ The document should be something that you could send to a potential employer to 
 
 | Topic | Name |
 |:---------|:---------|
+| *Movie box office revenue* | Ahmed Abdelrassoul |
 | *Firm exits* | Charlie Anderson |
 | *Real estate* (specific topic pending) | Alex Bolster-White |
 | *Census income* | Kellen Bond |
