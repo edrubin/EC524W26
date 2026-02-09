@@ -25,6 +25,10 @@ By 11:59p on **March 11th**, submit **two documents** on Canvas (share links or 
 | Topic | Name |
 |:---------|:---------|
 | *Bayesian neural networks* | Jules Netze |
+| *Het. trt. effects and causal forests* | Will Martin |
+| *Bayesian (spatial) search algorithms* | Minal Edwards |
+| *t-SNE (and UMAP?)* | Natalie Vogel |
+| *Reinforcement learning* | Sidney Estes |
 
 ## Some ideas for topics
 
