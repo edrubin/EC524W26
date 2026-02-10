@@ -1,0 +1,230 @@
+---
+title: "Problem Set 1"
+subtitle: "`tidymodels` example"
+format:
+  html:
+    toc: true
+    number-sections: true
+    self-contained: true
+    theme:
+    - cosmo
+    - ed.scss
+editor:
+  render-on-save: true
+params:
+  showanswers: false
+---
+
+## Setup
+
+First, let's load the packages and data...
+
+```{r}
+#| label: setup
+
+# Load necessary packages
+library(pacman)
+p_load(here, readr, skimr, fst, tidymodels, glmnet)
+# Load the data
+raw_df =
+  here('projects', 'project-000', 'sales-data.fst') |> 
+  # read_fst(as.data.table = TRUE, from = 1, to = 2e4)
+  # read_fst(as.data.table = TRUE) |> sample_frac(0.05)
+  read_fst(as.data.table = TRUE)
+```
+
+**Note:** When working with a relatively large dataset like this one, it can help to use a subset first. If you don't care about representativeness, you could just read the first few rows of the dataset, e.g., the commented-out `from = 1, to = 1e4` above. If you want a representative sample, you could `sample_n` or `sample_frac` from the full dataset (also commented out above). This approach can save you *a lot* of time when you're testing out your code. For example, the `prep` step of the was 20-times faster when I used a 5% sample.
+
+## Data cleaning and preprocessing
+
+Before we write the *official* `recipe`, which is more about *engineering* features, I'm going to fix any strangeness in the dataset—e.g., the variables that are incorrectly `class`-ed. Examples include variables that should be numeric but were read as character due to `$` or `,` and codes that should be factors but were read as character. 
+
+```{r}
+#| label: fix
+
+# Recode variables
+clean_df =
+  raw_df |>
+  # Parse characters to numbers
+  mutate(
+    sale_price = sale_price |> parse_number(),
+    land_square_feet = land_square_feet |> parse_number(),
+    building_square_feet = building_square_feet |> parse_number(),
+    number_of_units = number_of_units |> parse_number(),
+    percent_ownership = percent_ownership |> parse_number(),
+    other_improvements = other_improvements |> parse_number(),
+  ) |>
+  # Convert numeric variables to factors
+  mutate(
+    across(
+      c(
+        ends_with('material'),
+        ends_with('finish'),
+        contains('class'),
+        pin, use, type_of_residence, design_plan, multi_code
+      ),
+    as.character
+    )
+  ) |>
+  # Remove unwanted variables :(
+  select(!starts_with('square_root')) |>
+  select(!contains('squared')) |>
+  select(!starts_with('estimate')) |>
+  select(!c(
+    deed_no, census_tract,
+    town_code, town_and_neighborhood,
+    neighborhood_code, neigborhood_code_mapping,
+    total_building_square_feet, property_address,
+    sale_date, pure_market_filter
+  ))
+# Check it out
+clean_df |> skim()
+``` 
+
+Let's define a recipe for cleaning and preprocessing the data. As discussed in class, we'll *at least* need to convert categorical predictors to dummies and standardize the numeric predictors.
+
+```{r}
+#| label: recipe
+
+# Define a recipe for preprocessing the data
+a_recipe =
+  # Start the recipe
+  recipe(sale_price ~ ., data = clean_df) |> 
+  # Update ID variable role
+  update_role(pin, new_role = "id") |>
+  # Drop variables with too many missing values
+  step_filter_missing(all_predictors(), threshold = 0.05) |>
+  # Impute missing values in numeric predictors with the median
+  step_impute_median(all_numeric_predictors()) |>
+  # Impute missing values in categorical predictors with the most common value
+  step_impute_mode(all_nominal_predictors()) |>
+  # Normalize numeric predictors
+  step_normalize(all_numeric_predictors()) |>
+  # Collapse infrequent factor levels into 'other'
+  step_other(all_nominal_predictors(), threshold = 0.05) |>
+  # Create dummy variables for categorical predictors
+  step_dummy(all_nominal_predictors(), one_hot = TRUE) |>
+  # Remove near-zero-variance predictors
+  step_nzv(all_predictors()) |>
+  # Remove predictors that are highly correlated with other predictors
+  step_corr(all_predictors(), threshold = 0.9) |>
+  # Remove variables that are linear combinations of other predictors
+  step_lincomb(all_predictors())
+# Let's see the recipe
+a_recipe
+```
+
+Notice that executing this recipe *once* takes quite some time.
+
+```{r}
+#| label: prep
+
+# Time the execution of the recipe
+tictoc::tic()
+baked_df = a_recipe |> prep() |> bake(new_data = NULL)
+tictoc::toc()
+# Check out the baked data
+baked_df |> skim()
+```
+
+So if you are then asking R to run this recipe *each* time you fit a model (for each fold of cross-validation, for each value of the tuning parameters), that can add up to *a lot* of time. 
+
+One more note: I used `step_other` to collapse infrequent factor levels to an "other" category. This step will help you avoid creating a huge number of dummy variables that are mostly `0`s. However, it *could* cause you to lose important information.
+
+## Elasticnet
+
+Now we can set up our **workflow**. We will need to specify and model. Then we can add our recipe.
+
+```{r}
+#| label: net-setup
+
+# Define the model specification
+net_model =
+  linear_reg(penalty = tune(), mixture = tune()) |>
+  set_engine('glmnet')
+# Define the workflow
+net_wf =
+  workflow() |>
+  add_model(net_model) |>
+  add_recipe(a_recipe)
+# Print the workflow
+net_wf
+```
+
+We're finally ready to tune the model... after we create a resampling object (define the folds) and define the set of tuning parameters we wish to evaluate.
+
+This may take some time. I'm going to use `tictoc` to time the execution of this code chunk again.
+
+Note that parallelization can help here—to a degree. Tuning 5 levels of `lambda` took 99 seconds to run sequentially on my computer. When I parallelized (with 5 workers in `future`), the same code took approxiately 30 seconds.
+
+```{r}
+#| label: tune
+#| cache: true
+
+# Start timer
+tictoc::tic()
+
+# Define the resampling object
+set.seed(12)
+cv_folds = vfold_cv(clean_df, v = 5)
+# Parallelize the tuning process
+library(future)
+plan(multisession, workers = parallelly::availableCores())
+# Tune the model
+tune_results =
+  tune_grid(
+    net_wf,
+    resamples = cv_folds,
+    grid = expand_grid(
+      penalty = 10^seq(-5, 3, length.out = 50),
+      mixture = seq(0, 1, length.out = 11)
+    ),
+    metrics = metric_set(rmse, mae, rsq),
+    control = control_grid(parallel_over = 'everything')
+  )
+
+# Stop timer
+tictoc::toc()
+```
+
+```{r}
+#| label: tune-results
+
+# Check out the tuning results
+tune_results |> show_best('rmse', n = 10)
+# Plot the tuning results
+tune_results |> autoplot()
+```
+
+We could also use `tune_bayes` instead of `tune_grid` for a potentially more efficient tuning process via Bayesian optimization. We can also use our previous tuning results as the "initial" values for the Bayesian optimization process, which can help it find good tuning parameters more quickly.
+
+```{r}
+#| label: tune-bayes
+#| cache: true
+#| depends: tune
+
+# Start timer
+tictoc::tic()
+
+# Tune the model with Bayesian optimization
+tune_results_bayes =
+  tune_bayes(
+    net_wf,
+    resamples = cv_folds,
+    initial = tune_results,
+    iter = 20,
+    control = control_bayes(parallel_over = 'resamples')
+  )
+
+# Stop timer
+tictoc::toc()
+```
+
+```{r}
+#| label: tune-bayes-results
+
+# Check out the tuning results
+tune_results_bayes |> show_best('rmse', n = 10)
+# Plot the tuning results
+tune_results_bayes |> autoplot()
+```
