@@ -235,6 +235,8 @@ The "coolest" applications will be highlighted in class and will receive extra c
 
 Past, present, and future projects.
 
+**Example** [Using `tidymodels` (and `tidyverse`)](https://raw.githack.com/edrubin/EC524W26/master/projects/project-001/example.html) with the Chicago housing data.
+
 **000** An introduction to prediction and resampling
   - [Instructions](projects/project-000/README.md)
   - [Data](projects/project-000/sales-data.fst)

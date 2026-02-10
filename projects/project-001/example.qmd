@@ -28,9 +28,9 @@ p_load(here, readr, skimr, fst, tidymodels, glmnet)
 # Load the data
 raw_df =
   here('projects', 'project-000', 'sales-data.fst') |> 
+  read_fst(as.data.table = TRUE)
   # read_fst(as.data.table = TRUE, from = 1, to = 2e4)
   # read_fst(as.data.table = TRUE) |> sample_frac(0.05)
-  read_fst(as.data.table = TRUE)
 ```
 
 **Note:** When working with a relatively large dataset like this one, it can help to use a subset first. If you don't care about representativeness, you could just read the first few rows of the dataset, e.g., the commented-out `from = 1, to = 1e4` above. If you want a representative sample, you could `sample_n` or `sample_frac` from the full dataset (also commented out above). This approach can save you *a lot* of time when you're testing out your code. For example, the `prep` step of the was 20-times faster when I used a 5% sample.
@@ -77,9 +77,19 @@ clean_df =
     total_building_square_feet, property_address,
     sale_date, pure_market_filter
   ))
+``` 
+
+I'm also going to remove observations with a sales price less than or equal to $1. Ideally, we would have a flag for "non-arm's-length" sales. We don't, so this crude filter is the best we can do to remove non-arm's-length sales.
+
+```{r}
+#| label: filter
+
+# Filter out non-arm's-length sales
+clean_df = clean_df |> filter(sale_price > 1)
+
 # Check it out
 clean_df |> skim()
-``` 
+```
 
 Let's define a recipe for cleaning and preprocessing the data. As discussed in class, we'll *at least* need to convert categorical predictors to dummies and standardize the numeric predictors.
 
@@ -93,13 +103,15 @@ a_recipe =
   # Update ID variable role
   update_role(pin, new_role = "id") |>
   # Drop variables with too many missing values
-  step_filter_missing(all_predictors(), threshold = 0.05) |>
+  step_filter_missing(all_predictors(), threshold = 0.01) |>
   # Impute missing values in numeric predictors with the median
   step_impute_median(all_numeric_predictors()) |>
-  # Impute missing values in categorical predictors with the most common value
-  step_impute_mode(all_nominal_predictors()) |>
+  # Interact numeric predictors with each other
+  step_interact(~ all_numeric_predictors():all_numeric_predictors()) |>
   # Normalize numeric predictors
   step_normalize(all_numeric_predictors()) |>
+  # Impute missing values in categorical predictors with the most common value
+  step_impute_mode(all_nominal_predictors()) |>
   # Collapse infrequent factor levels into 'other'
   step_other(all_nominal_predictors(), threshold = 0.05) |>
   # Create dummy variables for categorical predictors
@@ -110,6 +122,7 @@ a_recipe =
   step_corr(all_predictors(), threshold = 0.9) |>
   # Remove variables that are linear combinations of other predictors
   step_lincomb(all_predictors())
+
 # Let's see the recipe
 a_recipe
 ```
@@ -123,6 +136,7 @@ Notice that executing this recipe *once* takes quite some time.
 tictoc::tic()
 baked_df = a_recipe |> prep() |> bake(new_data = NULL)
 tictoc::toc()
+
 # Check out the baked data
 baked_df |> skim()
 ```
@@ -147,6 +161,7 @@ net_wf =
   workflow() |>
   add_model(net_model) |>
   add_recipe(a_recipe)
+
 # Print the workflow
 net_wf
 ```
@@ -169,7 +184,7 @@ set.seed(12)
 cv_folds = vfold_cv(clean_df, v = 5)
 # Parallelize the tuning process
 library(future)
-plan(multisession, workers = parallelly::availableCores())
+plan(multisession, workers = parallelly::availableCores() - 1)
 # Tune the model
 tune_results =
   tune_grid(
@@ -190,41 +205,10 @@ tictoc::toc()
 ```{r}
 #| label: tune-results
 
-# Check out the tuning results
-tune_results |> show_best('rmse', n = 10)
+# Check out the tuning results: RMSE
+tune_results |> show_best(metric = 'rmse', n = 10)
+# Check out the tuning results: MAE
+tune_results |> show_best(metric = 'mae', n = 10)
 # Plot the tuning results
 tune_results |> autoplot()
-```
-
-We could also use `tune_bayes` instead of `tune_grid` for a potentially more efficient tuning process via Bayesian optimization. We can also use our previous tuning results as the "initial" values for the Bayesian optimization process, which can help it find good tuning parameters more quickly.
-
-```{r}
-#| label: tune-bayes
-#| cache: true
-#| depends: tune
-
-# Start timer
-tictoc::tic()
-
-# Tune the model with Bayesian optimization
-tune_results_bayes =
-  tune_bayes(
-    net_wf,
-    resamples = cv_folds,
-    initial = tune_results,
-    iter = 20,
-    control = control_bayes(parallel_over = 'resamples')
-  )
-
-# Stop timer
-tictoc::toc()
-```
-
-```{r}
-#| label: tune-bayes-results
-
-# Check out the tuning results
-tune_results_bayes |> show_best('rmse', n = 10)
-# Plot the tuning results
-tune_results_bayes |> autoplot()
 ```
