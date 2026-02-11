@@ -29,6 +29,7 @@ By 11:59p on **March 11th**, submit **two documents** on Canvas (share links or 
 | *Bayesian (spatial) search algorithms* | Minal Edwards |
 | *t-SNE (and UMAP?)* | Natalie Vogel |
 | *Reinforcement learning* | Sidney Estes |
+| *Natural language processing* | Maya Lim |
 
 ## Some ideas for topics
 
