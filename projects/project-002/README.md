@@ -4,10 +4,6 @@
 
 Submit your write up with code and output (a knitted/rendered PDF or HTML) on Canvas.
 
-Let's switch gears and do some classification.
-
-Specifically, we're going to predict the winner of NBA games. If you're not a basketfall fan, don't worry. The goal is to let the data and the modeling guide you (though contextual insight/experience is usually good).
-
 **Purpose** We have three main goals with this project.
 
 - Apply your new tools/knowledge to a classification problem.
@@ -16,9 +12,9 @@ Specifically, we're going to predict the winner of NBA games. If you're not a ba
 
 ## Getting started
 
-**README** The dataset contains information about bank customers and whether they churned (i.e., stopped being a customer). The goal is to predict whether a customer will churn based on their characteristics. This *churn* variable is the target variable for our classification task—and an important one for businesses to understand and manage.
+**README** The [dataset](https://github.com/edrubin/EC524W26/blob/master/projects/project-002/data-churn.csv) contains information about bank customers and whether they churned (i.e., stopped being a customer). The goal is to predict whether a customer will churn based on their characteristics. This *churn* variable is the target variable for our classification task—and an important one for businesses to understand and manage.
 
-**[00]** Start by loading packages and the data.
+**[00]** Start by loading packages and the [data](https://github.com/edrubin/EC524W26/blob/master/projects/project-002/data-churn.csv).
 
 *Note:* The data originate from [Kaggle](https://www.kaggle.com/datasets/gauravtopre/bank-customer-churn-dataset/data). You can find a description of the dataset there.
 

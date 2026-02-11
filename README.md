@@ -248,6 +248,9 @@ Past, present, and future projects.
   - _Due:_ 28 January 2026
 
 **002** Classification
+  - [Instructions](projects/project-002/README.md)
+  - [Data](https://github.com/edrubin/EC524W26/blob/master/projects/project-002/data-churn.csv)
+  - _Due:_ 17 February 2026
 
 **003** Trees, ensembles, and imputation
 
