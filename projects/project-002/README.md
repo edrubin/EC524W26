@@ -24,15 +24,15 @@ Submit your write up with code and output (a knitted/rendered PDF or HTML) on Ca
 
 **[03]** What would the accuracy be for the null model?
 
-## Getting started
-
 **[04]** Set a seed and then randomly split the data into a training set (80%) and a test set (20%).
 
 *Hint:* You can use the [`initial_split`](https://rsample.tidymodels.org/reference/initial_split.html) function from the `rsample` package here (followed by the `training()` and `testing()` functions). Or you can do it yourself with `sample` and `set.seed`.
 
 ## Linear probability model
 
-**[05]** Fit a linear probability model to the tratining data. Use all of the features as predictors. Then test this linear probability model in the *test* data. What is the *test* accuracy for this model?
+Let's begin with many economists' default model.
+
+**[05]** Fit a linear probability model to the training data. Use all of the features as predictors. Then test this linear probability model in the *test* data. What is the *test* accuracy for this model?
 
 *Note:* Make sure you convert the predicted proabilities (outputted by `predict`) into class predictions (`0` or `1`) before calculating the accuracy.
 
@@ -42,9 +42,11 @@ Submit your write up with code and output (a knitted/rendered PDF or HTML) on Ca
 
 **[07]** How do the *test* accuracy, sensitivity, and precision for the linear probability model compare to the null model?
 
-**[08]** How do the *test* accuracy, sensitivity, and precision for the linear probability model change if you use a threshold of `0.3` instead of `0.5` to convert predicted probabilities into class predictions?
+**[08]** How do the *test* accuracy, sensitivity, and precision for the linear probability model change if you use a threshold of `0.3` (instead of `0.5`) to convert predicted probabilities into class predictions?
 
 ## Logistic regression
+
+Now let's try a potentially more appropriate model for classification.
 
 **[09]** Fit a logistic regression model to the training data (e.g., using `glm`). Use all of the features as predictors. Then test this logistic regression model in the *test* data. What is the *test* accuracy for this model?
 
@@ -54,21 +56,23 @@ Submit your write up with code and output (a knitted/rendered PDF or HTML) on Ca
 
 **[11]** How do the *test* accuracy, sensitivity, and precision for the logistic regression model compare to the linear probability model?
 
-## A little fancier
+## A little fancier yet
 
-**[12]** Set up a `tidymodels` recipe to process that data for a logistic elastic net model. Add interactions, polynomials, and whatever else you think could make sense here (and remember to make dummy variables from your categorical predictors). Don't forget to normalize.
+Now let's add some feature engineering and regularization to see if we can do better.
+
+**[12]** Set up a `tidymodels` recipe to process that data for a logistic elastic net model. Add interactions, polynomials, and whatever else you think could make sense here (and remember to make dummy variables from your categorical predictors). I want you to be creative here, but don't get paralyzed.
+
+Also: Don't forget to normalize.
 
 **Important:** Define the recipe relative to the training data.
 
-**Also important:** You will want to make sure your outcome variable is a factor (with levels `0` and `1`) for the logistic elastic net model. You might as well just convert the variable in the dataset (e.g., with `mutate` and `as.factor`).
+**Also important:** You will want to make sure your outcome variable is a factor for the logistic elastic net model. You might as well just convert the variable now (e.g., with `mutate` and `factor`).
 
 *Note:* If you added any predictions to your dataset in the previous problems, remove them now.
 
 **[13]** Set up a workflow that combines your recipe with a logistic elastic net model (with the `glmnet` engine).
 
-**[14]** Now set up a 5-fold CV resampling object (e.g., with `vfold_cv`) and use it to tune the hyperparameters of a logistic elastic net model (`tune_grid`). 
-
-*Remember:* You can parallelize the tuning process with the `future` package. (I don't think you'll need to parallelize here, but it's good to know how to do it.)
+**[14]** Now set up a 5-fold CV resampling object (e.g., with `vfold_cv`) and use it to tune the hyperparameters of a logistic elastic net model (`tune_grid`). Record the metrics for `roc_auc`, `accuracy`, `precision`, and `sensitivity` for each combination of hyperparameters.
 
 **[15]** Plot the results of your tuning (e.g., `autoplot`).
 
@@ -99,3 +103,5 @@ Notice that the predicted values from the final model are probabilities again (f
 **[19]** What are your final conclusions? Which model would you choose to use in practice? Why?
 
 **[20]** What are your takeaways from this project? What did you learn? What was challenging? What was fun? What would you do differently next time?
+
+**Bonus** Plot the ROC curve for your final model on the test data (e.g., with `roc_curve` and `autoplot`).
