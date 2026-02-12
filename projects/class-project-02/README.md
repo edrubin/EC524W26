@@ -30,6 +30,7 @@ By 11:59p on **March 11th**, submit **two documents** on Canvas (share links or 
 | *t-SNE (and UMAP?)* | Natalie Vogel |
 | *Reinforcement learning* | Sidney Estes |
 | *Natural language processing* | Maya Lim |
+| *Discriminant analysis* | Alex Bolster-White |
 
 ## Some ideas for topics
 
