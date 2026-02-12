@@ -231,6 +231,11 @@ The "coolest" applications will be highlighted in class and will receive extra c
 - [Logistic regression vs. boosting for insurance claims](https://www.mdpi.com/2227-9091/7/2/70)
 - [A bunch of algorithms for life (insurance) risk](https://link.springer.com/article/10.1007/s40747-018-0072-1)
 
+**Week 6** ML-driven matching.
+
+- ML to [reunite separated families](https://insights.som.yale.edu/insights/machine-learning-model-can-help-reunite-long-separated-families)
+- Uber's [approach](https://www.geeksforgeeks.org/system-design/how-uber-finds-nearby-drivers-at-1-million-requests-per-second/) to matching riders and drives 
+
 ## Projects
 
 Past, present, and future projects.
