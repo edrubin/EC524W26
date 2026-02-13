@@ -31,6 +31,8 @@ By 11:59p on **March 11th**, submit **two documents** on Canvas (share links or 
 | *Reinforcement learning* | Sidney Estes |
 | *Natural language processing* | Maya Lim |
 | *Discriminant analysis* | Alex Bolster-White |
+| *Bandit problems* | Ireland Gomes |
+| *Ordered logit/probit models* | Malcolm Fleming |
 
 ## Some ideas for topics
 
