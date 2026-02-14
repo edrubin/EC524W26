@@ -35,6 +35,7 @@ By 11:59p on **March 11th**, submit **two documents** on Canvas (share links or 
 | *Bayesian neural networks* | Jules Netze |
 | *Adversarial learning* | Claire Rounds |
 | *t-SNE (and UMAP?)* | Natalie Vogel |
+| *Clustering algorithms* | Luke Xitco |
 
 ## Some ideas for topics
 
