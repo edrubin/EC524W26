@@ -24,15 +24,17 @@ By 11:59p on **March 11th**, submit **two documents** on Canvas (share links or 
 
 | Topic | Name |
 |:---------|:---------|
-| *Bayesian neural networks* | Jules Netze |
-| *Het. trt. effects and causal forests* | Will Martin |
-| *Bayesian (spatial) search algorithms* | Minal Edwards |
-| *t-SNE (and UMAP?)* | Natalie Vogel |
-| *Reinforcement learning* | Sidney Estes |
-| *Natural language processing* | Maya Lim |
 | *Discriminant analysis* | Alex Bolster-White |
-| *Bandit problems* | Ireland Gomes |
+| *Semi-supervised learning* | Kellen Bond |
+| *Bayesian (spatial) search algorithms* | Minal Edwards |
+| *Reinforcement learning* | Sidney Estes |
 | *Ordered logit/probit models* | Malcolm Fleming |
+| *Bandit problems* | Ireland Gomes |
+| *Natural language processing* | Maya Lim |
+| *Het. trt. effects and causal forests* | Will Martin |
+| *Bayesian neural networks* | Jules Netze |
+| *Adversarial learning* | Claire Rounds |
+| *t-SNE (and UMAP?)* | Natalie Vogel |
 
 ## Some ideas for topics
 
