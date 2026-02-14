@@ -24,16 +24,19 @@ By 11:59p on **March 11th**, submit **two documents** on Canvas (share links or 
 
 | Topic | Name |
 |:---------|:---------|
+| *Time-series prediction* | Charlie Anderson |
 | *Discriminant analysis* | Alex Bolster-White |
 | *Semi-supervised learning* | Kellen Bond |
 | *Bayesian (spatial) search algorithms* | Minal Edwards |
 | *Reinforcement learning* | Sidney Estes |
 | *Ordered logit/probit models* | Malcolm Fleming |
 | *Bandit problems* | Ireland Gomes |
+| *Active learning* | Jack Gooding |
 | *Natural language processing* | Maya Lim |
 | *Het. trt. effects and causal forests* | Will Martin |
 | *Bayesian neural networks* | Jules Netze |
 | *Adversarial learning* | Claire Rounds |
+| *Image processing and CNNs* | Oliver Van Aken |
 | *t-SNE (and UMAP?)* | Natalie Vogel |
 | *Clustering algorithms* | Luke Xitco |
 
