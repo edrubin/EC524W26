@@ -25,11 +25,13 @@ By 11:59p on **March 11th**, submit **two documents** on Canvas (share links or 
 | Topic | Name |
 |:---------|:---------|
 | *Time-series prediction* | Charlie Anderson |
+| *Spatial prediction (esp. CV)* | Ahmed Abdelrassoul |
 | *Discriminant analysis* | Alex Bolster-White |
 | *Semi-supervised learning* | Kellen Bond |
 | *Bayesian (spatial) search algorithms* | Minal Edwards |
 | *Reinforcement learning* | Sidney Estes |
 | *Ordered logit/probit models* | Malcolm Fleming |
+| *Multi-level output* | Yuxuan Gao |
 | *Bandit problems* | Ireland Gomes |
 | *Active learning* | Jack Gooding |
 | *Natural language processing* | Maya Lim |
