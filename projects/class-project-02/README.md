@@ -34,6 +34,7 @@ By 11:59p on **March 11th**, submit **two documents** on Canvas (share links or 
 | *Multi-level output* | Yuxuan Gao |
 | *Bandit problems* | Ireland Gomes |
 | *Active learning* | Jack Gooding |
+| *Neural networks* | Cooper Lee |
 | *Natural language processing* | Maya Lim |
 | *Het. trt. effects and causal forests* | Will Martin |
 | *Bayesian neural networks* | Jules Netze |
@@ -41,6 +42,7 @@ By 11:59p on **March 11th**, submit **two documents** on Canvas (share links or 
 | *Image processing and CNNs* | Oliver Van Aken |
 | *t-SNE (and UMAP?)* | Natalie Vogel |
 | *Clustering algorithms* | Luke Xitco |
+| *Survival analysis* | Lucas Zhang |
 
 ## Some ideas for topics
 
