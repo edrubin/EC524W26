@@ -236,6 +236,11 @@ The "coolest" applications will be highlighted in class and will receive extra c
 - ML to [reunite separated families](https://insights.som.yale.edu/insights/machine-learning-model-can-help-reunite-long-separated-families)
 - Uber's [approach](https://www.geeksforgeeks.org/system-design/how-uber-finds-nearby-drivers-at-1-million-requests-per-second/) to matching riders and drives 
 
+**Week 7** Audits.
+
+- [Tax audits](https://www.nber.org/system/files/working_papers/w30777/w30777.pdf) and [poverty prediction](https://www.science.org/doi/10.1126/science.aaf7894) with ML.
+- [Predicting policy misconduct](https://www.nber.org/system/files/working_papers/w32432/w32432.pdf).
+
 ## Projects
 
 Past, present, and future projects.
