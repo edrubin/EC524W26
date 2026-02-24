@@ -2,7 +2,7 @@
 # Temporary holds: Lecture
 
 # Temporary holds: Projects
-projects/project-00[3-9]*
+projects/project-00[4-9]*
 projects/OLD*
 
 # Exams

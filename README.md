@@ -262,7 +262,10 @@ Past, present, and future projects.
   - [Data](https://github.com/edrubin/EC524W26/blob/master/projects/project-002/data-churn.csv)
   - _Due:_ 17 February 2026
 
-**003** Trees, ensembles, and imputation
+**003** Trees, ensembles, and boosting
+  - [Instructions](projects/project-003/README.md)
+  - [Data](https://github.com/edrubin/EC524W26/blob/master/projects/project-003/data-churn.csv)
+  - _Due:_ 01 March 2026
 
 **004** Prediction finale
 
