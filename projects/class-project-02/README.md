@@ -34,6 +34,7 @@ By 11:59p on **March 11th**, submit **two documents** on Canvas (share links or 
 | *Multi-level output* | Yuxuan Gao |
 | *Bandit problems* | Ireland Gomes |
 | *Active learning* | Jack Gooding |
+| *Gaussian process regression* or *Convolutions* | Rowan Killen |
 | *Neural networks* | Cooper Lee |
 | *Natural language processing* | Maya Lim |
 | *Het. trt. effects and causal forests* | Will Martin |

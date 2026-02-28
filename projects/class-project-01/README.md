@@ -41,6 +41,7 @@ The document should be something that you could send to a potential employer to 
 | *What predicts Trump's winning?* | Yuxuan Gao |
 | *Labor market outcomes* | Ireland Gomes |
 | *FDI* | Jack Gooding |
+| *Churn* | Rowan Killen |
 | *Boardgame ratings* | Cooper Lee |
 | *Cat/dog lifespans* | Nate Lew |
 | *Airbnb performance* | Maya Lim |
