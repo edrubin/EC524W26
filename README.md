@@ -242,7 +242,13 @@ The "coolest" applications will be highlighted in class and will receive extra c
 **Week 7** Audits.
 
 - [Tax audits](https://www.nber.org/system/files/working_papers/w30777/w30777.pdf) and [poverty prediction](https://www.science.org/doi/10.1126/science.aaf7894) with ML.
-- [Predicting policy misconduct](https://www.nber.org/system/files/working_papers/w32432/w32432.pdf).
+- NBER working paper: [Predicting policy misconduct](https://www.nber.org/system/files/working_papers/w32432/w32432.pdf).
+
+**Week 8** More (nuanced?) audits and outlier detection.
+
+- An accounting firm on the [promise and pitfalls of AI and audits](https://www.btcpa.net/insights/how-ai-is-changing-irs-audits-promise-and-pitfalls).
+- Using outliers in high dimensions to [measure partisanship](https://doi.org/10.3982/ECTA16566).
+- [NBER working paper](https://www.nber.org/system/files/working_papers/w32705/w32705.pdf) on the difference between out-of-sample performance and in-the-field performance (applied to *bogus* firms).
 
 ## Projects
 
