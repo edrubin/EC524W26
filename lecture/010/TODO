@@ -1,7 +1,7 @@
 TODO
 
-- [ ] Fix the inline R code that is supposed to print the number of principal components.
-- [ ] Add accuracy numbers in text (in addition to showing in figures).
-- [ ] Plot two-dimensional UMAP representation of our 784-dimension predictor space.
-- [ ] Add more math on PCA.
-- [ ] Add more math and explanation for UMAP.
+- [x] Fix the inline R code that prints the number of principal components.
+- [x] Add accuracy numbers in text (in addition to showing in figures).
+- [x] Plot the two-dimensional UMAP representation of the 784-dimensional predictor space.
+- [x] Add more math on PCA.
+- [x] Add more math and explanation for UMAP.

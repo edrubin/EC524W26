@@ -1,0 +1,846 @@
+<!DOCTYPE html>
+<html lang="" xml:lang="">
+  <head>
+    <title>Lecture .mono[010]</title>
+    <meta charset="utf-8" />
+    <meta name="author" content="Edward Rubin" />
+    <script src="slides_files/header-attrs-2.29/header-attrs.js"></script>
+    <link href="slides_files/remark-css-0.0.1/default.css" rel="stylesheet" />
+    <link href="slides_files/remark-css-0.0.1/metropolis.css" rel="stylesheet" />
+    <link href="slides_files/remark-css-0.0.1/metropolis-fonts.css" rel="stylesheet" />
+    <link href="slides_files/tile-view-0.2.6/tile-view.css" rel="stylesheet" />
+    <script src="slides_files/tile-view-0.2.6/tile-view.js"></script>
+    <script src="slides_files/xaringanExtra_fit-screen-0.2.6/fit-screen.js"></script>
+    <link rel="stylesheet" href="my-css.css" type="text/css" />
+  </head>
+  <body>
+    <textarea id="source">
+class: center, middle, inverse, title-slide
+
+.title[
+# Lecture .mono[010]
+]
+.subtitle[
+## Unsupervised learning, dimensionality reduction, and image classification
+]
+.author[
+### Edward Rubin
+]
+
+---
+
+exclude: true
+
+
+
+---
+name: admin
+# Admin
+### Today
+
+.b[Topics:] We've got a lot (coming to the end)!
+
+- K-means clustering &amp; unsupervised learning;
+- PCA and UMAP for dimension reduction;
+- why geometry matters for image classification.
+
+### Upcoming
+
+.b[Projects] due this week and next! (Also: Final exam.)
+
+.b[Readings]
+
+- .note[Today:] .it[ISL] Ch. 12 (*Unsupervised Learning*)
+- .note[Next:] [NNs and Deep Learning](http://neuralnetworksanddeeplearning.com/) Ch. 1-2; .it[ISL] Ch. 10 (*Deep Learning*).
+
+---
+layout: true
+# Predicting digits
+
+---
+
+&lt;img src="slides_files/figure-html/show-examples-0-1.svg" style="display: block; margin: auto;" /&gt;
+
+---
+name: intro
+
+## Why digits?
+
+Handwritten digits are a useful .attn[machine-vision sandbox]:
+
+- .hi-pink[784 pixels] per image (28 × 28),
+- .hi-orange[10 labels], so this is multiclass prediction,
+- .b.purple[easy] to .purple[for us] visualize—and an easy task for humans;
+- .b.purple[difficult] to separate .purple[for many ML methods].
+
+.note[Bonus:] Connects .attn[unsup. learning], .attn[dim. reduction], .attn[image/multi-class pred].
+
+We use Kaggle MNIST files: `train.csv` and `test.csv`.
+
+---
+name: vision
+## Image classification (in one slide)
+
+For .b[MNIST].super.pink[†]
+
+.footnote[.pink[†] MNIST is a classic benchmark for ML. It contains handwritten digits from the US National Institute of Standards and Technology (written by Census employees and HS students).]
+
+- .hi-pink[predictors:] pixel intensities, .grey-vlight[(each x.sub[j]∈[0–255])]
+- .hi-orange[target] = the digit label, .grey-vlight[(y∈{0, 1, ..., 9})]
+
+`\(\implies\)` each image is one point in .hi-purple[784-dimensional] predictor space.
+
+--
+
+The target is simple. The .attn[geometry] is the hard part.
+
+.note[Why?] .attn[Combinations] of pixels matter. .grey-vlight[(Not so much individual pixels.)]
+
+---
+## What Do the Digits Look Like?
+
+&lt;img src="slides_files/figure-html/show-examples-1.svg" style="display: block; margin: auto;" /&gt;
+
+---
+## Kaggle's Setup
+
+As usual, Kaggle gives us two files
+
+- .b.pink[`train.csv`] has images and labels
+- .b.pink[`test.csv`] has images only
+
+Today we use the labeled sample to
+
+1. fit the unsupervised methods,
+2. check what structure those methods recover.
+
+---
+class: inverse, middle
+name: unsupervised
+
+## Supervised *vs.* unsupervised learning
+
+---
+## What's the difference?
+
+&lt;br&gt;
+
+.col-left[
+.hi-pink[Supervised learning]
+
+- .b[train] with `\(X\)` and `\(Y\)`
+- .b[goal:] predict `\(Y\)`
+- .ex[ex:] lasso, RFs, SVMs
+]
+
+.col-right[
+.hi-purple[Unsupervised learning]
+
+- .b[train] with `\(X\)` only
+- .b[goal:] find structure in `\(X\)`
+- .ex[ex:] clustering &amp; dim. reduction
+]
+
+.clear-up[
+Today we start on the .b.purple[unsupervised] side, but we will keep asking:&lt;br&gt;.it.pink[Does the structure help prediction?]
+&lt;br&gt;&lt;br&gt;
+.tran25[(In reality, we have a .pink[supervised] task.)]
+]
+
+---
+class: inverse, middle
+name: kmeans
+
+## *K*-means clustering
+
+---
+## The general idea
+
+*K*-means is a simple clustering method groups our data into `\(K\)` groups:
+
+- choose a number of .b.pink[clusters], *K*; .grey-vlight[*clusters* = groups of similar obs.]
+- assign each observation to (exactly) one cluster `\(k\)`; .grey-vlight["nearest" cluster]
+- summarize each cluster by its .b.pink[centroid]. .grey-vlight[center cluster's obs.]
+
+*K*-means compresses a messy cloud into `\(\color{#e64173}{K}\)` .attn[representative centers].
+
+--
+
+Now we just need to an algorithm to find the .it[best] clustering...
+&lt;br&gt;
+which probably means defining .it[best] (.it[i.e.,] an .attn[objective function]).
+
+---
+## *K*-means: Objective function
+
+Let cluster `\(k\)` have centroid `\(\mu_k\)`. .grey-vlight.it[(The mean location of its obs. in .slab[p] dim.)]
+
+*K*-means chooses clusters `\(C_1, \ldots, C_K\)` to minimize .attn[within-cluster variation]
+
+`$$\min_{C_1,\ldots,C_K} \sum_{k = 1}^K \sum_{i \in C_k} \lVert x_i - \mu_k \rVert^2$$`
+
+.ex[E.g.,] .attn[within-cluster sum of squares (WCSS)] above.
+
+Interpretation
+
+- reward .hi-pink[tight, compact] clusters, .grey-vlight.it[(short distances add little to the sum)]
+- "penalize" observations far from their centroids. .grey-vlight.it[(or "bad" clusters.)]
+
+---
+## *K*-means: Algorithm
+
+A general algorithm for clustering:
+
+1. pick `\(K\)` initial .pink[centroids]; .grey-vlight.it[(randomly, or with a heuristic)]
+1. .pink[assign] each observation to its nearest centroid; .grey-vlight.it[(Euclidean distance)]
+1. .pink[recompute] the centroids; .grey-vlight.it[(mean of the obs. in each cluster)]
+1. .pink[repeat] until assignments stop changing. .grey-vlight.it[("convergence")]
+
+  .b.orange[+]  Fast and intuitive.
+&lt;br&gt;
+  .b.purple[-]  Only guarantees (approx.) a local optimum.
+
+---
+## K-means on pixels
+
+.ex[Recall:] Each image (obs.) is one point in .purple[784 dimensions].
+
+There are .b.pink[10 labels]. `\(\color{#e64173}{K = 10}\)` seems like a natural first guess.
+
+... however, `\(K = 10\)` is a guess; not a theorem.
+
+.qa[Q:] Why might `\(K = 10\)` be a bad choice?
+
+
+
+---
+## Turning Clusters into Predictions
+
+We have .b.orange[clusters]. .grey-vlight.it[(Groups of "close" images in pixel space.)]
+
+We *want* .b.pink[predictions]. .grey-vlight.it[(Predicted digit labels.)]
+
+- Cluster labels, *i.e.*, `\(1, 2, ..., K\)` are arbitrary. .grey-vlight.it[(they just index the clusters)]
+- .note[Solution:] Relabel each cluster by its .attn[modal label]; .grey-vlight.it[(like RF: majority vote)]
+
+.b[Result:] With `\(K = 10\)`, this classifier is approx. 54.2% accurate..super[.pink[†]]
+
+.footnote[.pink[†] This measure of accuracy is still *in-sample*.]
+
+--
+
+.qa[Q].sub[1] Is this level of accuracy good?
+&lt;br&gt;
+.qa[Q].sub[2] What would random guessing get us?
+
+---
+class: clear, middle, center
+
+.b[Confusion matrix], `\(K = 10\)`
+
+&lt;img src="slides_files/figure-html/kmeans-conf-mat-1.svg" style="display: block; margin: auto;" /&gt;
+
+---
+## Why aren't we doing better?
+
+What is it about the task—and our approach—that isn't working?
+
+We may need more than 10 clusters to capture .b.purple[within-label variation]
+
+- one .orange[label] can contain several .purple[handwriting styles];
+- the same .orange[digit] can shift .purple[left, right, up, or down];
+- strokes can be .purple[thicker, thinner, or slanted];
+- some characters are .purple[quite ambiguous].
+
+So Euclidean distance in raw pixel space is a rough measure of similarity.
+
+---
+layout: false
+class: clear, middle, center
+
+**Accuracy by label** for `\(K = 10\)` (sensitivity)
+&lt;table&gt;
+ &lt;thead&gt;
+  &lt;tr&gt;
+   &lt;th style="text-align:center;"&gt; Digit &lt;/th&gt;
+   &lt;th style="text-align:center;"&gt; Accuracy &lt;/th&gt;
+   &lt;th style="text-align:center;"&gt; Count &lt;/th&gt;
+  &lt;/tr&gt;
+ &lt;/thead&gt;
+&lt;tbody&gt;
+  &lt;tr&gt;
+   &lt;td style="text-align:center;"&gt; 0 &lt;/td&gt;
+   &lt;td style="text-align:center;"&gt; 70.2% &lt;/td&gt;
+   &lt;td style="text-align:center;"&gt; 604 &lt;/td&gt;
+  &lt;/tr&gt;
+  &lt;tr&gt;
+   &lt;td style="text-align:center;"&gt; 1 &lt;/td&gt;
+   &lt;td style="text-align:center;"&gt; 68.0% &lt;/td&gt;
+   &lt;td style="text-align:center;"&gt; 647 &lt;/td&gt;
+  &lt;/tr&gt;
+  &lt;tr&gt;
+   &lt;td style="text-align:center;"&gt; 2 &lt;/td&gt;
+   &lt;td style="text-align:center;"&gt; 61.2% &lt;/td&gt;
+   &lt;td style="text-align:center;"&gt; 582 &lt;/td&gt;
+  &lt;/tr&gt;
+  &lt;tr&gt;
+   &lt;td style="text-align:center;"&gt; 3 &lt;/td&gt;
+   &lt;td style="text-align:center;"&gt; 69.1% &lt;/td&gt;
+   &lt;td style="text-align:center;"&gt; 608 &lt;/td&gt;
+  &lt;/tr&gt;
+  &lt;tr&gt;
+   &lt;td style="text-align:center;"&gt; 4 &lt;/td&gt;
+   &lt;td style="text-align:center;"&gt; 38.9% &lt;/td&gt;
+   &lt;td style="text-align:center;"&gt; 560 &lt;/td&gt;
+  &lt;/tr&gt;
+  &lt;tr&gt;
+   &lt;td style="text-align:center;"&gt; 5 &lt;/td&gt;
+   &lt;td style="text-align:center;"&gt; 26.1% &lt;/td&gt;
+   &lt;td style="text-align:center;"&gt; 536 &lt;/td&gt;
+  &lt;/tr&gt;
+  &lt;tr&gt;
+   &lt;td style="text-align:center;"&gt; 6 &lt;/td&gt;
+   &lt;td style="text-align:center;"&gt; 72.4% &lt;/td&gt;
+   &lt;td style="text-align:center;"&gt; 576 &lt;/td&gt;
+  &lt;/tr&gt;
+  &lt;tr&gt;
+   &lt;td style="text-align:center;"&gt; 7 &lt;/td&gt;
+   &lt;td style="text-align:center;"&gt; 43.3% &lt;/td&gt;
+   &lt;td style="text-align:center;"&gt; 631 &lt;/td&gt;
+  &lt;/tr&gt;
+  &lt;tr&gt;
+   &lt;td style="text-align:center;"&gt; 8 &lt;/td&gt;
+   &lt;td style="text-align:center;"&gt; 46.0% &lt;/td&gt;
+   &lt;td style="text-align:center;"&gt; 632 &lt;/td&gt;
+  &lt;/tr&gt;
+  &lt;tr&gt;
+   &lt;td style="text-align:center;"&gt; 9 &lt;/td&gt;
+   &lt;td style="text-align:center;"&gt; 43.3% &lt;/td&gt;
+   &lt;td style="text-align:center;"&gt; 624 &lt;/td&gt;
+  &lt;/tr&gt;
+&lt;/tbody&gt;
+&lt;/table&gt;
+---
+layout: false
+class: clear, middle, center
+
+**Separating 7 and 9 is difficult:** *Correct* guesses vs. *incorrect* guesses
+&lt;img src="slides_files/figure-html/kmeans10-correct7-1.svg" style="display: block; margin: auto;" /&gt;
+
+---
+layout: true
+# Predicting digits
+
+---
+name: choose-k
+
+## What's `\(K\)`?
+
+As you might have guessed, .b.slate[the choice of] `\(\color{#23373b}{K}\)` is a big deal for *K*-means.
+
+- The number of (useful) clusters is usually .b.pink[unknown].
+- .note[Common:] The .b.orange["elbow"] &amp; downstream .b.orange[usefulness]. .grey-vlight.it[(marginal gains)]
+- The same .b.purple[hyper-parameter tuning] logic we use throughout the course.
+  
+--
+
+So... we should probably *tune* it.
+
+---
+layout: false
+class: clear, middle, center
+
+**Finding the elbow.** .grey-vlight.it[You see it, right?]
+
+
+
+&lt;img src="slides_files/figure-html/elbow-plot-1.svg" style="display: block; margin: auto;" /&gt;
+
+---
+layout: true
+# Predicting digits
+
+---
+## Elbows and clusters 
+
+.qa[Q] What's the *elbow*?
+&lt;br&gt;
+.qa[A] The bendy part of the curve, of course!
+
+- WCSS mechanically falls as `\(K\)` rises.
+- We're looking for the point of .attn[diminishing marginal gains].
+- .note[Caveat] If the bend is weak, the choice of `\(K\)` stays ambiguous.
+
+.grey-light[Elbows are useful (subjective) heuristics—not *proper* decision rules.]
+
+---
+layout: false
+class: clear, middle, center
+
+**Modal cluster-label accuracy by `\(K\)`.** .grey-vlight.it[(Still in-sample.)]
+
+
+
+&lt;img src="slides_files/figure-html/find-k-pixels-plot-1.svg" style="display: block; margin: auto;" /&gt;
+
+---
+layout: true
+
+# Predicting digits
+
+---
+## `\(K\)`-means takeaways
+
+**Accuracy** depends on `\(K\)`, varies by label, and is *meh*.
+
+- With raw pixels, `\(K = 10\)` gives about 54.2%.
+- The best value is around `\(K\)` = 50 with 81.2%.
+- .attn[Key] .b.pink[10 labels] does .it[not] imply .b.orange[10 clusters].
+
+More clusters can help.
+
+- One true .b.pink[digit] can split into several .hi-purple[styles].
+- Extra clusters can improve the modal-label benchmark.&lt;br&gt;.grey-vlight.it[(But can overfit too.)]
+
+---
+class: inverse, middle
+name: pca
+
+## Now with PCA!
+
+---
+## PCA: Intuition
+
+.attn[Principal component analysis (PCA)] is a .orange[dimension-reduction] method that finds new axes to summarize the data..super[.orange[†]]
+
+Same data; different coordinates.
+
+- The **first** PC explains the **most** variation...
+- later PCs explain the most remaining *orthogonal* variation.
+- We can use PCA to replace *many* pixel-based features with fewer .attn[linear combinations] of pixels..super[.pink[††]]
+
+A relatively .orange[small subset] of PCs can give a compact summary of data.
+&lt;br&gt;
+`\(\implies\)` PCA *can* .b.orange[reduce dimensions] while .purple[preserving information]!
+
+.footnote[
+  .orange[†] PCA is applied in other contexts beyond dimension reduction.
+  &lt;br&gt;
+  .pink[††] Linear combinations of pixels are like "superpixels" that capture common patterns.
+]
+
+---
+## PCA: A little math
+
+The first principal component is
+
+`$$Z_{1} = \phi_{1,1}X_{1} + \phi_{2,1}X_{2} + \cdots + \phi_{p,1}X_{p}$$`
+
+with analogous definitions for the other `\(p-1\)` PCs `\(Z_2, Z_3, \ldots, Z_p\)`.
+
+Don't be overwhelmed by the notation.
+&lt;br&gt;Each PC is just a weighted combo. of the original features. .grey-vlight.it[(Just like OLS.)]
+
+**Key ideas:**
+
+- PCs are .pink[.b[linear combinations] of the original variables],
+- PC.sub[i] is .b.purple[orthogonal] to all other PCs,.super[.purple[†]]
+- we usually .b.slate[normalize] variables before PCA.
+
+.footnote[.purple[†] Links: [Nice visualizations](https://setosa.io/ev/principal-component-analysis/) plus another [resource](https://www.nature.com/articles/nmeth.4346).]
+
+---
+layout: false
+class: clear, middle
+
+**Updating our *K*-means workflow to include PCA**
+
+1. .pink[normalize] the pixels,
+1. keep enough PCs to .pink[explain 90% of variance],
+1. .pink[run *K*-means] in the PC space.
+
+
+``` r
+# Define a simple PCA recipe
+simple_recipe_pca =
+  recipe(
+    label ~ .,
+    data =
+      analysis_dt |&gt;
+      select(label, starts_with('pixel'))
+  ) |&gt;
+  step_mutate(label = as.factor(label)) |&gt;
+  step_normalize(all_numeric_predictors()) |&gt;
+  step_pca(all_predictors(), threshold = .9) |&gt;
+  step_rm(starts_with('pixel'))
+```
+
+
+
+---
+class: clear, middle, center
+
+Should we have standardized the pixels with plain *K*-means clustering?
+
+---
+layout: true
+
+# Predicting digits
+
+---
+## PCA: What is it good for?
+
+So what does PCA do for us here? Subsetting to the PCs that represent 90% of the variance
+
+- leaves us with .hi-orange[188 PCs], .grey-vlight.it[(≪ 784)]
+- has .b.purple[45.1%] accuracy with `\(K = 10\)` clusters. .grey-vlight.it[(&lt; 54.2%)]
+  
+--
+
+Wait. So... it's worse?
+
+1. Yes, if we only consider .pink[*training* accuracy].
+2. Maybe, if we consider the .orange[predictor space] was 24% of the original size.
+3. TBD, if we actually check the .purple[test-set accuracy].
+   
+We have a more *compact* representation, but we *did* lose some information.
+
+---
+## What are we doing?
+
+Let's think about what we're actually doing here.
+
+- We are **still running *K*-means**.
+- Only the .pink[coordinates] change with PCA.
+- Comparable accuracy with far .purple[fewer dimensions] is a decent trade.
+
+We *could* add more PCs. That road eventually leads to the original space.
+
+--
+
+What if we tried a .b.purple[nonlinear] dimension reduction method instead?
+
+---
+class: inverse, middle
+name: umap
+
+## UMAP .slate[No, *U*MAP!]
+
+---
+## UMAP: Intuition
+
+.attn[UMAP].super.pink[†] is a popular .b.purple[nonlinear dimension-reduction method] that can capture more complex structures than PCA.
+
+.footnote[.pink[†] UMAP stands for *Uniform Manifold Approximation and Projection*.&lt;br&gt;Examples [here](https://pair-code.github.io/understanding-umap/); paper's repo [here](https://github.com/lmcinnes/umap).]
+
+- .b.purple[Start:] a high-dim. graph of the data—edges connect nearby obs.;
+- .b.pink[Then:] optimized low-dim. graph that preserves local structure.
+- .b.purple[Nonlinear:] can uncover *curved* structure that PCA misses.
+
+--
+
+The axes help with geometry—not direct interpretation
+
+- strong for .hi-orange[visualization]; useful for .hi-orange[clustering];
+- .b.slate[less interpretable] and more .b.slate[tuning-sensitive] than PCA.
+
+---
+layout: false
+class: clear, middle
+
+**Updating our *K*-means workflow to include UMAP**
+
+1. .pink[normalize] the pixels
+1. embed the data in .pink[.b[2] dimensions] via UMAP
+1. cluster with .pink[*K*-means] in the embedded space
+   
+
+``` r
+simple_recipe_umap =
+  recipe(
+    label ~ .,
+    data = analysis_dt |&gt;
+      select(label, starts_with('pixel'))
+  ) |&gt;
+  step_mutate(label = as.factor(label)) |&gt;
+  step_normalize(all_numeric_predictors()) |&gt;
+  step_umap(all_predictors(), num_comp = 2) |&gt;
+  step_rm(starts_with('pixel'))
+```
+
+
+
+---
+layout: false
+class: clear, middle
+
+So what does the UMAP embedding look like?
+
+---
+layout: false
+class: clear, middle, center
+
+.b[2-dimensional UMAP embedding] of 784-dimensional MNIST pixel space
+
+&lt;img src="slides_files/figure-html/umap-plot-1.svg" style="display: block; margin: auto;" /&gt;
+
+---
+layout: false
+class: clear, middle
+
+Cool. So how does this 2-D UMAP embedding perform?
+
+---
+# Predicting digits
+## K-means in the UMAP space
+
+With only .attn[2 dimensions].grey-vlight[(!!)], *K*-means accuracy is .b.pink[64.6%] (*K*=10).
+
+- This result *does not* mean UMAP always wins.
+- It *does* mean a .b.purple[nonlinear embeddings] can preserve useful structures.
+- UMAP's .b.purple[nonlinearity] can capture complex relationships.
+
+Reading handwriting likely involves such complex/nonlinear relationships.
+
+---
+layout: false
+class: clear, middle
+
+**Comparing *K*-means accuracy** across representations and values of `\(K\)`
+
+
+
+&lt;img src="slides_files/figure-html/compare-k-plot-1.svg" style="display: block; margin: auto;" /&gt;
+
+---
+# Predicting digits
+## Representation tradeoffs
+
+What do these results mean?
+
+- .hi-pink[Pixels] Simplest description, roughest geometry
+- .hi-orange[PCA] Linear, compact, mathematically clean
+- .hi-purple[UMAP] Nonlinear, visual, less interpretable
+
+In-sample accuracy at `\(K = 10\)`
+
+- .hi-pink[Pixels] 54.2%
+- .hi-orange[PCA] 45.1%
+- .hi-purple[UMAP] 64.6%
+
+Representation choice can change clustering performance a lot.
+
+---
+layout: true
+
+# Wrapping up
+
+---
+class: inverse, middle
+name: wrap
+
+---
+## Structure and prediction
+
+Unsupervised tools help depicts whether the features contain signal.
+
+- they can reduce dimension before supervised learning,
+- they can reveal where classes overlap
+
+If the goal is prediction, we usually move back to .attn[supervised] methods.
+
+.grey-vlight[(We could probably beat *K*-means with a more direct supervised method.)]
+
+---
+## Basic image-classification intuition
+
+Our approach today for image classification
+
+1. learn a good .attn[representation],
+1. use that representation to make a prediction.
+
+.note[Next step] Neural networks start learning both pieces together.
+
+--
+
+.note[Reminder] We have been treating the .b.purple[representation] as a .b[preprocessing step], but it is really part of the model. Cross validation should reflect that.
+
+---
+name: final-thoughts
+## Final thoughts
+
+What did we see?
+
+- .b.pink[*K*-means] is simple; it depends heavily on geometry. &lt;br&gt;Other clustering methods have different assumptions and objectives.
+- Raw, disjoint .b.pink[pixel space] is high-dimensional and awkward.&lt;br&gt;Convolutions and nonlinear embeddings can help.
+- .hi-orange[PCA] gives a linear low-dimensional summary.&lt;br&gt;Reliance on linearity can be too restrictive.
+- .hi-purple[UMAP] gives a nonlinear, low-dimensional summary.
+
+.note[Next stop] Neural networks and a more serious classification pipeline.
+
+---
+layout: false
+# Table of contents
+
+.col-left[
+.small[
+#### Opening
+- [Admin](#admin)
+- [Why digits?](#intro)
+- [Image classification](#vision)
+- [Supervised vs. unsupervised](#unsupervised)
+
+#### Clustering
+- [K-means](#kmeans)
+- [Choosing `\(K\)`](#choose-k)
+]
+]
+
+.col-right[
+.small[
+#### Dimension reduction
+- [PCA](#pca)
+- [UMAP](#umap)
+
+#### Closing
+- [Structure and prediction](#wrap)
+- [Final thoughts](#final-thoughts)
+
+]
+]
+    </textarea>
+<style data-target="print-only">@media screen {.remark-slide-container{display:block;}.remark-slide-scaler{box-shadow:none;}}</style>
+<script src="https://remarkjs.com/downloads/remark-latest.min.js"></script>
+<script>var slideshow = remark.create({
+  "highlightStyle": "github",
+  "highlightLines": true,
+  "countIncrementalSlides": false
+});
+if (window.HTMLWidgets) slideshow.on('afterShowSlide', function (slide) {
+  window.dispatchEvent(new Event('resize'));
+});
+(function(d) {
+  var s = d.createElement("style"), r = d.querySelector(".remark-slide-scaler");
+  if (!r) return;
+  s.type = "text/css"; s.innerHTML = "@page {size: " + r.style.width + " " + r.style.height +"; }";
+  d.head.appendChild(s);
+})(document);
+
+(function(d) {
+  var el = d.getElementsByClassName("remark-slides-area");
+  if (!el) return;
+  var slide, slides = slideshow.getSlides(), els = el[0].children;
+  for (var i = 1; i < slides.length; i++) {
+    slide = slides[i];
+    if (slide.properties.continued === "true" || slide.properties.count === "false") {
+      els[i - 1].className += ' has-continuation';
+    }
+  }
+  var s = d.createElement("style");
+  s.type = "text/css"; s.innerHTML = "@media print { .has-continuation { display: none; } }";
+  d.head.appendChild(s);
+})(document);
+// delete the temporary CSS (for displaying all slides initially) when the user
+// starts to view slides
+(function() {
+  var deleted = false;
+  slideshow.on('beforeShowSlide', function(slide) {
+    if (deleted) return;
+    var sheets = document.styleSheets, node;
+    for (var i = 0; i < sheets.length; i++) {
+      node = sheets[i].ownerNode;
+      if (node.dataset["target"] !== "print-only") continue;
+      node.parentNode.removeChild(node);
+    }
+    deleted = true;
+  });
+})();
+// add `data-at-shortcutkeys` attribute to <body> to resolve conflicts with JAWS
+// screen reader (see PR #262)
+(function(d) {
+  let res = {};
+  d.querySelectorAll('.remark-help-content table tr').forEach(tr => {
+    const t = tr.querySelector('td:nth-child(2)').innerText;
+    tr.querySelectorAll('td:first-child .key').forEach(key => {
+      const k = key.innerText;
+      if (/^[a-z]$/.test(k)) res[k] = t;  // must be a single letter (key)
+    });
+  });
+  d.body.setAttribute('data-at-shortcutkeys', JSON.stringify(res));
+})(document);
+(function() {
+  "use strict"
+  // Replace <script> tags in slides area to make them executable
+  var scripts = document.querySelectorAll(
+    '.remark-slides-area .remark-slide-container script'
+  );
+  if (!scripts.length) return;
+  for (var i = 0; i < scripts.length; i++) {
+    var s = document.createElement('script');
+    var code = document.createTextNode(scripts[i].textContent);
+    s.appendChild(code);
+    var scriptAttrs = scripts[i].attributes;
+    for (var j = 0; j < scriptAttrs.length; j++) {
+      s.setAttribute(scriptAttrs[j].name, scriptAttrs[j].value);
+    }
+    scripts[i].parentElement.replaceChild(s, scripts[i]);
+  }
+})();
+(function() {
+  var links = document.getElementsByTagName('a');
+  for (var i = 0; i < links.length; i++) {
+    if (/^(https?:)?\/\//.test(links[i].getAttribute('href'))) {
+      links[i].target = '_blank';
+    }
+  }
+})();
+// adds .remark-code-has-line-highlighted class to <pre> parent elements
+// of code chunks containing highlighted lines with class .remark-code-line-highlighted
+(function(d) {
+  const hlines = d.querySelectorAll('.remark-code-line-highlighted');
+  const preParents = [];
+  const findPreParent = function(line, p = 0) {
+    if (p > 1) return null; // traverse up no further than grandparent
+    const el = line.parentElement;
+    return el.tagName === "PRE" ? el : findPreParent(el, ++p);
+  };
+
+  for (let line of hlines) {
+    let pre = findPreParent(line);
+    if (pre && !preParents.includes(pre)) preParents.push(pre);
+  }
+  preParents.forEach(p => p.classList.add("remark-code-has-line-highlighted"));
+})(document);</script>
+
+<script>
+slideshow._releaseMath = function(el) {
+  var i, text, code, codes = el.getElementsByTagName('code');
+  for (i = 0; i < codes.length;) {
+    code = codes[i];
+    if (code.parentNode.tagName !== 'PRE' && code.childElementCount === 0) {
+      text = code.textContent;
+      if (/^\\\((.|\s)+\\\)$/.test(text) || /^\\\[(.|\s)+\\\]$/.test(text) ||
+          /^\$\$(.|\s)+\$\$$/.test(text) ||
+          /^\\begin\{([^}]+)\}(.|\s)+\\end\{[^}]+\}$/.test(text)) {
+        code.outerHTML = code.innerHTML;  // remove <code></code>
+        continue;
+      }
+    }
+    i++;
+  }
+};
+slideshow._releaseMath(document);
+</script>
+<!-- dynamically load mathjax for compatibility with self-contained -->
+<script>
+(function () {
+  var script = document.createElement('script');
+  script.type = 'text/javascript';
+  script.src  = 'https://mathjax.rstudio.com/latest/MathJax.js?config=TeX-MML-AM_CHTML';
+  if (location.protocol !== 'file:' && /^https?:/.test(script.src))
+    script.src  = script.src.replace(/^https?:/, '');
+  document.getElementsByTagName('head')[0].appendChild(script);
+})();
+</script>
+  </body>
+</html>

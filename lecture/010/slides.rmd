@@ -1,0 +1,1048 @@
+---
+title: 'Lecture .mono[010]'
+subtitle: 'Unsupervised learning, dimensionality reduction, and image classification'
+author: 'Edward Rubin'
+output:
+  xaringan::moon_reader:
+    css: ['default', 'metropolis', 'metropolis-fonts', 'my-css.css']
+    nature:
+      highlightStyle: github
+      highlightLines: true
+      countIncrementalSlides: false
+---
+exclude: true
+
+```{r, setup, include = FALSE}
+library(pacman)
+p_load(
+  tidyverse,
+  data.table,
+  tidymodels,
+  embed,
+  ClusterR,
+  future,
+  future.apply,
+  patchwork,
+  scales,
+  collapse
+)
+
+red_pink   = '#e64173'
+turquoise  = '#20B2AA'
+orange     = '#FFA500'
+red        = '#fb6107'
+blue       = '#3b3b9a'
+green      = '#8bb174'
+grey_light = 'grey70'
+grey_mid   = 'grey50'
+grey_dark  = 'grey20'
+purple     = '#6A5ACD'
+slate      = '#23373b'
+
+knitr::opts_chunk$set(
+  comment = '#>',
+  fig.align = 'center',
+  fig.height = 6.75,
+  fig.width = 10.5,
+  warning = FALSE,
+  message = FALSE
+)
+knitr::opts_chunk$set(dev = 'svg')
+options(device = function(file, width, height) {
+  svg(tempfile(), width = width, height = height)
+})
+options(knitr.table.format = 'html')
+xaringanExtra::use_xaringan_extra(c('tile_view', 'fit_screen'))
+
+Sys.setenv('_R_CHECK_LIMIT_CORES_' = FALSE)
+
+workers_n = future::availableCores() |>
+  min() |>
+  as.integer()
+workers_n = max(1L, workers_n - 1L)
+
+if (workers_n > 1L) {
+  future::plan(future::multisession, workers = workers_n)
+} else {
+  future::plan(future::sequential)
+}
+
+set.seed(524)
+
+train_dt = fread('train.csv')
+test_dt = fread('test.csv')
+
+all_dt = rbindlist(list(train_dt, test_dt), use.names = TRUE, fill = TRUE)
+i_train = seq_len(nrow(train_dt))
+i_test = (nrow(train_dt) + 1):nrow(all_dt)
+kaggle_split = make_splits(
+  x = list(analysis = i_train, assessment = i_test),
+  data = all_dt
+)
+
+train_dt = training(kaggle_split)
+test_dt = testing(kaggle_split)
+
+# Use a moderate sample because repeated clustering comparisons are expensive.
+analysis_n = min(6000L, nrow(train_dt))
+analysis_dt = copy(train_dt[sample(.N, analysis_n)])
+
+pixel_cols = names(analysis_dt)[grepl('^pixel', names(analysis_dt))]
+x_pixels = analysis_dt[, ..pixel_cols]
+
+plot_digit = function(row_df, title = NULL) {
+  expand_grid(y = 28:1, x = 1:28) |>
+    mutate(value = as.numeric(row_df[, pixel_cols, with = FALSE])) |>
+    ggplot(aes(x = x, y = y, fill = value)) +
+    geom_tile() +
+    scale_fill_viridis_c('', option = 'magma', direction = -1) +
+    coord_equal() +
+    theme_void(base_size = 16, base_family = 'Fira Sans Condensed') +
+    labs(title = title) +
+    theme(legend.position = 'bottom', plot.title = element_text(hjust = 0.5))
+}
+
+kmeans_modal_accuracy = function(x, label, k, seed = 524) {
+  set.seed(seed + k)
+  km = ClusterR::KMeans_arma(data = x, clusters = k, verbose = FALSE)
+  cl = ClusterR::predict_KMeans(data = x, CENTROIDS = km)
+  dt = data.table(label = label, cl = cl)
+  dt[, pred := collapse::fmode(label), by = cl]
+  dt[, mean(label == pred)]
+}
+
+wcss = function(x, cl, centers) {
+  mu = centers[cl, , drop = FALSE]
+  sum(rowSums((as.matrix(x) - mu)^2))
+}
+
+future_rbind = function(x, fun) {
+  future.apply::future_lapply(
+    X = x,
+    FUN = fun,
+    future.seed = TRUE
+  ) |>
+    rbindlist()
+}
+```
+
+---
+name: admin
+# Admin
+### Today
+
+.b[Topics:] We've got a lot (coming to the end)!
+
+- K-means clustering & unsupervised learning;
+- PCA and UMAP for dimension reduction;
+- why geometry matters for image classification.
+
+### Upcoming
+
+.b[Projects] due this week and next! (Also: Final exam.)
+
+.b[Readings]
+
+- .note[Today:] .it[ISL] Ch. 12 (*Unsupervised Learning*)
+- .note[Next:] [NNs and Deep Learning](http://neuralnetworksanddeeplearning.com/) Ch. 1-2; .it[ISL] Ch. 10 (*Deep Learning*).
+
+---
+layout: true
+# Predicting digits
+
+---
+
+```{r, show-examples-0, echo = FALSE, cache = TRUE}
+# Show some examples of the digits
+example_idx = c(2, 1, 17, 8, 4, 9, 22, 7, 11)
+# Make a plot for each example
+plots = lapply(
+  X = sample(seq_len(nrow(train_dt)), 96),
+  FUN = function(i) {
+    plot_digit(train_dt[i])
+  }
+)
+# Wrap the plots into a grid
+wrap_plots(plots, ncol = 12) +
+  plot_layout(guides = 'collect') &
+  theme(
+    legend.position = 'none',
+    legend.key.width = unit(2, 'cm'),
+    plot.title = element_text(size = 15, hjust = 0.5)
+  )
+```
+
+---
+name: intro
+
+## Why digits?
+
+Handwritten digits are a useful .attn[machine-vision sandbox]:
+
+- .hi-pink[784 pixels] per image (28 × 28),
+- .hi-orange[10 labels], so this is multiclass prediction,
+- .b.purple[easy] to .purple[for us] visualize—and an easy task for humans;
+- .b.purple[difficult] to separate .purple[for many ML methods].
+
+.note[Bonus:] Connects .attn[unsup. learning], .attn[dim. reduction], .attn[image/multi-class pred].
+
+We use Kaggle MNIST files: `train.csv` and `test.csv`.
+
+---
+name: vision
+## Image classification (in one slide)
+
+For .b[MNIST].super.pink[†]
+
+.footnote[.pink[†] MNIST is a classic benchmark for ML. It contains handwritten digits from the US National Institute of Standards and Technology (written by Census employees and HS students).]
+
+- .hi-pink[predictors:] pixel intensities, .grey-vlight[(each x.sub[j]∈[0–255])]
+- .hi-orange[target] = the digit label, .grey-vlight[(y∈{0, 1, ..., 9})]
+
+$\implies$ each image is one point in .hi-purple[784-dimensional] predictor space.
+
+--
+
+The target is simple. The .attn[geometry] is the hard part.
+
+.note[Why?] .attn[Combinations] of pixels matter. .grey-vlight[(Not so much individual pixels.)]
+
+---
+## What Do the Digits Look Like?
+
+```{r, show-examples, echo = FALSE}
+example_idx = c(2, 1, 17, 8, 4, 9, 22, 7, 11)
+plots = lapply(example_idx, function(i) {
+  plot_digit(train_dt[i], title = paste('Label =', train_dt[i, label]))
+})
+
+wrap_plots(plots, ncol = 3) +
+  plot_layout(guides = 'collect') &
+  theme(
+    legend.position = 'bottom',
+    legend.key.width = unit(2, 'cm'),
+    plot.title = element_text(size = 15, hjust = 0.5)
+  )
+```
+
+---
+## Kaggle's Setup
+
+As usual, Kaggle gives us two files
+
+- .b.pink[`train.csv`] has images and labels
+- .b.pink[`test.csv`] has images only
+
+Today we use the labeled sample to
+
+1. fit the unsupervised methods,
+2. check what structure those methods recover.
+
+---
+class: inverse, middle
+name: unsupervised
+
+## Supervised *vs.* unsupervised learning
+
+---
+## What's the difference?
+
+<br>
+
+.col-left[
+.hi-pink[Supervised learning]
+
+- .b[train] with $X$ and $Y$
+- .b[goal:] predict $Y$
+- .ex[ex:] lasso, RFs, SVMs
+]
+
+.col-right[
+.hi-purple[Unsupervised learning]
+
+- .b[train] with $X$ only
+- .b[goal:] find structure in $X$
+- .ex[ex:] clustering & dim. reduction
+]
+
+.clear-up[
+Today we start on the .b.purple[unsupervised] side, but we will keep asking:<br>.it.pink[Does the structure help prediction?]
+<br><br>
+.tran25[(In reality, we have a .pink[supervised] task.)]
+]
+
+---
+class: inverse, middle
+name: kmeans
+
+## *K*-means clustering
+
+---
+## The general idea
+
+*K*-means is a simple clustering method groups our data into $K$ groups:
+
+- choose a number of .b.pink[clusters], *K*; .grey-vlight[*clusters* = groups of similar obs.]
+- assign each observation to (exactly) one cluster $k$; .grey-vlight["nearest" cluster]
+- summarize each cluster by its .b.pink[centroid]. .grey-vlight[center cluster's obs.]
+
+*K*-means compresses a messy cloud into $\color{#e64173}{K}$ .attn[representative centers].
+
+--
+
+Now we just need to an algorithm to find the .it[best] clustering...
+<br>
+which probably means defining .it[best] (.it[i.e.,] an .attn[objective function]).
+
+---
+## *K*-means: Objective function
+
+Let cluster $k$ have centroid $\mu_k$. .grey-vlight.it[(The mean location of its obs. in .slab[p] dim.)]
+
+*K*-means chooses clusters $C_1, \ldots, C_K$ to minimize .attn[within-cluster variation]
+
+$$\min_{C_1,\ldots,C_K} \sum_{k = 1}^K \sum_{i \in C_k} \lVert x_i - \mu_k \rVert^2$$
+
+.ex[E.g.,] .attn[within-cluster sum of squares (WCSS)] above.
+
+Interpretation
+
+- reward .hi-pink[tight, compact] clusters, .grey-vlight.it[(short distances add little to the sum)]
+- "penalize" observations far from their centroids. .grey-vlight.it[(or "bad" clusters.)]
+
+---
+## *K*-means: Algorithm
+
+A general algorithm for clustering:
+
+1. pick $K$ initial .pink[centroids]; .grey-vlight.it[(randomly, or with a heuristic)]
+1. .pink[assign] each observation to its nearest centroid; .grey-vlight.it[(Euclidean distance)]
+1. .pink[recompute] the centroids; .grey-vlight.it[(mean of the obs. in each cluster)]
+1. .pink[repeat] until assignments stop changing. .grey-vlight.it[("convergence")]
+
+  .b.orange[+]  Fast and intuitive.
+<br>
+  .b.purple[-]  Only guarantees (approx.) a local optimum.
+
+---
+## K-means on pixels
+
+.ex[Recall:] Each image (obs.) is one point in .purple[784 dimensions].
+
+There are .b.pink[10 labels]. $\color{#e64173}{K = 10}$ seems like a natural first guess.
+
+... however, $K = 10$ is a guess; not a theorem.
+
+.qa[Q:] Why might $K = 10$ be a bad choice?
+
+```{r, ex-kmeans, include = FALSE, cache = TRUE}
+set.seed(524)
+kmeans_train = ClusterR::KMeans_arma(
+  data = x_pixels,
+  clusters = 10,
+  verbose = FALSE
+)
+
+kmeans_dt = copy(analysis_dt)
+kmeans_dt[, cl_k := ClusterR::predict_KMeans(
+  data = x_pixels,
+  CENTROIDS = kmeans_train
+)]
+
+kmeans_dt[, pred_k10 := collapse::fmode(label), by = cl_k]
+k10_accuracy = kmeans_dt[, mean(label == pred_k10)]
+```
+
+---
+## Turning Clusters into Predictions
+
+We have .b.orange[clusters]. .grey-vlight.it[(Groups of "close" images in pixel space.)]
+
+We *want* .b.pink[predictions]. .grey-vlight.it[(Predicted digit labels.)]
+
+- Cluster labels, *i.e.*, $1, 2, ..., K$ are arbitrary. .grey-vlight.it[(they just index the clusters)]
+- .note[Solution:] Relabel each cluster by its .attn[modal label]; .grey-vlight.it[(like RF: majority vote)]
+
+.b[Result:] With $K = 10$, this classifier is approx. `r k10_accuracy |> scales::percent(0.1)` accurate..super[.pink[†]]
+
+.footnote[.pink[†] This measure of accuracy is still *in-sample*.]
+
+--
+
+.qa[Q].sub[1] Is this level of accuracy good?
+<br>
+.qa[Q].sub[2] What would random guessing get us?
+
+---
+class: clear, middle, center
+
+.b[Confusion matrix], $K = 10$
+
+```{r, kmeans-conf-mat, echo = FALSE}
+# Summarize the confusion matrix for K-means with K = 10
+cm_k10 = kmeans_dt[, .N, by = .(label, pred_k10)]
+# Fill in the missing combinations of label and pred_k10 with N = 0
+cm_k10 = cm_k10[CJ(label = 0:9, pred_k10 = 0:9), on = .(label, pred_k10)]
+cm_k10[is.na(N), N := 0]
+
+# Row density: P(prediction | truth)
+cm_k10[, dens := N / sum(N)]
+
+ggplot(cm_k10, aes(x = pred_k10, y = label, fill = dens)) +
+  geom_tile() +
+  scale_fill_viridis_c(
+    name = 'Density',
+    direction = -1,
+    option = 'magma',
+    labels = scales::percent_format(accuracy = 1)
+  ) +
+  scale_x_continuous(breaks = 0:9) +
+  scale_y_continuous(breaks = 0:9) +
+  coord_equal() +
+  theme_minimal(base_size = 18, base_family = 'Fira Sans Condensed') +
+  labs(
+    x = 'Prediction',
+    y = 'Truth'
+  ) +
+  theme(panel.grid = element_blank())
+```
+
+---
+## Why aren't we doing better?
+
+What is it about the task—and our approach—that isn't working?
+
+We may need more than 10 clusters to capture .b.purple[within-label variation]
+
+- one .orange[label] can contain several .purple[handwriting styles];
+- the same .orange[digit] can shift .purple[left, right, up, or down];
+- strokes can be .purple[thicker, thinner, or slanted];
+- some characters are .purple[quite ambiguous].
+
+So Euclidean distance in raw pixel space is a rough measure of similarity.
+
+---
+layout: false
+class: clear, middle, center
+
+**Accuracy by label** for $K = 10$ (sensitivity)
+```{r, kmeans10-accuracy-by-label, echo = FALSE}
+kmeans_dt[, .(
+  accuracy = fmean(label == pred_k10) |> scales::percent(accuracy = .1),
+  .N |> scales::comma()
+), keyby = label] |>
+knitr::kable(
+  col.names = c('Digit', 'Accuracy', 'Count'),
+  align = 'c',
+)
+```
+---
+layout: false
+class: clear, middle, center
+
+**Separating 7 and 9 is difficult:** *Correct* guesses vs. *incorrect* guesses
+```{r, kmeans10-correct7, echo = FALSE}
+# Take mean pixel for all the correctly classified 7s
+correct_7s = kmeans_dt[label == 7 & pred_k10 == 7, ..pixel_cols]
+false_7s = kmeans_dt[label == 7 & pred_k10 != 7, ..pixel_cols]
+# Take mean pixel for all the correctly classified 9s
+correct_9s = kmeans_dt[label == 9 & pred_k10 == 9, ..pixel_cols]
+false_9s = kmeans_dt[label == 9 & pred_k10 != 9, ..pixel_cols]
+# Plot the means
+p_7true =
+  correct_7s |>
+  colMeans() |>
+  t() |>
+  as.data.table() |>
+  plot_digit('Correct')
+p_7false =
+  false_7s |>
+  colMeans() |>
+  t() |>
+  as.data.table() |>
+  plot_digit('Mistakes')
+p_9true =
+  correct_9s |>
+  colMeans() |>
+  t() |>
+  as.data.table() |>
+  plot_digit()
+p_9false =
+  false_9s |>
+  colMeans() |>
+  t() |>
+  as.data.table() |>
+  plot_digit()
+# Put it all together
+wrap_plots(
+  list(p_7true, p_7false, p_9true, p_9false),
+  ncol = 2
+) +
+  plot_layout(guides = 'collect') &
+  theme(
+    legend.position = 'none',
+    legend.key.width = unit(2, 'cm'),
+    plot.title = element_text(size = 18, hjust = 0.5)
+  )
+```
+
+---
+layout: true
+# Predicting digits
+
+---
+name: choose-k
+
+## What's $K$?
+
+As you might have guessed, .b.slate[the choice of] $\color{#23373b}{K}$ is a big deal for *K*-means.
+
+- The number of (useful) clusters is usually .b.pink[unknown].
+- .note[Common:] The .b.orange["elbow"] & downstream .b.orange[usefulness]. .grey-vlight.it[(marginal gains)]
+- The same .b.purple[hyper-parameter tuning] logic we use throughout the course.
+  
+--
+
+So... we should probably *tune* it.
+
+---
+layout: false
+class: clear, middle, center
+
+**Finding the elbow.** .grey-vlight.it[You see it, right?]
+
+```{r, elbow-data, include = FALSE, cache = TRUE}
+try_k = 1:50
+
+elbow_dt = future_rbind(
+  try_k,
+  function(k) {
+    set.seed(524 + k)
+    km = ClusterR::KMeans_arma(data = x_pixels, clusters = k, verbose = FALSE)
+    cl = ClusterR::predict_KMeans(data = x_pixels, CENTROIDS = km)
+    data.table(k = k, wcss = wcss(x_pixels, cl, km))
+  }
+)
+```
+
+```{r, elbow-plot, echo = FALSE}
+ggplot(elbow_dt, aes(x = k, y = wcss)) +
+  geom_line(linewidth = .25, color = red_pink, alpha = .8) +
+  geom_point(size = 2.4, color = red_pink) +
+  theme_minimal(base_size = 18, base_family = 'Fira Sans Condensed') +
+  scale_y_continuous(labels = scales::label_number(scale_cut = scales::cut_short_scale())) +
+  labs(
+    x = 'Number of clusters (K)',
+    y = 'Within-cluster sum of squares',
+  )
+```
+
+---
+layout: true
+# Predicting digits
+
+---
+## Elbows and clusters 
+
+.qa[Q] What's the *elbow*?
+<br>
+.qa[A] The bendy part of the curve, of course!
+
+- WCSS mechanically falls as $K$ rises.
+- We're looking for the point of .attn[diminishing marginal gains].
+- .note[Caveat] If the bend is weak, the choice of $K$ stays ambiguous.
+
+.grey-light[Elbows are useful (subjective) heuristics—not *proper* decision rules.]
+
+---
+layout: false
+class: clear, middle, center
+
+**Modal cluster-label accuracy by $K$.** .grey-vlight.it[(Still in-sample.)]
+
+```{r, find-k-pixels, include = FALSE, cache = TRUE}
+find_k = future_rbind(
+  1:50,
+  function(k) {
+    data.table(
+      k = k,
+      accuracy = kmeans_modal_accuracy(x_pixels, analysis_dt$label, k)
+    )
+  }
+)
+
+best_pixel = find_k[which.max(accuracy)]
+```
+
+```{r, find-k-pixels-plot, echo = FALSE}
+ggplot(find_k, aes(x = k, y = accuracy)) +
+  geom_hline(yintercept = 0, linewidth = .25) +
+  geom_line(linewidth = .25, color = red_pink, alpha = .8) +
+  geom_point(size = 2.5, color = red_pink) +
+  theme_minimal(base_size = 18, base_family = 'Fira Sans Condensed') +
+  scale_y_continuous(labels = scales::percent, limits = c(0, 1)) +
+  labs(
+    x = 'K',
+    y = 'Accuracy',
+  )
+```
+
+---
+layout: true
+
+# Predicting digits
+
+---
+## $K$-means takeaways
+
+**Accuracy** depends on $K$, varies by label, and is *meh*.
+
+- With raw pixels, $K = 10$ gives about `r scales::percent(k10_accuracy, accuracy = 0.1)`.
+- The best value is around $K$ = `r best_pixel$k` with `r scales::percent(best_pixel$accuracy, accuracy = 0.1)`.
+- .attn[Key] .b.pink[10 labels] does .it[not] imply .b.orange[10 clusters].
+
+More clusters can help.
+
+- One true .b.pink[digit] can split into several .hi-purple[styles].
+- Extra clusters can improve the modal-label benchmark.<br>.grey-vlight.it[(But can overfit too.)]
+
+---
+class: inverse, middle
+name: pca
+
+## Now with PCA!
+
+---
+## PCA: Intuition
+
+.attn[Principal component analysis (PCA)] is a .orange[dimension-reduction] method that finds new axes to summarize the data..super[.orange[†]]
+
+Same data; different coordinates.
+
+- The **first** PC explains the **most** variation...
+- later PCs explain the most remaining *orthogonal* variation.
+- We can use PCA to replace *many* pixel-based features with fewer .attn[linear combinations] of pixels..super[.pink[††]]
+
+A relatively .orange[small subset] of PCs can give a compact summary of data.
+<br>
+$\implies$ PCA *can* .b.orange[reduce dimensions] while .purple[preserving information]!
+
+.footnote[
+  .orange[†] PCA is applied in other contexts beyond dimension reduction.
+  <br>
+  .pink[††] Linear combinations of pixels are like "superpixels" that capture common patterns.
+]
+
+---
+## PCA: A little math
+
+The first principal component is
+
+$$Z_{1} = \phi_{1,1}X_{1} + \phi_{2,1}X_{2} + \cdots + \phi_{p,1}X_{p}$$
+
+with analogous definitions for the other $p-1$ PCs $Z_2, Z_3, \ldots, Z_p$.
+
+Don't be overwhelmed by the notation.
+<br>Each PC is just a weighted combo. of the original features. .grey-vlight.it[(Just like OLS.)]
+
+**Key ideas:**
+
+- PCs are .pink[.b[linear combinations] of the original variables],
+- PC.sub[i] is .b.purple[orthogonal] to all other PCs,.super[.purple[†]]
+- we usually .b.slate[normalize] variables before PCA.
+
+.footnote[.purple[†] Links: [Nice visualizations](https://setosa.io/ev/principal-component-analysis/) plus another [resource](https://www.nature.com/articles/nmeth.4346).]
+
+---
+layout: false
+class: clear, middle
+
+**Updating our *K*-means workflow to include PCA**
+
+1. .pink[normalize] the pixels,
+1. keep enough PCs to .pink[explain 90% of variance],
+1. .pink[run *K*-means] in the PC space.
+
+```{r, ex-pca-wf, eval = FALSE}
+# Define a simple PCA recipe
+simple_recipe_pca =
+  recipe(
+    label ~ .,
+    data =
+      analysis_dt |>
+      select(label, starts_with('pixel'))
+  ) |>
+  step_mutate(label = as.factor(label)) |>
+  step_normalize(all_numeric_predictors()) |>
+  step_pca(all_predictors(), threshold = .9) |>
+  step_rm(starts_with('pixel'))
+```
+
+```{r, ex-pca, include = FALSE, cache = TRUE}
+simple_recipe_pca =
+  recipe(
+    label ~ .,
+    data = analysis_dt |>
+      select(label, starts_with('pixel'))
+  ) |>
+  step_mutate(label = as.factor(label)) |>
+  step_normalize(all_numeric_predictors()) |>
+  step_pca(all_predictors(), threshold = 0.9) |>
+  step_rm(starts_with('pixel'))
+
+pca_prep = prep(simple_recipe_pca)
+train_pc = juice(pca_prep)
+n_pc = train_pc |>
+  select(starts_with('PC')) |>
+  ncol()
+
+set.seed(524)
+kmeans_pc10 = ClusterR::KMeans_arma(
+  data = train_pc |>
+    select(starts_with('PC')),
+  clusters = 10,
+  verbose = FALSE
+)
+
+pc_dt = data.table(
+  label = train_pc$label,
+  cl = ClusterR::predict_KMeans(
+    data = train_pc |>
+      select(starts_with('PC')),
+    CENTROIDS = kmeans_pc10
+  )
+)
+pc_dt[, pred := collapse::fmode(label), by = cl]
+pca_k10_accuracy = pc_dt[, mean(label == pred)]
+```
+
+---
+class: clear, middle, center
+
+Should we have standardized the pixels with plain *K*-means clustering?
+
+---
+layout: true
+
+# Predicting digits
+
+---
+## PCA: What is it good for?
+
+So what does PCA do for us here? Subsetting to the PCs that represent 90% of the variance
+
+- leaves us with .hi-orange[`r n_pc` PCs], .grey-vlight.it[(≪ 784)]
+- has .b.purple[`r scales::percent(pca_k10_accuracy, accuracy = 0.1)`] accuracy with $K = 10$ clusters. .grey-vlight.it[(< `r scales::percent(k10_accuracy, accuracy = 0.1)`)]
+  
+--
+
+Wait. So... it's worse?
+
+1. Yes, if we only consider .pink[*training* accuracy].
+2. Maybe, if we consider the .orange[predictor space] was `r scales::percent(n_pc / 784)` of the original size.
+3. TBD, if we actually check the .purple[test-set accuracy].
+   
+We have a more *compact* representation, but we *did* lose some information.
+
+---
+## What are we doing?
+
+Let's think about what we're actually doing here.
+
+- We are **still running *K*-means**.
+- Only the .pink[coordinates] change with PCA.
+- Comparable accuracy with far .purple[fewer dimensions] is a decent trade.
+
+We *could* add more PCs. That road eventually leads to the original space.
+
+--
+
+What if we tried a .b.purple[nonlinear] dimension reduction method instead?
+
+---
+class: inverse, middle
+name: umap
+
+## UMAP .slate[No, *U*MAP!]
+
+---
+## UMAP: Intuition
+
+.attn[UMAP].super.pink[†] is a popular .b.purple[nonlinear dimension-reduction method] that can capture more complex structures than PCA.
+
+.footnote[.pink[†] UMAP stands for *Uniform Manifold Approximation and Projection*.<br>Examples [here](https://pair-code.github.io/understanding-umap/); paper's repo [here](https://github.com/lmcinnes/umap).]
+
+- .b.purple[Start:] a high-dim. graph of the data—edges connect nearby obs.;
+- .b.pink[Then:] optimized low-dim. graph that preserves local structure.
+- .b.purple[Nonlinear:] can uncover *curved* structure that PCA misses.
+
+--
+
+The axes help with geometry—not direct interpretation
+
+- strong for .hi-orange[visualization]; useful for .hi-orange[clustering];
+- .b.slate[less interpretable] and more .b.slate[tuning-sensitive] than PCA.
+
+---
+layout: false
+class: clear, middle
+
+**Updating our *K*-means workflow to include UMAP**
+
+1. .pink[normalize] the pixels
+1. embed the data in .pink[.b[2] dimensions] via UMAP
+1. cluster with .pink[*K*-means] in the embedded space
+   
+```{r, ex-umap-wf, eval = FALSE}
+simple_recipe_umap =
+  recipe(
+    label ~ .,
+    data = analysis_dt |>
+      select(label, starts_with('pixel'))
+  ) |>
+  step_mutate(label = as.factor(label)) |>
+  step_normalize(all_numeric_predictors()) |>
+  step_umap(all_predictors(), num_comp = 2) |>
+  step_rm(starts_with('pixel'))
+```
+
+```{r, ex-umap, include = FALSE, cache = TRUE}
+simple_recipe_umap =
+  recipe(
+    label ~ .,
+    data = analysis_dt |>
+      select(label, starts_with('pixel'))
+  ) |>
+  step_mutate(label = as.factor(label)) |>
+  step_normalize(all_numeric_predictors()) |>
+  step_umap(all_predictors(), num_comp = 2) |>
+  step_rm(starts_with('pixel'))
+
+umap_prep = prep(simple_recipe_umap)
+train_umap = juice(umap_prep)
+
+set.seed(524)
+kmeans_umap10 = ClusterR::KMeans_arma(
+  data = train_umap |>
+    select(starts_with('UMAP')),
+  clusters = 10,
+  verbose = FALSE
+)
+
+umap_dt = data.table(
+  label = train_umap$label,
+  cl = ClusterR::predict_KMeans(
+    data = train_umap |>
+      select(starts_with('UMAP')),
+    CENTROIDS = kmeans_umap10
+  )
+)
+umap_dt[, pred := collapse::fmode(label), by = cl]
+umap_k10_accuracy = umap_dt[, mean(label == pred)]
+```
+
+---
+layout: false
+class: clear, middle
+
+So what does the UMAP embedding look like?
+
+---
+layout: false
+class: clear, middle, center
+
+.b[2-dimensional UMAP embedding] of 784-dimensional MNIST pixel space
+
+```{r, umap-plot, echo = FALSE}
+ggplot(train_umap, aes(x = UMAP1, y = UMAP2, color = label)) +
+  geom_point(alpha = 0.28, size = 0.7) +
+  theme_minimal(base_size = 18) +
+  labs(
+    x = expression(UMAP[1]),
+    y = expression(UMAP[2]),
+  ) +
+  # Set color scale alpha to 1
+  guides(color = guide_legend(override.aes = list(alpha = 1, size = 3))) +
+  scale_color_viridis_d('', option = 'magma', end = 0.9)
+```
+
+---
+layout: false
+class: clear, middle
+
+Cool. So how does this 2-D UMAP embedding perform?
+
+---
+# Predicting digits
+## K-means in the UMAP space
+
+With only .attn[2 dimensions].grey-vlight[(!!)], *K*-means accuracy is .b.pink[`r scales::percent(umap_k10_accuracy, accuracy = 0.1)`] (*K*=10).
+
+- This result *does not* mean UMAP always wins.
+- It *does* mean a .b.purple[nonlinear embeddings] can preserve useful structures.
+- UMAP's .b.purple[nonlinearity] can capture complex relationships.
+
+Reading handwriting likely involves such complex/nonlinear relationships.
+
+---
+layout: false
+class: clear, middle
+
+**Comparing *K*-means accuracy** across representations and values of $K$
+
+```{r, compare-k-data, include = FALSE, cache = TRUE}
+find_k_pca = future_rbind(
+  1:30,
+  function(k) {
+    data.table(
+      k = k,
+      space = 'PCA',
+      accuracy = kmeans_modal_accuracy(
+        train_pc |>
+          select(starts_with('PC')),
+        train_pc$label,
+        k
+      )
+    )
+  }
+)
+
+find_k_umap = future_rbind(
+  1:30,
+  function(k) {
+    data.table(
+      k = k,
+      space = 'UMAP',
+      accuracy = kmeans_modal_accuracy(
+        train_umap |>
+          select(starts_with('UMAP')),
+        train_umap$label,
+        k
+      )
+    )
+  }
+)
+
+find_k_pixels_labeled = copy(find_k)[, space := 'Pixels']
+acc_dt = rbindlist(
+  list(find_k_pixels_labeled, find_k_pca, find_k_umap),
+  use.names = TRUE
+)
+acc_dt[, accuracy := as.numeric(accuracy)]
+acc_dt[, space := factor(space, levels = c('Pixels', 'PCA', 'UMAP'))]
+```
+
+```{r, compare-k-plot, echo = FALSE}
+ggplot(acc_dt, aes(x = k, y = accuracy, color = space, shape = space)) +
+  geom_hline(yintercept = 0, linewidth = 0.3) +
+  geom_line(linewidth = 0.45) +
+  geom_point(size = 2.1) +
+  theme_minimal(base_size = 18, base_family = 'Fira Sans Condensed') +
+  scale_color_manual(values = c('Pixels' = red_pink, 'PCA' = orange, 'UMAP' = purple)) +
+  scale_y_continuous(labels = scales::percent, limits = c(0, 1)) +
+  labs(
+    x = 'K',
+    y = 'Accuracy',
+    color = '',
+    shape = '',
+  ) +
+  theme(legend.position = 'bottom') +
+  guides(color = guide_legend(override.aes = list(size = 3)))
+```
+
+---
+# Predicting digits
+## Representation tradeoffs
+
+What do these results mean?
+
+- .hi-pink[Pixels] Simplest description, roughest geometry
+- .hi-orange[PCA] Linear, compact, mathematically clean
+- .hi-purple[UMAP] Nonlinear, visual, less interpretable
+
+In-sample accuracy at $K = 10$
+
+- .hi-pink[Pixels] `r scales::percent(k10_accuracy, accuracy = 0.1)`
+- .hi-orange[PCA] `r scales::percent(pca_k10_accuracy, accuracy = 0.1)`
+- .hi-purple[UMAP] `r scales::percent(umap_k10_accuracy, accuracy = 0.1)`
+
+Representation choice can change clustering performance a lot.
+
+---
+layout: true
+
+# Wrapping up
+
+---
+class: inverse, middle
+name: wrap
+
+---
+## Structure and prediction
+
+Unsupervised tools help depicts whether the features contain signal.
+
+- they can reduce dimension before supervised learning,
+- they can reveal where classes overlap
+
+If the goal is prediction, we usually move back to .attn[supervised] methods.
+
+.grey-vlight[(We could probably beat *K*-means with a more direct supervised method.)]
+
+---
+## Basic image-classification intuition
+
+Our approach today for image classification
+
+1. learn a good .attn[representation],
+1. use that representation to make a prediction.
+
+.note[Next step] Neural networks start learning both pieces together.
+
+--
+
+.note[Reminder] We have been treating the .b.purple[representation] as a .b[preprocessing step], but it is really part of the model. Cross validation should reflect that.
+
+---
+name: final-thoughts
+## Final thoughts
+
+What did we see?
+
+- .b.pink[*K*-means] is simple; it depends heavily on geometry. <br>Other clustering methods have different assumptions and objectives.
+- Raw, disjoint .b.pink[pixel space] is high-dimensional and awkward.<br>Convolutions and nonlinear embeddings can help.
+- .hi-orange[PCA] gives a linear low-dimensional summary.<br>Reliance on linearity can be too restrictive.
+- .hi-purple[UMAP] gives a nonlinear, low-dimensional summary.
+
+.note[Next stop] Neural networks and a more serious classification pipeline.
+
+---
+layout: false
+# Table of contents
+
+.col-left[
+.small[
+#### Opening
+- [Admin](#admin)
+- [Why digits?](#intro)
+- [Image classification](#vision)
+- [Supervised vs. unsupervised](#unsupervised)
+
+#### Clustering
+- [K-means](#kmeans)
+- [Choosing $K$](#choose-k)
+]
+]
+
+.col-right[
+.small[
+#### Dimension reduction
+- [PCA](#pca)
+- [UMAP](#umap)
+
+#### Closing
+- [Structure and prediction](#wrap)
+- [Final thoughts](#final-thoughts)
+
+]
+]

@@ -1,0 +1,988 @@
+<!DOCTYPE html>
+<html lang="" xml:lang="">
+  <head>
+    <title>Lecture .mono[011]</title>
+    <meta charset="utf-8" />
+    <meta name="author" content="Edward Rubin" />
+    <script src="slides_files/header-attrs-2.29/header-attrs.js"></script>
+    <link href="slides_files/remark-css-0.0.1/default.css" rel="stylesheet" />
+    <link href="slides_files/remark-css-0.0.1/metropolis.css" rel="stylesheet" />
+    <link href="slides_files/remark-css-0.0.1/metropolis-fonts.css" rel="stylesheet" />
+    <link href="slides_files/tile-view-0.2.6/tile-view.css" rel="stylesheet" />
+    <script src="slides_files/tile-view-0.2.6/tile-view.js"></script>
+    <script src="slides_files/xaringanExtra_fit-screen-0.2.6/fit-screen.js"></script>
+    <link rel="stylesheet" href="my-css.css" type="text/css" />
+  </head>
+  <body>
+    <textarea id="source">
+class: center, middle, inverse, title-slide
+
+.title[
+# Lecture .mono[011]
+]
+.subtitle[
+## Neural networks: intuition, math, and MNIST
+]
+.author[
+### Edward Rubin
+]
+
+---
+
+exclude: true
+
+
+
+---
+name: admin
+# Admin
+## Today
+
+.b[Topics]
+
+- Logistic regression as a one-neuron network
+- Activation functions, hidden layers, and forward propagation
+- Cross-entropy, gradient descent, and backpropagation
+- MNIST with MLPs and a simple CNN
+
+## Reading
+
+- .note[Core] Nielsen, .it[Neural Networks and Deep Learning], Ch. [1](http://neuralnetworksanddeeplearning.com/chap1.html)
+- .note[Supplement] Ch. [2](http://neuralnetworksanddeeplearning.com/chap2.html) and [3](http://neuralnetworksanddeeplearning.com/chap3.html)
+- .note[Course text] .it[ISL] Ch. 11
+
+## Interactive
+
+- TensorFlow's [Neural Network Playground](https://playground.tensorflow.org/)
+
+---
+layout: true
+# Neural Networks
+
+---
+class: inverse, middle
+name: intro
+
+## Neural-net intuition
+
+---
+## Logistic regression is already a tiny neural network
+
+For a binary outcome,
+
+$$
+\Pr(Y = 1 \mid X = x) = \sigma(\beta_0 + x'\beta)
+$$
+
+where `\(\sigma(z) = \dfrac{1}{1 + e^{-z}}\)`.
+
+That is:
+
+- a weighted sum of inputs
+- a bias term
+- an activation function
+- one output
+
+So neural networks are not a sharp break from logistic regression. They are a .attn[generalization].
+
+---
+## One neuron = weighted sum + activation
+
+&lt;img src="slides_files/figure-html/logistic-neuron-1.svg" style="display: block; margin: auto;" /&gt;
+
+---
+## What do the weights and bias do?
+
+The weighted sum
+
+$$
+z = b + \sum_{j = 1}^p w_j x_j
+$$
+
+does two jobs:
+
+- the .attn[weights] say which inputs matter and in which direction
+- the .attn[bias] shifts the cutoff left or right
+
+So even before hidden layers, a neuron is already learning a scoring rule.
+
+---
+## Start with the perceptron
+
+The .attn[perceptron] uses a hard threshold:
+
+$$
+a =
+`\begin{cases}
+1 &amp; \text{if } z \ge 0 \\
+0 &amp; \text{if } z &lt; 0
+\end{cases}`
+$$
+
+That is intuitive, but not smooth.
+
+The sigmoid neuron keeps the same weighted-sum idea and replaces the hard step with a differentiable activation.
+
+---
+## Perceptron vs. sigmoid neuron
+
+&lt;img src="slides_files/figure-html/step-v-sigmoid-1.svg" style="display: block; margin: auto;" /&gt;
+
+---
+## Why stack neurons?
+
+The point is not .it[more coefficients].
+
+It is:
+
+- early neurons can respond to simple patterns
+- later neurons can combine those into more complex patterns
+- composition can build feature detectors
+
+For images, that can mean:
+
+- pixels
+- edges / strokes
+- loops / corners
+- whole digits
+
+---
+## A feed-forward network
+
+&lt;img src="slides_files/figure-html/network-plot-1.svg" style="display: block; margin: auto;" /&gt;
+
+---
+## Hidden layers need nonlinearity
+
+Suppose we stack two .b[linear] maps:
+
+$$
+a^{(1)} = W^{(1)}x + b^{(1)}
+\qquad\text{and}\qquad
+\hat y = W^{(2)}a^{(1)} + b^{(2)}
+$$
+
+Then
+
+$$
+\hat y = W^{(2)}W^{(1)}x + \big(W^{(2)}b^{(1)} + b^{(2)}\big)
+$$
+
+which is still just one linear map.
+
+So hidden layers matter only when we add .attn[nonlinear activations].
+
+---
+## Common activation functions
+
+&lt;img src="slides_files/figure-html/activation-functions-1.svg" style="display: block; margin: auto;" /&gt;
+
+---
+## The derivatives matter too
+
+&lt;img src="slides_files/figure-html/activation-derivatives-1.svg" style="display: block; margin: auto;" /&gt;
+
+---
+## Why those derivatives matter
+
+The key derivatives are:
+
+$$
+\sigma'(z) = \sigma(z)\big(1 - \sigma(z)\big)
+$$
+
+$$
+\tanh'(z) = 1 - \tanh^2(z)
+$$
+
+$$
+\text{ReLU}'(z) = \mathbf{1}\{z &gt; 0\}
+$$
+
+Why do we care?
+
+- gradient-based training keeps multiplying by these derivatives
+- if the derivative is tiny, updates can shrink
+- if the derivative is zero, learning can stall locally
+
+---
+## Output activations should match the task
+
+.col-left[
+.hi-pink[Regression]
+
+- often use identity output
+- prediction is unrestricted
+]
+
+.hi-slate[Binary classification]
+
+- often use sigmoid output
+- prediction is a probability
+]
+
+.hi-orange[Multiclass classification]
+
+- often use softmax output
+- prediction is a vector of class probabilities
+]
+
+---
+## Forward propagation
+
+At layer `\(\ell\)`:
+
+$$
+z^{(\ell)} = W^{(\ell)}a^{(\ell-1)} + b^{(\ell)}
+\qquad\text{and}\qquad
+a^{(\ell)} = g^{(\ell)}\big(z^{(\ell)}\big)
+$$
+
+So the network repeats the same recipe:
+
+1. weighted sums
+1. activations
+1. pass the result forward
+
+---
+## A dimension check helps
+
+If:
+
+- `\(a^{(\ell-1)}\)` is `\(m_{\ell-1} \times 1\)`
+- `\(W^{(\ell)}\)` is `\(m_\ell \times m_{\ell-1}\)`
+- `\(b^{(\ell)}\)` is `\(m_\ell \times 1\)`
+
+then:
+
+$$
+z^{(\ell)} = W^{(\ell)}a^{(\ell-1)} + b^{(\ell)}
+$$
+
+is also `\(m_\ell \times 1\)`.
+
+That bookkeeping matters once the network gets deep.
+
+---
+## Softmax for multiclass output
+
+If there are `\(K\)` classes, the output layer produces
+
+$$
+\hat p_k = \frac{\exp(z_k)}{\sum_{j=1}^K \exp(z_j)}
+$$
+
+for `\(k = 1, \ldots, K\)`.
+
+Properties:
+
+- each `\(\hat p_k\)` is between 0 and 1
+- the probabilities sum to 1
+- the largest one is the predicted class
+
+---
+class: inverse, middle
+name: training
+
+## How the network learns
+
+---
+## The loss function still runs the show
+
+We choose weights and biases to make the loss small.
+
+Common losses:
+
+- regression: mean squared error
+- binary classification: log loss
+- multiclass classification: multiclass cross-entropy
+
+For one multiclass observation:
+
+$$
+C = -\sum_{k = 1}^K y_k \log \hat p_k
+$$
+
+where `\(y_k\)` is the one-hot target.
+
+---
+## Gradient descent
+
+Once we have `\(C(\theta)\)`, we update
+
+$$
+\theta \leftarrow \theta - \eta \nabla_\theta C(\theta)
+$$
+
+where:
+
+- `\(\theta\)` collects all weights and biases
+- `\(\eta\)` is the learning rate
+
+Same idea as before in the course, but now the parameter vector is much larger.
+
+---
+## Mini-batches and epochs
+
+In practice we usually update on small batches:
+
+- split the data into .attn[mini-batches]
+- compute the gradient on one mini-batch
+- update the weights
+- repeat
+
+One full pass through the training data is an .attn[epoch].
+
+---
+## Where do the gradients come from?
+
+A weight in an early layer affects the loss through a chain:
+
+- change a weight
+- that changes a weighted sum
+- that changes an activation
+- that changes later activations and eventually the loss
+
+So computing one gradient means following a .attn[chain of effects] through the network.
+
+---
+## One hidden weight affects loss indirectly
+
+For one hidden-layer weight `\(w\)`,
+
+$$
+\frac{\partial C}{\partial w}
+=
+\frac{\partial C}{\partial \hat y}
+\cdot
+\frac{\partial \hat y}{\partial a^{(1)}}
+\cdot
+\frac{\partial a^{(1)}}{\partial z^{(1)}}
+\cdot
+\frac{\partial z^{(1)}}{\partial w}
+$$
+
+Deeper networks have longer chains, but the idea is the same.
+
+---
+## Backprop in words
+
+- run the .attn[forward pass] and compute the loss
+- start at the output and measure how wrong it is
+- pass that error signal backward, one layer at a time
+- combine those signals with local derivatives
+- use the result to update weights and biases
+
+Backprop is just an efficient way to organize that repeated chain rule.
+
+---
+## Backpropagation reuses the chain rule
+
+&lt;img src="slides_files/figure-html/backprop-plot-1.svg" style="display: block; margin: auto;" /&gt;
+
+---
+## Start at the output layer
+
+Write the output-layer error signal as:
+
+$$
+\delta^{(L)} =
+\frac{\partial C}{\partial a^{(L)}} \odot g'\big(z^{(L)}\big)
+$$
+
+For .attn[softmax + cross-entropy], this simplifies nicely:
+
+$$
+\delta^{(L)} = \hat p - y
+$$
+
+That simplification is one reason cross-entropy is so common in classification.
+
+---
+## Then move backward through the hidden layers
+
+For earlier layers,
+
+$$
+\delta^{(\ell)} =
+\left(W^{(\ell+1)}\right)' \delta^{(\ell+1)}
+\odot g'\big(z^{(\ell)}\big)
+$$
+
+So each layer receives an error signal from the layer after it, then adjusts it using its own derivative.
+
+That is backpropagation in one sentence.
+
+---
+## Then turn those signals into gradients
+
+Once we have the layer errors, the gradients are local:
+
+$$
+\frac{\partial C}{\partial W^{(\ell)}} =
+\delta^{(\ell)} \left(a^{(\ell-1)}\right)'
+\qquad\text{and}\qquad
+\frac{\partial C}{\partial b^{(\ell)}} = \delta^{(\ell)}
+$$
+
+Then update:
+
+$$
+W^{(\ell)} \leftarrow W^{(\ell)} - \eta \frac{\partial C}{\partial W^{(\ell)}}
+$$
+
+and similarly for the biases.
+
+---
+## What activation are we using here?
+
+For the MLP slide example we now use:
+
+- `mlp(..., activation = 'relu') |&gt; set_engine('brulee')`
+
+That means:
+
+- the .attn[`activation`] argument applies to the hidden layer, not the output layer
+- for a multiclass factor response, the .attn[output layer] is still chosen by the task
+- here the hidden units use .attn[ReLU], which is closer to a modern neural-net default than the old `nnet` setup
+
+So the MLP example is now a .b[ReLU hidden-layer network], while the multinomial logit baseline remains the no-hidden-layer comparison.
+
+---
+## There's a lot more to training
+
+Once the basic setup is in place, training quality also depends on:
+
+- cross-entropy versus squared error
+- regularization
+- weight initialization
+- architectural choices
+
+So the story is not just .it[add a hidden layer].
+
+The details of optimization matter.
+
+---
+## Try the playground
+
+TensorFlow's [Neural Network Playground](https://playground.tensorflow.org/) is a very good way to build intuition.
+
+Try changing:
+
+- the activation function
+- the number of hidden units
+- the learning rate
+- the amount of regularization
+
+Watch how the boundary changes as you add nonlinear layers.
+
+---
+class: inverse, middle
+name: mnist
+
+## MNIST application
+
+---
+## Why MNIST again?
+
+MNIST is a natural neural-net example because it has:
+
+- 784 predictors for each image
+- 10 output classes
+- lots of nonlinear variation in handwriting
+
+So it gives us both .attn[high-dimensional inputs] and .attn[multiclass outputs].
+
+---
+## The raw inputs are still images
+
+&lt;img src="slides_files/figure-html/mnist-examples-1.svg" style="display: block; margin: auto;" /&gt;
+
+---
+## One image, many outputs
+
+For each image, the output layer should produce:
+
+$$
+\big(
+\hat p_0,\,
+\hat p_1,\,
+\ldots,\,
+\hat p_9
+\big)
+$$
+
+That is why MNIST is a .attn[multi-output classification] problem.
+
+If we remove the hidden layer and keep only the softmax output, we are back at .attn[multinomial logistic regression].
+
+---
+## What a convolution does
+
+- choose a small filter, often `3 x 3`
+- place it over one local patch of pixels
+- multiply and add to get one score
+- slide the .attn[same filter] across the whole image
+
+So one filter asks the same question everywhere:
+
+- is there a vertical stroke here?
+- is there an edge or a corner here?
+
+In practice, the filter weights are .attn[learned from data].
+
+---
+## One tiny convolution example
+
+Take a local patch
+
+$$
+X =
+`\begin{bmatrix}
+0 &amp; 1 &amp; 1 \\
+0 &amp; 1 &amp; 1 \\
+0 &amp; 1 &amp; 1
+\end{bmatrix}`
+\qquad\text{and filter}\qquad
+K =
+`\begin{bmatrix}
+-1 &amp; 0 &amp; 1 \\
+-1 &amp; 0 &amp; 1 \\
+-1 &amp; 0 &amp; 1
+\end{bmatrix}`
+$$
+
+Then the score at that location is
+
+$$
+\sum_{u,v} X_{uv} K_{uv} = 3
+$$
+
+So this filter responds when the patch is dark on the left and bright on the right:
+a simple .attn[vertical-edge detector].
+
+---
+## A filter sliding over an image
+
+The highlighted `3 x 3` patch on the left generates the highlighted output cell on the right.
+
+&lt;img src="slides_files/figure-html/convolution-demo-1.svg" style="display: block; margin: auto;" /&gt;
+
+---
+## A more ambitious workflow
+
+To make the example more realistic, we will:
+
+1. build a train / validation / test split
+1. compare multinomial logit to a starter MLP
+1. tune the MLP's capacity and preprocessing
+1. see whether a very simple CNN does better on raw images
+1. refit the better models on train + validation
+1. evaluate on the held-out test set
+
+This is still small, but it is now a real modeling workflow.
+
+---
+## The starter and tuned models
+
+
+``` r
+# Baseline recipe: normalize and keep 40 PCs.
+rec_base =
+  recipe(label ~ ., data = mnist_train) |&gt;
+  step_zv(all_predictors()) |&gt;
+  step_normalize(all_predictors()) |&gt;
+  step_pca(all_predictors(), num_comp = 40)
+
+# Tuned recipe: keep 60 PCs and add 8 UMAP coordinates.
+rec_tuned =
+  recipe(label ~ ., data = mnist_train) |&gt;
+  step_zv(all_predictors()) |&gt;
+  step_normalize(all_predictors()) |&gt;
+  step_pca(all_predictors(), num_comp = 60) |&gt;
+  embed::step_umap(
+    all_predictors(),
+    num_comp = 8,
+    neighbors = 30,
+    min_dist = 0.05,
+    keep_original_cols = TRUE,
+    prefix = 'umap'
+  )
+
+# Starter MLP: small network with ReLU hidden units.
+mlp_start_spec =
+  mlp(hidden_units = 15, penalty = 0.01, epochs = 50, activation = 'relu') |&gt;
+  set_engine('brulee') |&gt;
+  set_mode('classification')
+
+# Tuned MLP: more hidden units, lighter penalty, more epochs.
+mlp_tuned_spec =
+  mlp(hidden_units = 50, penalty = 0.001, epochs = 150, activation = 'relu') |&gt;
+  set_engine('brulee') |&gt;
+  set_mode('classification')
+
+# Simple CNN: two small conv layers on the raw 28 x 28 image.
+# conv -&gt; relu -&gt; pool -&gt; conv -&gt; relu -&gt; pool -&gt; dense -&gt; 10 logits
+```
+
+---
+## A very simple CNN
+
+- keep the raw 28 x 28 image instead of PCA or UMAP features
+- use small .attn[3 x 3 filters] to scan local patches
+- reuse the same filter weights across the image
+- then flatten and map to 10 output classes
+
+That is enough to exploit .attn[spatial structure] that the MLP does not see directly.
+
+---
+## Fit the models
+
+
+``` r
+# Fit each workflow on the training split.
+fit_logit_valid =
+  workflow() |&gt;
+  add_recipe(rec_base) |&gt;
+  add_model(logit_spec) |&gt;
+  fit(mnist_train)
+
+fit_mlp_start_valid =
+  workflow() |&gt;
+  add_recipe(rec_base) |&gt;
+  add_model(mlp_start_spec) |&gt;
+  fit(mnist_train)
+
+fit_mlp_tuned_valid =
+  workflow() |&gt;
+  add_recipe(rec_tuned) |&gt;
+  add_model(mlp_tuned_spec) |&gt;
+  fit(mnist_train)
+
+fit_cnn_valid =
+  fit_simple_cnn(mnist_train, epochs = 6)
+
+# Collect validation predictions for model comparison.
+pred_logit_valid =
+  bind_cols(
+    mnist_valid |&gt; select(label),
+    predict(fit_logit_valid, mnist_valid)
+  )
+
+pred_mlp_start_valid =
+  bind_cols(
+    mnist_valid |&gt; select(label),
+    predict(fit_mlp_start_valid, mnist_valid)
+  )
+
+pred_mlp_tuned_valid =
+  bind_cols(
+    mnist_valid |&gt; select(label),
+    predict(fit_mlp_tuned_valid, mnist_valid)
+  )
+
+pred_cnn_valid =
+  bind_cols(
+    mnist_valid |&gt; select(label),
+    predict_simple_cnn(fit_cnn_valid, mnist_valid)
+  )
+
+validation_compare = tibble(
+  model = c('Multinomial logit', 'Starter MLP', 'Tuned MLP', 'Simple CNN'),
+  accuracy = c(
+    pred_logit_valid |&gt; metrics(truth = label, estimate = .pred_class) |&gt; filter(.metric == 'accuracy') |&gt; pull(.estimate),
+    pred_mlp_start_valid |&gt; metrics(truth = label, estimate = .pred_class) |&gt; filter(.metric == 'accuracy') |&gt; pull(.estimate),
+    pred_mlp_tuned_valid |&gt; metrics(truth = label, estimate = .pred_class) |&gt; filter(.metric == 'accuracy') |&gt; pull(.estimate),
+    pred_cnn_valid |&gt; metrics(truth = label, estimate = .pred_class) |&gt; filter(.metric == 'accuracy') |&gt; pull(.estimate)
+  )
+)
+
+# Refit the strongest models on train + validation.
+fit_logit_test =
+  workflow() |&gt;
+  add_recipe(rec_base_tv) |&gt;
+  add_model(logit_spec) |&gt;
+  fit(mnist_train_valid)
+
+fit_mlp_tuned_test =
+  workflow() |&gt;
+  add_recipe(rec_tuned_tv) |&gt;
+  add_model(mlp_tuned_spec) |&gt;
+  fit(mnist_train_valid)
+
+fit_cnn_test =
+  fit_simple_cnn(mnist_train_valid, epochs = 6)
+
+# Evaluate on the held-out test split.
+pred_logit_test =
+  bind_cols(
+    mnist_test |&gt; select(label),
+    predict(fit_logit_test, mnist_test)
+  )
+
+pred_mlp_tuned_test =
+  bind_cols(
+    mnist_test |&gt; select(label),
+    predict(fit_mlp_tuned_test, mnist_test),
+    predict(fit_mlp_tuned_test, mnist_test, type = 'prob')
+  )
+
+pred_cnn_test =
+  bind_cols(
+    mnist_test |&gt; select(label),
+    predict_simple_cnn(fit_cnn_test, mnist_test)
+  )
+
+test_compare = tibble(
+  model = c('Multinomial logit', 'Tuned MLP', 'Simple CNN'),
+  accuracy = c(
+    pred_logit_test |&gt; metrics(truth = label, estimate = .pred_class) |&gt; filter(.metric == 'accuracy') |&gt; pull(.estimate),
+    pred_mlp_tuned_test |&gt; metrics(truth = label, estimate = .pred_class) |&gt; filter(.metric == 'accuracy') |&gt; pull(.estimate),
+    pred_cnn_test |&gt; metrics(truth = label, estimate = .pred_class) |&gt; filter(.metric == 'accuracy') |&gt; pull(.estimate)
+  )
+)
+
+# Build a confusion matrix and one probability-vector example for the CNN.
+cm_cnn_test =
+  pred_cnn_test |&gt;
+  count(label, .pred_class)
+
+example_prob_row =
+  pred_cnn_test |&gt;
+  mutate(case_id = row_number()) |&gt;
+  rowwise() |&gt;
+  mutate(max_prob = max(c_across(matches('^\\.pred_[0-9]+$')))) |&gt;
+  ungroup() |&gt;
+  filter(label == .pred_class) |&gt;
+  slice_max(order_by = max_prob, n = 1)
+
+example_case =
+  mnist_test |&gt; slice(example_prob_row$case_id)
+
+example_prob_plot_df =
+  example_prob_row |&gt;
+  select(matches('^\\.pred_[0-9]+$')) |&gt;
+  pivot_longer(
+    everything(),
+    names_to = 'digit',
+    values_to = 'probability'
+  ) |&gt;
+  mutate(digit = gsub('.pred_', '', digit, fixed = TRUE))
+```
+
+---
+## Validation results
+
+The first pass looks like this:
+
+- multinomial logit: .attn[87.5%]
+- starter MLP: .attn[87.7%]
+- tuned MLP: .attn[90.6%]
+- simple CNN: .attn[95.2%]
+
+So the lesson is not .it[any hidden layer wins].
+
+The lesson is that .attn[capacity, preprocessing, and architecture all matter].
+
+---
+## Validation comparison
+
+&lt;img src="slides_files/figure-html/validation-compare-plot-1.svg" style="display: block; margin: auto;" /&gt;
+
+---
+## Held-out test results
+
+After refitting on train + validation:
+
+- multinomial logit gets about .attn[87.8%]
+- the tuned MLP gets about .attn[91.2%]
+- the simple CNN gets about .attn[95.2%]
+
+So the .attn[CNN improves again] once we let the model use the image's 2D structure.
+
+---
+## Test comparison
+
+&lt;img src="slides_files/figure-html/test-compare-plot-1.svg" style="display: block; margin: auto;" /&gt;
+
+---
+## A single image, many probabilities
+
+&lt;img src="slides_files/figure-html/multi-output-example-1.svg" style="display: block; margin: auto;" /&gt;
+
+---
+## Confusion matrix for the simple CNN
+
+&lt;img src="slides_files/figure-html/cnn-cm-1.svg" style="display: block; margin: auto;" /&gt;
+
+---
+## What this example does and does not show
+
+It does show:
+
+- real multiclass output
+- real train / validation / test logic
+- real improvement from a stronger architecture
+
+It does not show:
+
+- deep networks
+- state-of-the-art MNIST performance
+
+This is still a .attn[teaching example], just a better one.
+
+---
+class: inverse, middle
+name: wrap
+
+## Wrap-up
+
+---
+## Main takeaways
+
+- Logistic regression is a neural network with no hidden layer
+- Hidden layers matter only when paired with nonlinear activations
+- Backpropagation is efficient chain rule
+- Softmax turns multiclass scores into probabilities
+- Convolutions reuse small learned filters across the image
+- A small untuned MLP may only modestly improve on the baseline
+- A better-specified MLP can do better, even in a simple `tidymodels` workflow
+- A very simple CNN can do better still when it uses image structure
+
+Next step: deeper architectures and more modern image models.
+    </textarea>
+<style data-target="print-only">@media screen {.remark-slide-container{display:block;}.remark-slide-scaler{box-shadow:none;}}</style>
+<script src="https://remarkjs.com/downloads/remark-latest.min.js"></script>
+<script>var slideshow = remark.create({
+  "highlightStyle": "github",
+  "highlightLines": true,
+  "countIncrementalSlides": false
+});
+if (window.HTMLWidgets) slideshow.on('afterShowSlide', function (slide) {
+  window.dispatchEvent(new Event('resize'));
+});
+(function(d) {
+  var s = d.createElement("style"), r = d.querySelector(".remark-slide-scaler");
+  if (!r) return;
+  s.type = "text/css"; s.innerHTML = "@page {size: " + r.style.width + " " + r.style.height +"; }";
+  d.head.appendChild(s);
+})(document);
+
+(function(d) {
+  var el = d.getElementsByClassName("remark-slides-area");
+  if (!el) return;
+  var slide, slides = slideshow.getSlides(), els = el[0].children;
+  for (var i = 1; i < slides.length; i++) {
+    slide = slides[i];
+    if (slide.properties.continued === "true" || slide.properties.count === "false") {
+      els[i - 1].className += ' has-continuation';
+    }
+  }
+  var s = d.createElement("style");
+  s.type = "text/css"; s.innerHTML = "@media print { .has-continuation { display: none; } }";
+  d.head.appendChild(s);
+})(document);
+// delete the temporary CSS (for displaying all slides initially) when the user
+// starts to view slides
+(function() {
+  var deleted = false;
+  slideshow.on('beforeShowSlide', function(slide) {
+    if (deleted) return;
+    var sheets = document.styleSheets, node;
+    for (var i = 0; i < sheets.length; i++) {
+      node = sheets[i].ownerNode;
+      if (node.dataset["target"] !== "print-only") continue;
+      node.parentNode.removeChild(node);
+    }
+    deleted = true;
+  });
+})();
+// add `data-at-shortcutkeys` attribute to <body> to resolve conflicts with JAWS
+// screen reader (see PR #262)
+(function(d) {
+  let res = {};
+  d.querySelectorAll('.remark-help-content table tr').forEach(tr => {
+    const t = tr.querySelector('td:nth-child(2)').innerText;
+    tr.querySelectorAll('td:first-child .key').forEach(key => {
+      const k = key.innerText;
+      if (/^[a-z]$/.test(k)) res[k] = t;  // must be a single letter (key)
+    });
+  });
+  d.body.setAttribute('data-at-shortcutkeys', JSON.stringify(res));
+})(document);
+(function() {
+  "use strict"
+  // Replace <script> tags in slides area to make them executable
+  var scripts = document.querySelectorAll(
+    '.remark-slides-area .remark-slide-container script'
+  );
+  if (!scripts.length) return;
+  for (var i = 0; i < scripts.length; i++) {
+    var s = document.createElement('script');
+    var code = document.createTextNode(scripts[i].textContent);
+    s.appendChild(code);
+    var scriptAttrs = scripts[i].attributes;
+    for (var j = 0; j < scriptAttrs.length; j++) {
+      s.setAttribute(scriptAttrs[j].name, scriptAttrs[j].value);
+    }
+    scripts[i].parentElement.replaceChild(s, scripts[i]);
+  }
+})();
+(function() {
+  var links = document.getElementsByTagName('a');
+  for (var i = 0; i < links.length; i++) {
+    if (/^(https?:)?\/\//.test(links[i].getAttribute('href'))) {
+      links[i].target = '_blank';
+    }
+  }
+})();
+// adds .remark-code-has-line-highlighted class to <pre> parent elements
+// of code chunks containing highlighted lines with class .remark-code-line-highlighted
+(function(d) {
+  const hlines = d.querySelectorAll('.remark-code-line-highlighted');
+  const preParents = [];
+  const findPreParent = function(line, p = 0) {
+    if (p > 1) return null; // traverse up no further than grandparent
+    const el = line.parentElement;
+    return el.tagName === "PRE" ? el : findPreParent(el, ++p);
+  };
+
+  for (let line of hlines) {
+    let pre = findPreParent(line);
+    if (pre && !preParents.includes(pre)) preParents.push(pre);
+  }
+  preParents.forEach(p => p.classList.add("remark-code-has-line-highlighted"));
+})(document);</script>
+
+<script>
+slideshow._releaseMath = function(el) {
+  var i, text, code, codes = el.getElementsByTagName('code');
+  for (i = 0; i < codes.length;) {
+    code = codes[i];
+    if (code.parentNode.tagName !== 'PRE' && code.childElementCount === 0) {
+      text = code.textContent;
+      if (/^\\\((.|\s)+\\\)$/.test(text) || /^\\\[(.|\s)+\\\]$/.test(text) ||
+          /^\$\$(.|\s)+\$\$$/.test(text) ||
+          /^\\begin\{([^}]+)\}(.|\s)+\\end\{[^}]+\}$/.test(text)) {
+        code.outerHTML = code.innerHTML;  // remove <code></code>
+        continue;
+      }
+    }
+    i++;
+  }
+};
+slideshow._releaseMath(document);
+</script>
+<!-- dynamically load mathjax for compatibility with self-contained -->
+<script>
+(function () {
+  var script = document.createElement('script');
+  script.type = 'text/javascript';
+  script.src  = 'https://mathjax.rstudio.com/latest/MathJax.js?config=TeX-MML-AM_CHTML';
+  if (location.protocol !== 'file:' && /^https?:/.test(script.src))
+    script.src  = script.src.replace(/^https?:/, '');
+  document.getElementsByTagName('head')[0].appendChild(script);
+})();
+</script>
+  </body>
+</html>

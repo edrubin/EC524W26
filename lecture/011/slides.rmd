@@ -1,0 +1,1487 @@
+---
+title: 'Lecture .mono[011]'
+subtitle: 'Neural networks: intuition, math, and MNIST'
+author: 'Edward Rubin'
+output:
+  xaringan::moon_reader:
+    css: ['default', 'metropolis', 'metropolis-fonts', 'my-css.css']
+    nature:
+      highlightStyle: github
+      highlightLines: true
+      countIncrementalSlides: false
+---
+exclude: true
+
+```{r, setup, include = FALSE}
+library(pacman)
+p_load(
+  tidyverse,
+  data.table,
+  tidymodels,
+  patchwork,
+  scales,
+  torch,
+  coro
+)
+
+# Lecture color palette.
+red_pink   = '#e64173'
+turquoise  = '#20B2AA'
+orange     = '#FFA500'
+red        = '#fb6107'
+blue       = '#181485'
+navy       = '#150E37FF'
+green      = '#8bb174'
+yellow     = '#D8BD44'
+grey_light = 'grey70'
+grey_mid   = 'grey50'
+grey_dark  = 'grey20'
+purple     = '#6A5ACD'
+slate      = '#314f4f'
+
+knitr::opts_chunk$set(
+  comment = '#>',
+  fig.align = 'center',
+  fig.height = 6.75,
+  fig.width = 10.5,
+  warning = FALSE,
+  message = FALSE
+)
+knitr::opts_chunk$set(dev = 'svg')
+options(device = function(file, width, height) {
+  svg(tempfile(), width = width, height = height)
+})
+options(knitr.table.format = 'html')
+xaringanExtra::use_xaringan_extra(c('tile_view', 'fit_screen'))
+
+set.seed(111)
+
+# Load MNIST data from the local lecture folder.
+train_dt = fread('train.csv') |> as_tibble()
+test_dt = fread('test.csv') |> as_tibble()
+pixel_cols = names(train_dt)[grepl('^pixel', names(train_dt))]
+
+# Plot one 28 x 28 digit image from a single-row data frame.
+plot_digit = function(row_df, title = NULL) {
+  ggplot(
+    expand_grid(y = 28:1, x = 1:28) |>
+      mutate(value = as.numeric(row_df[, pixel_cols])),
+    aes(x = x, y = y, fill = value)
+  ) +
+    geom_raster() +
+    scale_fill_viridis_c('') +
+    coord_equal() +
+    theme_void() +
+    theme(legend.position = 'bottom') +
+    labs(title = title)
+}
+
+# Activation functions for intuition and comparison plots.
+activation_df = tibble(x = seq(-5, 5, length.out = 500)) |>
+  mutate(
+    Identity = x,
+    Sigmoid = 1 / (1 + exp(-x)),
+    Tanh = tanh(x),
+    ReLU = pmax(0, x),
+    Step = if_else(x >= 0, 1, 0)
+  ) |>
+  pivot_longer(-x, names_to = 'activation', values_to = 'y')
+
+# Common derivatives that appear inside backpropagation.
+activation_deriv_df = tibble(x = seq(-5, 5, length.out = 500)) |>
+  mutate(
+    `sigmoid''(z)` = (1 / (1 + exp(-x))) * (1 - 1 / (1 + exp(-x))),
+    `tanh''(z)` = 1 - tanh(x)^2,
+    `ReLU''(z)` = if_else(x > 0, 1, 0)
+  ) |>
+  pivot_longer(-x, names_to = 'derivative', values_to = 'y')
+
+# Draw a simple fully connected network for lecture visuals.
+make_single_neuron_plot = function() {
+  nodes = tribble(
+    ~name,    ~x,  ~y,  ~label, ~fill_color, ~text_color, ~size,
+    'bias',   1.2, 5.0, '1',    'white',     slate,       5.0,
+    'x1',     1.2, 4.0, 'x1',   'white',     slate,       5.0,
+    'x2',     1.2, 3.0, 'x2',   'white',     slate,       5.0,
+    'xdots',  1.2, 2.0, '...',  'white',     slate,       5.0,
+    'xp',     1.2, 1.0, 'xp',   'white',     slate,       5.0,
+    'neuron', 4.2, 3.0, 'a',    red_pink,    'white',     5.3,
+    'output', 7.2, 3.0, 'yhat', orange,      'white',     4.7
+  )
+
+  edges = tribble(
+    ~from,   ~to,      ~weight,
+    'bias',  'neuron', 'b',
+    'x1',    'neuron', 'w1',
+    'x2',    'neuron', 'w2',
+    'xdots', 'neuron', '',
+    'xp',    'neuron', 'wp',
+    'neuron','output', ''
+  ) |>
+    left_join(nodes |> select(name, x_from = x, y_from = y), by = c('from' = 'name')) |>
+    left_join(nodes |> select(name, x_to = x, y_to = y), by = c('to' = 'name')) |>
+    mutate(
+      label_x = 0.58 * x_from + 0.42 * x_to,
+      label_y = 0.58 * y_from + 0.42 * y_to
+    )
+
+  ggplot() +
+    geom_segment(
+      data = edges,
+      aes(x = x_from, y = y_from, xend = x_to, yend = y_to),
+      color = grey_light,
+      linewidth = 0.55,
+      arrow = arrow(length = unit(0.16, 'inches'))
+    ) +
+    geom_point(
+      data = nodes,
+      aes(x = x, y = y, fill = fill_color),
+      shape = 21,
+      size = 11,
+      color = slate,
+      stroke = 1.1
+    ) +
+    geom_text(
+      data = nodes,
+      aes(x = x, y = y, label = label, color = text_color, size = size),
+      family = 'Zilla Slab',
+      fontface = 'bold',
+      show.legend = FALSE
+    ) +
+    geom_label(
+      data = edges |> filter(weight != ''),
+      aes(x = label_x, y = label_y, label = weight),
+      family = 'Zilla Slab',
+      fill = 'white',
+      color = slate,
+      label.size = 0,
+      size = 4.1
+    ) +
+    annotate('text', x = 1.2, y = 5.75, label = 'Inputs', family = 'Zilla Slab', color = slate, size = 5.2) +
+    annotate('text', x = 4.2, y = 5.75, label = 'Neuron', family = 'Zilla Slab', color = red_pink, size = 5.2) +
+    annotate('text', x = 7.2, y = 5.75, label = 'Output', family = 'Zilla Slab', color = orange, size = 5.2) +
+    annotate('text', x = 4.2, y = 4.15, label = "z = b + w'x", family = 'Zilla Slab', color = slate, size = 5.1) +
+    annotate('text', x = 4.2, y = 1.9, label = 'a = g(z)', family = 'Zilla Slab', color = blue, size = 5.1) +
+    annotate('text', x = 8.25, y = 3.0, label = 'prediction', family = 'Zilla Slab', color = slate, hjust = 0, size = 5.0) +
+    scale_fill_identity() +
+    scale_color_identity() +
+    scale_size_identity() +
+    coord_cartesian(xlim = c(0.4, 9.2), ylim = c(0.4, 6.1), clip = 'off') +
+    theme_void()
+}
+
+make_network_plot = function() {
+  nodes = tribble(
+    ~layer,   ~name, ~x,  ~y,  ~label,     ~type,
+    'input',  'x1',  1.0, 4.5, 'pixel 1',  'input',
+    'input',  'x2',  1.0, 3.5, 'pixel 2',  'input',
+    'input',  'x3',  1.0, 2.5, 'pixel 3',  'input',
+    'input',  'x4',  1.0, 1.5, 'pixel 784','input',
+    'hidden', 'h1',  3.2, 5.0, '',         'hidden',
+    'hidden', 'h2',  3.2, 4.0, '',         'hidden',
+    'hidden', 'h3',  3.2, 3.0, '',         'hidden',
+    'hidden', 'h4',  3.2, 2.0, '',         'hidden',
+    'hidden', 'h5',  3.2, 1.0, '',         'hidden',
+    'output', 'o1',  5.5, 4.8, '0',        'output',
+    'output', 'o2',  5.5, 3.9, '1',        'output',
+    'output', 'o3',  5.5, 3.0, '2',        'output',
+    'output', 'o4',  5.5, 2.1, '...',      'output',
+    'output', 'o5',  5.5, 1.2, '9',        'output'
+  )
+
+  edges = expand_grid(
+    from = nodes |> filter(layer == 'input') |> pull(name),
+    to = nodes |> filter(layer == 'hidden') |> pull(name)
+  ) |>
+    bind_rows(
+      expand_grid(
+        from = nodes |> filter(layer == 'hidden') |> pull(name),
+        to = nodes |> filter(layer == 'output') |> pull(name)
+      )
+    ) |>
+    left_join(nodes |> select(name, x_from = x, y_from = y), by = c('from' = 'name')) |>
+    left_join(nodes |> select(name, x_to = x, y_to = y), by = c('to' = 'name'))
+
+  ggplot() +
+    geom_segment(
+      data = edges,
+      aes(x = x_from, y = y_from, xend = x_to, yend = y_to),
+      color = grey_light,
+      linewidth = 0.35,
+      alpha = 0.75
+    ) +
+    geom_point(
+      data = nodes,
+      aes(x = x, y = y, fill = type),
+      shape = 21,
+      size = 7,
+      color = slate,
+      stroke = 1
+    ) +
+    geom_text(
+      data = nodes |> filter(layer == 'input'),
+      aes(x = x - 0.45, y = y, label = label),
+      hjust = 1,
+      family = 'Zilla Slab'
+    ) +
+    geom_text(
+      data = nodes |> filter(layer == 'output'),
+      aes(x = x + 0.35, y = y, label = label),
+      hjust = 0,
+      family = 'Zilla Slab'
+    ) +
+    annotate('text', x = 1.0, y = 5.45, label = 'Input layer', family = 'Zilla Slab', color = slate) +
+    annotate('text', x = 3.2, y = 5.85, label = 'Hidden layer', family = 'Zilla Slab', color = red_pink) +
+    annotate('text', x = 5.5, y = 5.75, label = 'Output layer', family = 'Zilla Slab', color = orange) +
+    scale_fill_manual(values = c(input = 'white', hidden = red_pink, output = orange)) +
+    coord_cartesian(xlim = c(0, 6.5), ylim = c(0.5, 6.1), clip = 'off') +
+    theme_void() +
+    theme(legend.position = 'none')
+}
+
+# Draw a forward-pass / backward-pass computational graph.
+make_backprop_plot = function() {
+  boxes = tribble(
+    ~x,  ~y,  ~label,              ~fill,
+    1.0, 2.5, 'Inputs\nx',         'white',
+    3.0, 2.5, 'Weighted sum\nz',   '#fde5ec',
+    5.0, 2.5, 'Activation\na',     '#eef4ff',
+    7.1, 2.5, 'Loss\nC',           '#fff2db'
+  )
+
+  arrows = tribble(
+    ~x,   ~y,   ~xend, ~yend, ~label,
+    1.65, 2.5,  2.35,  2.5,   '',
+    3.65, 2.5,  4.35,  2.5,   '',
+    5.65, 2.5,  6.45,  2.5,   '',
+    6.45, 1.55, 5.65,  1.55,  'gradient',
+    4.35, 1.55, 3.65,  1.55,  'gradient',
+    2.35, 1.55, 1.65,  1.55,  'gradient'
+  )
+
+  ggplot() +
+    geom_label(
+      data = boxes,
+      aes(x = x, y = y, label = label, fill = fill),
+      size = 5,
+      label.size = 0.35,
+      color = slate,
+      family = 'Zilla Slab'
+    ) +
+    geom_segment(
+      data = arrows,
+      aes(x = x, y = y, xend = xend, yend = yend),
+      arrow = arrow(length = unit(0.18, 'inches')),
+      color = grey_dark,
+      linewidth = 0.5
+    ) +
+    geom_text(
+      data = arrows |> filter(label != ''),
+      aes(x = (x + xend) / 2, y = y + 0.25, label = label),
+      color = red_pink,
+      family = 'Zilla Slab'
+    ) +
+    scale_fill_identity() +
+    coord_cartesian(xlim = c(0, 8), ylim = c(1, 3.5), clip = 'off') +
+    theme_void()
+}
+
+# Visualize a toy convolution on a small image patch.
+make_convolution_demo_plot = function() {
+  input_mat = matrix(c(
+    0, 0, 1, 1, 0,
+    0, 0, 1, 1, 0,
+    0, 0, 1, 1, 0,
+    0, 0, 1, 1, 0,
+    0, 0, 1, 1, 0
+  ), nrow = 5, byrow = TRUE)
+
+  kernel_mat = matrix(c(
+    -1, 0, 1,
+    -1, 0, 1,
+    -1, 0, 1
+  ), nrow = 3, byrow = TRUE)
+
+  feature_mat = matrix(0, nrow = 3, ncol = 3)
+  for (i in 1:3) {
+    for (j in 1:3) {
+      feature_mat[i, j] = sum(input_mat[i:(i + 2), j:(j + 2)] * kernel_mat)
+    }
+  }
+
+  matrix_df = function(mat) {
+    tidyr::crossing(row = seq_len(nrow(mat)), col = seq_len(ncol(mat))) |>
+      mutate(
+        value = purrr::map2_dbl(row, col, ~ mat[.x, .y]),
+        x = col,
+        y = nrow(mat) - row + 1
+      )
+  }
+
+  input_df = matrix_df(input_mat)
+  kernel_df = matrix_df(kernel_mat)
+  feature_df = matrix_df(feature_mat)
+
+  input_hi = input_df |> filter(row %in% 2:4, col %in% 2:4)
+  feature_hi = feature_df |> filter(row == 2, col == 2)
+
+  input_plot =
+    ggplot(input_df, aes(x = x, y = y, fill = value)) +
+    geom_tile(color = 'white', linewidth = 0.9) +
+    geom_text(
+      aes(label = value, color = value > 0.5),
+      family = 'Zilla Slab',
+      size = 6,
+      show.legend = FALSE
+    ) +
+    geom_tile(
+      data = input_hi,
+      fill = NA,
+      color = red_pink,
+      linewidth = 1.2
+    ) +
+    scale_fill_gradient(low = 'grey95', high = slate, guide = 'none') +
+    scale_color_manual(values = c('FALSE' = slate, 'TRUE' = 'white')) +
+    coord_equal() +
+    labs(title = 'Input image') +
+    theme_void() +
+    theme(plot.title = element_text(hjust = 0.5, family = 'Zilla Slab', size = 18))
+
+  kernel_plot =
+    ggplot(kernel_df, aes(x = x, y = y, fill = value)) +
+    geom_tile(color = 'white', linewidth = 0.9) +
+    geom_text(aes(label = value), family = 'Zilla Slab', size = 6, color = slate) +
+    scale_fill_gradient2(low = blue, mid = 'white', high = orange, midpoint = 0, guide = 'none') +
+    coord_equal() +
+    labs(title = '3 x 3 filter') +
+    theme_void() +
+    theme(plot.title = element_text(hjust = 0.5, family = 'Zilla Slab', size = 18))
+
+  feature_plot =
+    ggplot(feature_df, aes(x = x, y = y, fill = value)) +
+    geom_tile(color = 'white', linewidth = 0.9) +
+    geom_text(aes(label = value), family = 'Zilla Slab', size = 6, color = slate) +
+    geom_tile(
+      data = feature_hi,
+      fill = NA,
+      color = turquoise,
+      linewidth = 1.2
+    ) +
+    scale_fill_gradient(low = 'grey95', high = turquoise, guide = 'none') +
+    coord_equal() +
+    labs(title = 'Feature map') +
+    theme_void() +
+    theme(plot.title = element_text(hjust = 0.5, family = 'Zilla Slab', size = 18))
+
+  input_plot + kernel_plot + feature_plot + plot_layout(widths = c(1.25, 1, 1))
+}
+
+# Convert flat pixel rows into image tensors for a simple CNN.
+make_image_tensor = function(df) {
+  n = nrow(df)
+  x = array(0, dim = c(n, 1, 28, 28))
+  pixel_mat = as.matrix(df[, pixel_cols]) / 255
+
+  for (i in seq_len(n)) {
+    x[i, 1, , ] = matrix(pixel_mat[i, ], nrow = 28, byrow = TRUE)
+  }
+
+  torch_tensor(x, dtype = torch_float())
+}
+
+make_label_tensor = function(df) {
+  torch_tensor(as.integer(as.character(df$label)) + 1L, dtype = torch_long())
+}
+
+simple_cnn = nn_module(
+  'simple_cnn',
+  initialize = function() {
+    self$conv1 = nn_conv2d(1, 8, kernel_size = 3, padding = 1)
+    self$conv2 = nn_conv2d(8, 16, kernel_size = 3, padding = 1)
+    self$pool = nn_max_pool2d(kernel_size = 2)
+    self$fc1 = nn_linear(16 * 7 * 7, 64)
+    self$drop = nn_dropout(p = 0.2)
+    self$fc2 = nn_linear(64, 10)
+  },
+  forward = function(x) {
+    x = self$conv1(x)
+    x = nnf_relu(x)
+    x = self$pool(x)
+    x = self$conv2(x)
+    x = nnf_relu(x)
+    x = self$pool(x)
+    x = torch_flatten(x, start_dim = 2)
+    x = self$fc1(x)
+    x = nnf_relu(x)
+    x = self$drop(x)
+    self$fc2(x)
+  }
+)
+
+fit_simple_cnn = function(train_df, epochs = 6, batch_size = 64, learn_rate = 0.003) {
+  torch_manual_seed(111)
+  net = simple_cnn()
+  net$to(dtype = torch_float())
+  opt = optim_adam(net$parameters, lr = learn_rate)
+  loss_fn = nn_cross_entropy_loss()
+  train_ds = tensor_dataset(make_image_tensor(train_df), make_label_tensor(train_df))
+  train_dl = dataloader(train_ds, batch_size = batch_size, shuffle = TRUE)
+
+  for (epoch in seq_len(epochs)) {
+    net$train()
+    coro::loop(for (batch in train_dl) {
+      x_batch = batch[[1]]$to(dtype = torch_float())
+      y_batch = batch[[2]]$to(dtype = torch_long())
+      opt$zero_grad()
+      logits = net(x_batch)
+      loss = loss_fn(logits, y_batch)
+      loss$backward()
+      opt$step()
+    })
+  }
+
+  net
+}
+
+predict_simple_cnn = function(net, df, batch_size = 256) {
+  label_levels = levels(df$label)
+  ds = tensor_dataset(make_image_tensor(df), make_label_tensor(df))
+  dl = dataloader(ds, batch_size = batch_size, shuffle = FALSE)
+  probs_list = list()
+
+  with_no_grad({
+    net$eval()
+    coro::loop(for (batch in dl) {
+      logits = net(batch[[1]]$to(dtype = torch_float()))
+      probs = nnf_softmax(logits, dim = 2)
+      probs_list[[length(probs_list) + 1]] = as.matrix(as.array(probs))
+    })
+  })
+
+  probs = do.call(rbind, probs_list)
+  prob_df = as_tibble(probs, .name_repair = 'minimal')
+  names(prob_df) = paste0('.pred_', 0:9)
+
+  tibble(
+    .pred_class = factor(max.col(probs, ties.method = 'first') - 1L, levels = label_levels)
+  ) |>
+    bind_cols(prob_df)
+}
+
+# Build a manageable MNIST subset for lecture-time fitting.
+mnist_small = train_dt |>
+  mutate(label = factor(label)) |>
+  group_by(label) |>
+  slice_sample(n = 500) |>
+  ungroup()
+
+# Keep train / validation / test separate so tuning claims are honest.
+mnist_split = initial_validation_split(
+  mnist_small,
+  prop = c(train = 0.6, validate = 0.2),
+  strata = label
+)
+
+mnist_train = training(mnist_split)
+mnist_valid = validation(mnist_split)
+mnist_test = testing(mnist_split)
+mnist_train_valid = bind_rows(mnist_train, mnist_valid)
+
+# Baseline recipe: modest PCA compression.
+rec_base =
+  recipe(label ~ ., data = mnist_train) |>
+  step_zv(all_predictors()) |>
+  step_normalize(all_predictors()) |>
+  step_pca(all_predictors(), num_comp = 40)
+
+# Tuned recipe: keep richer PCs and append a UMAP embedding.
+rec_tuned =
+  recipe(label ~ ., data = mnist_train) |>
+  step_zv(all_predictors()) |>
+  step_normalize(all_predictors()) |>
+  step_pca(all_predictors(), num_comp = 60) |>
+  embed::step_umap(
+    all_predictors(),
+    num_comp = 8,
+    neighbors = 30,
+    min_dist = 0.05,
+    keep_original_cols = TRUE,
+    prefix = 'umap'
+  )
+
+# Final refit recipes use train + validation together.
+rec_base_tv =
+  recipe(label ~ ., data = mnist_train_valid) |>
+  step_zv(all_predictors()) |>
+  step_normalize(all_predictors()) |>
+  step_pca(all_predictors(), num_comp = 40)
+
+rec_tuned_tv =
+  recipe(label ~ ., data = mnist_train_valid) |>
+  step_zv(all_predictors()) |>
+  step_normalize(all_predictors()) |>
+  step_pca(all_predictors(), num_comp = 60) |>
+  embed::step_umap(
+    all_predictors(),
+    num_comp = 8,
+    neighbors = 30,
+    min_dist = 0.05,
+    keep_original_cols = TRUE,
+    prefix = 'umap'
+  )
+
+# Multinomial logit is the 'no hidden layer' baseline.
+logit_spec =
+  multinom_reg(penalty = 0) |>
+  set_engine('nnet', trace = FALSE, MaxNWts = 20000) |>
+  set_mode('classification')
+
+# Starter neural net: explicit ReLU hidden layer.
+mlp_start_spec =
+  mlp(hidden_units = 15, penalty = 0.01, epochs = 50, activation = 'relu') |>
+  set_engine('brulee') |>
+  set_mode('classification')
+
+# Tuned neural net: same ReLU activation with a larger network.
+mlp_tuned_spec =
+  mlp(hidden_units = 50, penalty = 0.001, epochs = 150, activation = 'relu') |>
+  set_engine('brulee') |>
+  set_mode('classification')
+```
+
+---
+name: admin
+# Admin
+## Today
+
+.b[Topics]
+
+- Logistic regression as a one-neuron network
+- Activation functions, hidden layers, and forward propagation
+- Cross-entropy, gradient descent, and backpropagation
+- MNIST with MLPs and a simple CNN
+
+## Reading
+
+- .note[Core] Nielsen, .it[Neural Networks and Deep Learning], Ch. [1](http://neuralnetworksanddeeplearning.com/chap1.html)
+- .note[Supplement] Ch. [2](http://neuralnetworksanddeeplearning.com/chap2.html) and [3](http://neuralnetworksanddeeplearning.com/chap3.html)
+- .note[Course text] .it[ISL] Ch. 11
+
+## Interactive
+
+- TensorFlow's [Neural Network Playground](https://playground.tensorflow.org/)
+
+---
+layout: true
+# Neural Networks
+
+---
+class: inverse, middle
+name: intro
+
+## Neural-net intuition
+
+---
+## Logistic regression is already a tiny neural network
+
+For a binary outcome,
+
+$$
+\Pr(Y = 1 \mid X = x) = \sigma(\beta_0 + x'\beta)
+$$
+
+where $\sigma(z) = \dfrac{1}{1 + e^{-z}}$.
+
+That is:
+
+- a weighted sum of inputs
+- a bias term
+- an activation function
+- one output
+
+So neural networks are not a sharp break from logistic regression. They are a .attn[generalization].
+
+---
+## One neuron = weighted sum + activation
+
+```{r, logistic-neuron, echo = FALSE}
+make_single_neuron_plot()
+```
+
+---
+## What do the weights and bias do?
+
+The weighted sum
+
+$$
+z = b + \sum_{j = 1}^p w_j x_j
+$$
+
+does two jobs:
+
+- the .attn[weights] say which inputs matter and in which direction
+- the .attn[bias] shifts the cutoff left or right
+
+So even before hidden layers, a neuron is already learning a scoring rule.
+
+---
+## Start with the perceptron
+
+The .attn[perceptron] uses a hard threshold:
+
+$$
+a =
+\begin{cases}
+1 & \text{if } z \ge 0 \\
+0 & \text{if } z < 0
+\end{cases}
+$$
+
+That is intuitive, but not smooth.
+
+The sigmoid neuron keeps the same weighted-sum idea and replaces the hard step with a differentiable activation.
+
+---
+## Perceptron vs. sigmoid neuron
+
+```{r, step-v-sigmoid, echo = FALSE}
+activation_df |>
+  filter(activation %in% c('Step', 'Sigmoid')) |>
+  ggplot(aes(x = x, y = y, color = activation)) +
+  geom_hline(yintercept = 0, linewidth = 0.25) +
+  geom_vline(xintercept = 0, linewidth = 0.25) +
+  geom_line(linewidth = 1.1) +
+  scale_color_manual(values = c(Step = slate, Sigmoid = red_pink)) +
+  labs(
+    x = 'z',
+    y = 'activation',
+    color = '',
+    title = 'A sigmoid is a smooth version of a threshold rule'
+  ) +
+  theme_minimal(base_size = 18)
+```
+
+---
+## Why stack neurons?
+
+The point is not .it[more coefficients].
+
+It is:
+
+- early neurons can respond to simple patterns
+- later neurons can combine those into more complex patterns
+- composition can build feature detectors
+
+For images, that can mean:
+
+- pixels
+- edges / strokes
+- loops / corners
+- whole digits
+
+---
+## A feed-forward network
+
+```{r, network-plot, echo = FALSE}
+make_network_plot()
+```
+
+---
+## Hidden layers need nonlinearity
+
+Suppose we stack two .b[linear] maps:
+
+$$
+a^{(1)} = W^{(1)}x + b^{(1)}
+\qquad\text{and}\qquad
+\hat y = W^{(2)}a^{(1)} + b^{(2)}
+$$
+
+Then
+
+$$
+\hat y = W^{(2)}W^{(1)}x + \big(W^{(2)}b^{(1)} + b^{(2)}\big)
+$$
+
+which is still just one linear map.
+
+So hidden layers matter only when we add .attn[nonlinear activations].
+
+---
+## Common activation functions
+
+```{r, activation-functions, echo = FALSE}
+activation_df |>
+  filter(activation %in% c('Identity', 'Sigmoid', 'Tanh', 'ReLU')) |>
+  ggplot(aes(x = x, y = y, color = activation)) +
+  geom_hline(yintercept = 0, linewidth = 0.25) +
+  geom_vline(xintercept = 0, linewidth = 0.25) +
+  geom_line(linewidth = 1.1, show.legend = FALSE) +
+  facet_wrap(~activation, scales = 'free_y') +
+  scale_color_manual(values = c(
+    Identity = slate,
+    Sigmoid = red_pink,
+    Tanh = orange,
+    ReLU = blue
+  )) +
+  theme_minimal(base_size = 17) +
+  labs(x = 'z', y = 'g(z)')
+```
+
+---
+## The derivatives matter too
+
+```{r, activation-derivatives, echo = FALSE}
+activation_deriv_df |>
+  ggplot(aes(x = x, y = y, color = derivative)) +
+  geom_hline(yintercept = 0, linewidth = 0.25) +
+  geom_line(linewidth = 1.0, show.legend = FALSE) +
+  facet_wrap(~derivative, scales = 'free_y') +
+  scale_color_manual(values = c(
+    'sigmoid\'(z)' = red_pink,
+    'tanh\'(z)' = orange,
+    'ReLU\'(z)' = blue
+  )) +
+  theme_minimal(base_size = 17) +
+  labs(x = 'z', y = 'g\'(z)')
+```
+
+---
+## Why those derivatives matter
+
+The key derivatives are:
+
+$$
+\sigma'(z) = \sigma(z)\big(1 - \sigma(z)\big)
+$$
+
+$$
+\tanh'(z) = 1 - \tanh^2(z)
+$$
+
+$$
+\text{ReLU}'(z) = \mathbf{1}\{z > 0\}
+$$
+
+Why do we care?
+
+- gradient-based training keeps multiplying by these derivatives
+- if the derivative is tiny, updates can shrink
+- if the derivative is zero, learning can stall locally
+
+---
+## Output activations should match the task
+
+.col-left[
+.hi-pink[Regression]
+
+- often use identity output
+- prediction is unrestricted
+]
+
+.hi-slate[Binary classification]
+
+- often use sigmoid output
+- prediction is a probability
+]
+
+.hi-orange[Multiclass classification]
+
+- often use softmax output
+- prediction is a vector of class probabilities
+]
+
+---
+## Forward propagation
+
+At layer $\ell$:
+
+$$
+z^{(\ell)} = W^{(\ell)}a^{(\ell-1)} + b^{(\ell)}
+\qquad\text{and}\qquad
+a^{(\ell)} = g^{(\ell)}\big(z^{(\ell)}\big)
+$$
+
+So the network repeats the same recipe:
+
+1. weighted sums
+1. activations
+1. pass the result forward
+
+---
+## A dimension check helps
+
+If:
+
+- $a^{(\ell-1)}$ is $m_{\ell-1} \times 1$
+- $W^{(\ell)}$ is $m_\ell \times m_{\ell-1}$
+- $b^{(\ell)}$ is $m_\ell \times 1$
+
+then:
+
+$$
+z^{(\ell)} = W^{(\ell)}a^{(\ell-1)} + b^{(\ell)}
+$$
+
+is also $m_\ell \times 1$.
+
+That bookkeeping matters once the network gets deep.
+
+---
+## Softmax for multiclass output
+
+If there are $K$ classes, the output layer produces
+
+$$
+\hat p_k = \frac{\exp(z_k)}{\sum_{j=1}^K \exp(z_j)}
+$$
+
+for $k = 1, \ldots, K$.
+
+Properties:
+
+- each $\hat p_k$ is between 0 and 1
+- the probabilities sum to 1
+- the largest one is the predicted class
+
+---
+class: inverse, middle
+name: training
+
+## How the network learns
+
+---
+## The loss function still runs the show
+
+We choose weights and biases to make the loss small.
+
+Common losses:
+
+- regression: mean squared error
+- binary classification: log loss
+- multiclass classification: multiclass cross-entropy
+
+For one multiclass observation:
+
+$$
+C = -\sum_{k = 1}^K y_k \log \hat p_k
+$$
+
+where $y_k$ is the one-hot target.
+
+---
+## Gradient descent
+
+Once we have $C(\theta)$, we update
+
+$$
+\theta \leftarrow \theta - \eta \nabla_\theta C(\theta)
+$$
+
+where:
+
+- $\theta$ collects all weights and biases
+- $\eta$ is the learning rate
+
+Same idea as before in the course, but now the parameter vector is much larger.
+
+---
+## Mini-batches and epochs
+
+In practice we usually update on small batches:
+
+- split the data into .attn[mini-batches]
+- compute the gradient on one mini-batch
+- update the weights
+- repeat
+
+One full pass through the training data is an .attn[epoch].
+
+---
+## Where do the gradients come from?
+
+A weight in an early layer affects the loss through a chain:
+
+- change a weight
+- that changes a weighted sum
+- that changes an activation
+- that changes later activations and eventually the loss
+
+So computing one gradient means following a .attn[chain of effects] through the network.
+
+---
+## One hidden weight affects loss indirectly
+
+For one hidden-layer weight $w$,
+
+$$
+\frac{\partial C}{\partial w}
+=
+\frac{\partial C}{\partial \hat y}
+\cdot
+\frac{\partial \hat y}{\partial a^{(1)}}
+\cdot
+\frac{\partial a^{(1)}}{\partial z^{(1)}}
+\cdot
+\frac{\partial z^{(1)}}{\partial w}
+$$
+
+Deeper networks have longer chains, but the idea is the same.
+
+---
+## Backprop in words
+
+- run the .attn[forward pass] and compute the loss
+- start at the output and measure how wrong it is
+- pass that error signal backward, one layer at a time
+- combine those signals with local derivatives
+- use the result to update weights and biases
+
+Backprop is just an efficient way to organize that repeated chain rule.
+
+---
+## Backpropagation reuses the chain rule
+
+```{r, backprop-plot, echo = FALSE}
+make_backprop_plot()
+```
+
+---
+## Start at the output layer
+
+Write the output-layer error signal as:
+
+$$
+\delta^{(L)} =
+\frac{\partial C}{\partial a^{(L)}} \odot g'\big(z^{(L)}\big)
+$$
+
+For .attn[softmax + cross-entropy], this simplifies nicely:
+
+$$
+\delta^{(L)} = \hat p - y
+$$
+
+That simplification is one reason cross-entropy is so common in classification.
+
+---
+## Then move backward through the hidden layers
+
+For earlier layers,
+
+$$
+\delta^{(\ell)} =
+\left(W^{(\ell+1)}\right)' \delta^{(\ell+1)}
+\odot g'\big(z^{(\ell)}\big)
+$$
+
+So each layer receives an error signal from the layer after it, then adjusts it using its own derivative.
+
+That is backpropagation in one sentence.
+
+---
+## Then turn those signals into gradients
+
+Once we have the layer errors, the gradients are local:
+
+$$
+\frac{\partial C}{\partial W^{(\ell)}} =
+\delta^{(\ell)} \left(a^{(\ell-1)}\right)'
+\qquad\text{and}\qquad
+\frac{\partial C}{\partial b^{(\ell)}} = \delta^{(\ell)}
+$$
+
+Then update:
+
+$$
+W^{(\ell)} \leftarrow W^{(\ell)} - \eta \frac{\partial C}{\partial W^{(\ell)}}
+$$
+
+and similarly for the biases.
+
+---
+## What activation are we using here?
+
+For the MLP slide example we now use:
+
+- `mlp(..., activation = 'relu') |> set_engine('brulee')`
+
+That means:
+
+- the .attn[`activation`] argument applies to the hidden layer, not the output layer
+- for a multiclass factor response, the .attn[output layer] is still chosen by the task
+- here the hidden units use .attn[ReLU], which is closer to a modern neural-net default than the old `nnet` setup
+
+So the MLP example is now a .b[ReLU hidden-layer network], while the multinomial logit baseline remains the no-hidden-layer comparison.
+
+---
+## There's a lot more to training
+
+Once the basic setup is in place, training quality also depends on:
+
+- cross-entropy versus squared error
+- regularization
+- weight initialization
+- architectural choices
+
+So the story is not just .it[add a hidden layer].
+
+The details of optimization matter.
+
+---
+## Try the playground
+
+TensorFlow's [Neural Network Playground](https://playground.tensorflow.org/) is a very good way to build intuition.
+
+Try changing:
+
+- the activation function
+- the number of hidden units
+- the learning rate
+- the amount of regularization
+
+Watch how the boundary changes as you add nonlinear layers.
+
+---
+class: inverse, middle
+name: mnist
+
+## MNIST application
+
+---
+## Why MNIST again?
+
+MNIST is a natural neural-net example because it has:
+
+- 784 predictors for each image
+- 10 output classes
+- lots of nonlinear variation in handwriting
+
+So it gives us both .attn[high-dimensional inputs] and .attn[multiclass outputs].
+
+---
+## The raw inputs are still images
+
+```{r, mnist-examples, echo = FALSE}
+idx = c(2, 1, 17, 8, 4, 9, 22, 7, 11)
+plots = lapply(idx, function(i) {
+  plot_digit(train_dt[i, ], title = paste('Label =', train_dt$label[i]))
+})
+
+wrap_plots(plots, ncol = 3) +
+  plot_layout(guides = 'collect') &
+  theme(
+    legend.position = 'bottom',
+    legend.key.width = unit(2, 'cm'),
+    plot.title = element_text(size = 15, hjust = 0.5)
+  )
+```
+
+---
+## One image, many outputs
+
+For each image, the output layer should produce:
+
+$$
+\big(
+\hat p_0,\,
+\hat p_1,\,
+\ldots,\,
+\hat p_9
+\big)
+$$
+
+That is why MNIST is a .attn[multi-output classification] problem.
+
+If we remove the hidden layer and keep only the softmax output, we are back at .attn[multinomial logistic regression].
+
+---
+## What a convolution does
+
+- choose a small filter, often `3 x 3`
+- place it over one local patch of pixels
+- multiply and add to get one score
+- slide the .attn[same filter] across the whole image
+
+So one filter asks the same question everywhere:
+
+- is there a vertical stroke here?
+- is there an edge or a corner here?
+
+In practice, the filter weights are .attn[learned from data].
+
+---
+## One tiny convolution example
+
+Take a local patch
+
+$$
+X =
+\begin{bmatrix}
+0 & 1 & 1 \\
+0 & 1 & 1 \\
+0 & 1 & 1
+\end{bmatrix}
+\qquad\text{and filter}\qquad
+K =
+\begin{bmatrix}
+-1 & 0 & 1 \\
+-1 & 0 & 1 \\
+-1 & 0 & 1
+\end{bmatrix}
+$$
+
+Then the score at that location is
+
+$$
+\sum_{u,v} X_{uv} K_{uv} = 3
+$$
+
+So this filter responds when the patch is dark on the left and bright on the right:
+a simple .attn[vertical-edge detector].
+
+---
+## A filter sliding over an image
+
+The highlighted `3 x 3` patch on the left generates the highlighted output cell on the right.
+
+```{r, convolution-demo, echo = FALSE}
+make_convolution_demo_plot()
+```
+
+---
+## A more ambitious workflow
+
+To make the example more realistic, we will:
+
+1. build a train / validation / test split
+1. compare multinomial logit to a starter MLP
+1. tune the MLP's capacity and preprocessing
+1. see whether a very simple CNN does better on raw images
+1. refit the better models on train + validation
+1. evaluate on the held-out test set
+
+This is still small, but it is now a real modeling workflow.
+
+---
+## The starter and tuned models
+
+```{r, model-code, eval = FALSE}
+# Baseline recipe: normalize and keep 40 PCs.
+rec_base =
+  recipe(label ~ ., data = mnist_train) |>
+  step_zv(all_predictors()) |>
+  step_normalize(all_predictors()) |>
+  step_pca(all_predictors(), num_comp = 40)
+
+# Tuned recipe: keep 60 PCs and add 8 UMAP coordinates.
+rec_tuned =
+  recipe(label ~ ., data = mnist_train) |>
+  step_zv(all_predictors()) |>
+  step_normalize(all_predictors()) |>
+  step_pca(all_predictors(), num_comp = 60) |>
+  embed::step_umap(
+    all_predictors(),
+    num_comp = 8,
+    neighbors = 30,
+    min_dist = 0.05,
+    keep_original_cols = TRUE,
+    prefix = 'umap'
+  )
+
+# Starter MLP: small network with ReLU hidden units.
+mlp_start_spec =
+  mlp(hidden_units = 15, penalty = 0.01, epochs = 50, activation = 'relu') |>
+  set_engine('brulee') |>
+  set_mode('classification')
+
+# Tuned MLP: more hidden units, lighter penalty, more epochs.
+mlp_tuned_spec =
+  mlp(hidden_units = 50, penalty = 0.001, epochs = 150, activation = 'relu') |>
+  set_engine('brulee') |>
+  set_mode('classification')
+
+# Simple CNN: two small conv layers on the raw 28 x 28 image.
+# conv -> relu -> pool -> conv -> relu -> pool -> dense -> 10 logits
+```
+
+---
+## A very simple CNN
+
+- keep the raw 28 x 28 image instead of PCA or UMAP features
+- use small .attn[3 x 3 filters] to scan local patches
+- reuse the same filter weights across the image
+- then flatten and map to 10 output classes
+
+That is enough to exploit .attn[spatial structure] that the MLP does not see directly.
+
+---
+## Fit the models
+
+```{r, mnist-fit, cache = TRUE}
+# Fit each workflow on the training split.
+fit_logit_valid =
+  workflow() |>
+  add_recipe(rec_base) |>
+  add_model(logit_spec) |>
+  fit(mnist_train)
+
+fit_mlp_start_valid =
+  workflow() |>
+  add_recipe(rec_base) |>
+  add_model(mlp_start_spec) |>
+  fit(mnist_train)
+
+fit_mlp_tuned_valid =
+  workflow() |>
+  add_recipe(rec_tuned) |>
+  add_model(mlp_tuned_spec) |>
+  fit(mnist_train)
+
+fit_cnn_valid =
+  fit_simple_cnn(mnist_train, epochs = 6)
+
+# Collect validation predictions for model comparison.
+pred_logit_valid =
+  bind_cols(
+    mnist_valid |> select(label),
+    predict(fit_logit_valid, mnist_valid)
+  )
+
+pred_mlp_start_valid =
+  bind_cols(
+    mnist_valid |> select(label),
+    predict(fit_mlp_start_valid, mnist_valid)
+  )
+
+pred_mlp_tuned_valid =
+  bind_cols(
+    mnist_valid |> select(label),
+    predict(fit_mlp_tuned_valid, mnist_valid)
+  )
+
+pred_cnn_valid =
+  bind_cols(
+    mnist_valid |> select(label),
+    predict_simple_cnn(fit_cnn_valid, mnist_valid)
+  )
+
+validation_compare = tibble(
+  model = c('Multinomial logit', 'Starter MLP', 'Tuned MLP', 'Simple CNN'),
+  accuracy = c(
+    pred_logit_valid |> metrics(truth = label, estimate = .pred_class) |> filter(.metric == 'accuracy') |> pull(.estimate),
+    pred_mlp_start_valid |> metrics(truth = label, estimate = .pred_class) |> filter(.metric == 'accuracy') |> pull(.estimate),
+    pred_mlp_tuned_valid |> metrics(truth = label, estimate = .pred_class) |> filter(.metric == 'accuracy') |> pull(.estimate),
+    pred_cnn_valid |> metrics(truth = label, estimate = .pred_class) |> filter(.metric == 'accuracy') |> pull(.estimate)
+  )
+)
+
+# Refit the strongest models on train + validation.
+fit_logit_test =
+  workflow() |>
+  add_recipe(rec_base_tv) |>
+  add_model(logit_spec) |>
+  fit(mnist_train_valid)
+
+fit_mlp_tuned_test =
+  workflow() |>
+  add_recipe(rec_tuned_tv) |>
+  add_model(mlp_tuned_spec) |>
+  fit(mnist_train_valid)
+
+fit_cnn_test =
+  fit_simple_cnn(mnist_train_valid, epochs = 6)
+
+# Evaluate on the held-out test split.
+pred_logit_test =
+  bind_cols(
+    mnist_test |> select(label),
+    predict(fit_logit_test, mnist_test)
+  )
+
+pred_mlp_tuned_test =
+  bind_cols(
+    mnist_test |> select(label),
+    predict(fit_mlp_tuned_test, mnist_test),
+    predict(fit_mlp_tuned_test, mnist_test, type = 'prob')
+  )
+
+pred_cnn_test =
+  bind_cols(
+    mnist_test |> select(label),
+    predict_simple_cnn(fit_cnn_test, mnist_test)
+  )
+
+test_compare = tibble(
+  model = c('Multinomial logit', 'Tuned MLP', 'Simple CNN'),
+  accuracy = c(
+    pred_logit_test |> metrics(truth = label, estimate = .pred_class) |> filter(.metric == 'accuracy') |> pull(.estimate),
+    pred_mlp_tuned_test |> metrics(truth = label, estimate = .pred_class) |> filter(.metric == 'accuracy') |> pull(.estimate),
+    pred_cnn_test |> metrics(truth = label, estimate = .pred_class) |> filter(.metric == 'accuracy') |> pull(.estimate)
+  )
+)
+
+# Build a confusion matrix and one probability-vector example for the CNN.
+cm_cnn_test =
+  pred_cnn_test |>
+  count(label, .pred_class)
+
+example_prob_row =
+  pred_cnn_test |>
+  mutate(case_id = row_number()) |>
+  rowwise() |>
+  mutate(max_prob = max(c_across(matches('^\\.pred_[0-9]+$')))) |>
+  ungroup() |>
+  filter(label == .pred_class) |>
+  slice_max(order_by = max_prob, n = 1)
+
+example_case =
+  mnist_test |> slice(example_prob_row$case_id)
+
+example_prob_plot_df =
+  example_prob_row |>
+  select(matches('^\\.pred_[0-9]+$')) |>
+  pivot_longer(
+    everything(),
+    names_to = 'digit',
+    values_to = 'probability'
+  ) |>
+  mutate(digit = gsub('.pred_', '', digit, fixed = TRUE))
+```
+
+---
+## Validation results
+
+The first pass looks like this:
+
+- multinomial logit: .attn[`r scales::percent(validation_compare$accuracy[validation_compare$model == 'Multinomial logit'], accuracy = 0.1)`]
+- starter MLP: .attn[`r scales::percent(validation_compare$accuracy[validation_compare$model == 'Starter MLP'], accuracy = 0.1)`]
+- tuned MLP: .attn[`r scales::percent(validation_compare$accuracy[validation_compare$model == 'Tuned MLP'], accuracy = 0.1)`]
+- simple CNN: .attn[`r scales::percent(validation_compare$accuracy[validation_compare$model == 'Simple CNN'], accuracy = 0.1)`]
+
+So the lesson is not .it[any hidden layer wins].
+
+The lesson is that .attn[capacity, preprocessing, and architecture all matter].
+
+---
+## Validation comparison
+
+```{r, validation-compare-plot, echo = FALSE}
+ggplot(validation_compare, aes(x = model, y = accuracy, fill = model)) +
+  geom_col(width = 0.62, show.legend = FALSE) +
+  geom_text(
+    aes(label = scales::percent(accuracy, accuracy = 0.1)),
+    vjust = -0.35,
+    family = 'Zilla Slab'
+  ) +
+  scale_fill_manual(values = c(
+    'Multinomial logit' = slate,
+    'Starter MLP' = grey_mid,
+    'Tuned MLP' = red_pink,
+    'Simple CNN' = turquoise
+  )) +
+  scale_y_continuous(labels = scales::percent, limits = c(0, 1)) +
+  labs(x = NULL, y = 'Validation accuracy', title = 'A simple CNN improves again') +
+  theme_minimal(base_size = 18)
+```
+
+---
+## Held-out test results
+
+After refitting on train + validation:
+
+- multinomial logit gets about .attn[`r scales::percent(test_compare$accuracy[test_compare$model == 'Multinomial logit'], accuracy = 0.1)`]
+- the tuned MLP gets about .attn[`r scales::percent(test_compare$accuracy[test_compare$model == 'Tuned MLP'], accuracy = 0.1)`]
+- the simple CNN gets about .attn[`r scales::percent(test_compare$accuracy[test_compare$model == 'Simple CNN'], accuracy = 0.1)`]
+
+So the .attn[CNN improves again] once we let the model use the image's 2D structure.
+
+---
+## Test comparison
+
+```{r, test-compare-plot, echo = FALSE}
+ggplot(test_compare, aes(x = model, y = accuracy, fill = model)) +
+  geom_col(width = 0.62, show.legend = FALSE) +
+  geom_text(
+    aes(label = scales::percent(accuracy, accuracy = 0.1)),
+    vjust = -0.35,
+    family = 'Zilla Slab'
+  ) +
+  scale_fill_manual(values = c(
+    'Multinomial logit' = slate,
+    'Tuned MLP' = red_pink,
+    'Simple CNN' = turquoise
+  )) +
+  scale_y_continuous(labels = scales::percent, limits = c(0, 1)) +
+  labs(x = NULL, y = 'Test accuracy', title = 'A simple CNN does better still') +
+  theme_minimal(base_size = 18)
+```
+
+---
+## A single image, many probabilities
+
+```{r, multi-output-example, echo = FALSE}
+plot_digit(example_case, title = paste('True digit =', example_case$label[[1]])) +
+  ggplot(example_prob_plot_df, aes(x = digit, y = probability, fill = digit == example_case$label[[1]])) +
+  geom_col(show.legend = FALSE) +
+  scale_fill_manual(values = c('TRUE' = red_pink, 'FALSE' = slate)) +
+  scale_y_continuous(labels = scales::percent, limits = c(0, 1)) +
+  labs(
+    x = 'Output node',
+    y = 'Predicted probability',
+    title = 'Softmax output for one CNN prediction'
+  ) +
+  theme_minimal(base_size = 18)
+```
+
+---
+## Confusion matrix for the simple CNN
+
+```{r, cnn-cm, echo = FALSE}
+ggplot(cm_cnn_test, aes(x = .pred_class, y = label, fill = n)) +
+  geom_tile() +
+  scale_fill_viridis_c('') +
+  coord_equal() +
+  theme_minimal(base_size = 18) +
+  labs(
+    x = 'Predicted digit',
+    y = 'True digit',
+    title = 'Held-out test confusion matrix'
+  )
+```
+
+---
+## What this example does and does not show
+
+It does show:
+
+- real multiclass output
+- real train / validation / test logic
+- real improvement from a stronger architecture
+
+It does not show:
+
+- deep networks
+- state-of-the-art MNIST performance
+
+This is still a .attn[teaching example], just a better one.
+
+---
+class: inverse, middle
+name: wrap
+
+## Wrap-up
+
+---
+## Main takeaways
+
+- Logistic regression is a neural network with no hidden layer
+- Hidden layers matter only when paired with nonlinear activations
+- Backpropagation is efficient chain rule
+- Softmax turns multiclass scores into probabilities
+- Convolutions reuse small learned filters across the image
+- A small untuned MLP may only modestly improve on the baseline
+- A better-specified MLP can do better, even in a simple `tidymodels` workflow
+- A very simple CNN can do better still when it uses image structure
+
+Next step: deeper architectures and more modern image models.

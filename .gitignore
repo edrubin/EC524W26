@@ -1,5 +1,6 @@
 
 # Temporary holds: Lecture
+lecture/011/TODO*
 
 # Temporary holds: Projects
 projects/project-00[4-9]*
@@ -15,9 +16,8 @@ projects/project-000/assessor-residential-sales.fst
 # Data
 lecture/010/train.csv
 lecture/010/test.csv
-lecture/010/sample_submission.csv
-exam/take-home/data-full.txt
-exam/take-home/nat2021us.dta
+lecture/011/train.csv
+lecture/011/test.csv
 
 # History files
 .Rhistory
