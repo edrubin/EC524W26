@@ -183,14 +183,17 @@ Welcome to Economics 524 (424): Prediction and machine-learning in econometrics,
 
 - *ISL* Ch9
 
-[**010 - Dimensionality reduction and unsupervised learning**](https://raw.githack.com/edrubin/EC524W25/master/lecture/010/notebook.html)
+[**010 - Unsupervised learning, dimensionality reduction, and image classification**](https://raw.githack.com/edrubin/EC524W25/master/lecture/010/slides.html)
 
 0. MNIST dataset (machines with vision)
 1. *K*-means clustering
 2. Principal component analysis (PCA)
 3. UMAP
 
-**Formats** [.html](https://raw.githack.com/edrubin/EC524W25/master/lecture/010/notebook.html) | [.qmd](https://github.com/edrubin/EC524W22/blob/master/lecture/010/notebook.qmd)
+
+**Formats** [.html](https://raw.githack.com/edrubin/EC524W26/master/lecture/010/slides.html) | [.pdf](https://github.com/edrubin/EC524W26/blob/master/lecture/010/slides.pdf) | [.rmd](https://github.com/edrubin/EC524W26/blob/master/lecture/010/slides.rmd)
+
+Also: An older notebook... [.html](https://raw.githack.com/edrubin/EC524W25/master/lecture/010/notebook.html) | [.qmd](https://github.com/edrubin/EC524W22/blob/master/lecture/010/notebook.qmd)
 
 ## Interesting ML/AI applications
 
@@ -265,9 +268,9 @@ Past, present, and future projects.
 **003** Trees, ensembles, and boosting
   - [Instructions](projects/project-003/README.md)
   - [Data](https://github.com/edrubin/EC524W26/blob/master/projects/project-003/data-churn.csv)
-  - _Due:_ 01 March 2026
+  - _Due:_ 03 March 2026
 
-**004** Prediction finale
+**004** Prediction finale (cancelled)
 
 ## Class projects
 

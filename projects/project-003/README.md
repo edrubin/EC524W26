@@ -1,6 +1,6 @@
 # Trees, ensembles, and boosting
 
-**Due Tuesday, 01 March 2026 11:59 PM (Pacific Time)**
+**Due Tuesday, 03 March 2026 11:59 PM (Pacific Time)**
 
 Submit your write up with code and output (a knitted/rendered PDF or HTML) on Canvas.
 
