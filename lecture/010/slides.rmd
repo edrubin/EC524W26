@@ -208,7 +208,10 @@ The target is simple. The .attn[geometry] is the hard part.
 .note[Why?] .attn[Combinations] of pixels matter. .grey-vlight[(Not so much individual pixels.)]
 
 ---
-## What Do the Digits Look Like?
+layout: false
+class: clear, middle, center
+
+.b[What do the digits look like?]
 
 ```{r, show-examples, echo = FALSE}
 example_idx = c(2, 1, 17, 8, 4, 9, 22, 7, 11)
@@ -224,6 +227,11 @@ wrap_plots(plots, ncol = 3) +
     plot.title = element_text(size = 15, hjust = 0.5)
   )
 ```
+
+---
+layout: true
+
+# Predicting digits
 
 ---
 ## Kaggle's Setup
