@@ -183,7 +183,7 @@ Welcome to Economics 524 (424): Prediction and machine-learning in econometrics,
 
 - *ISL* Ch9
 
-[**010 - Unsupervised learning, dimensionality reduction, and image classification**](https://raw.githack.com/edrubin/EC524W25/master/lecture/010/slides.html)
+[**010 - Unsupervised learning, dimensionality reduction, and image classification**](https://raw.githack.com/edrubin/EC524W26/master/lecture/010/slides.html)
 
 0. MNIST dataset (machines with vision)
 1. *K*-means clustering
@@ -198,7 +198,7 @@ Welcome to Economics 524 (424): Prediction and machine-learning in econometrics,
 
 Also: An older notebook... [.html](https://raw.githack.com/edrubin/EC524W25/master/lecture/010/notebook.html) | [.qmd](https://github.com/edrubin/EC524W22/blob/master/lecture/010/notebook.qmd)
 
-[**011 - Unsupervised learning, dimensionality reduction, and image classification**](https://raw.githack.com/edrubin/EC524W25/master/lecture/011/slides.html)
+[**011 - Unsupervised learning, dimensionality reduction, and image classification**](https://raw.githack.com/edrubin/EC524W26/master/lecture/011/slides.html)
 
 1. anatomy of a single neuron
 2. logistic regression as a one-neuron network
