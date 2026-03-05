@@ -190,10 +190,28 @@ Welcome to Economics 524 (424): Prediction and machine-learning in econometrics,
 2. Principal component analysis (PCA)
 3. UMAP
 
+**Readings**
+
+- *ISL* Ch12
 
 **Formats** [.html](https://raw.githack.com/edrubin/EC524W26/master/lecture/010/slides.html) | [.pdf](https://github.com/edrubin/EC524W26/blob/master/lecture/010/slides.pdf) | [.rmd](https://github.com/edrubin/EC524W26/blob/master/lecture/010/slides.rmd)
 
 Also: An older notebook... [.html](https://raw.githack.com/edrubin/EC524W25/master/lecture/010/notebook.html) | [.qmd](https://github.com/edrubin/EC524W22/blob/master/lecture/010/notebook.qmd)
+
+[**011 - Unsupervised learning, dimensionality reduction, and image classification**](https://raw.githack.com/edrubin/EC524W25/master/lecture/011/slides.html)
+
+1. anatomy of a single neuron
+2. logistic regression as a one-neuron network
+3. activation functions and hidden layers
+4. a brief overview of training
+5. the return of MNIST
+
+**Readings**
+
+- [NNs and Deep Learning](http://neuralnetworksanddeeplearning.com/) Ch1 (some 2)
+- .it[ISL] Ch10 (*Deep Learning*)
+
+**Formats** [.html](https://raw.githack.com/edrubin/EC524W26/master/lecture/011/slides.html) | [.pdf](https://github.com/edrubin/EC524W26/blob/master/lecture/011/slides.pdf) | [.rmd](https://github.com/edrubin/EC524W26/blob/master/lecture/011/slides.rmd)
 
 ## Interesting ML/AI applications
 

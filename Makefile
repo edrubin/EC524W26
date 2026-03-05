@@ -13,7 +13,8 @@ lec005 : lecture/005/slides.html lecture/005/slides.pdf
 lec006 : lecture/006/slides.html lecture/006/slides.pdf
 lec007 : lecture/007/slides.html lecture/007/slides.pdf
 lec008 : lecture/008/slides.html lecture/008/slides.pdf
-lec009 : lecture/009/slides.html lecture/009/slides.pdf
+lec010 : lecture/010/slides.html lecture/010/slides.pdf
+lec011 : lecture/011/slides.html lecture/011/slides.pdf
 
 # Define individual links ------------------------------------------------------
 # Build syllabus
@@ -69,9 +70,19 @@ lecture/009/slides.html : lecture/009/slides.rmd lecture/009/my-css.css
 	Rscript -e "rmarkdown::render('$<')"
 lecture/009/slides.pdf : lecture/009/slides.html lecture/009/my-css.css
 	Rscript -e "xaringan::decktape(file = '$<', output = '$@')"
+# Lecture 10
+lecture/010/slides.html : lecture/010/slides.rmd lecture/010/my-css.css
+	Rscript -e "rmarkdown::render('$<')"
+lecture/010/slides.pdf : lecture/010/slides.html lecture/010/my-css.css
+	Rscript -e "xaringan::decktape(file = '$<', output = '$@')"
+# Lecture 11
+lecture/011/slides.html : lecture/011/slides.rmd lecture/011/my-css.css
+	Rscript -e "rmarkdown::render('$<')"
+lecture/011/slides.pdf : lecture/011/slides.html lecture/011/my-css.css
+	Rscript -e "xaringan::decktape(file = '$<', output = '$@')"
 
 # Global targets ---------------------------------------------------------------
-lec-all: lec000 lec001 lec002 lec003 lec004 lec005 lec006 lec007 lec008 lec009
+lec-all: lec000 lec001 lec002 lec003 lec004 lec005 lec006 lec007 lec008 lec009 lec010 lec011
 all: lec-all syllabus
 # Define clean
 clean:
