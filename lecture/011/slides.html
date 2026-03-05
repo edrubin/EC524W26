@@ -21,7 +21,7 @@ class: center, middle, inverse, title-slide
 # Lecture .mono[011]
 ]
 .subtitle[
-## Neural networks: intuition, math, and MNIST
+## Neural networks
 ]
 .author[
 ### Edward Rubin
@@ -38,247 +38,354 @@ name: admin
 # Admin
 ## Today
 
-.b[Topics]
+.b[Topics:] We will start an introduction to neural networks:
 
-- Logistic regression as a one-neuron network
-- Activation functions, hidden layers, and forward propagation
-- Cross-entropy, gradient descent, and backpropagation
-- MNIST with MLPs and a simple CNN
+- anatomy of a single neuron,
+- logistic regression as a one-neuron network,
+- activation functions and hidden layers,
+- a brief overview of training,
+- the return of MNIST.
 
-## Reading
+.b[Reading and resources]
 
-- .note[Core] Nielsen, .it[Neural Networks and Deep Learning], Ch. [1](http://neuralnetworksanddeeplearning.com/chap1.html)
-- .note[Supplement] Ch. [2](http://neuralnetworksanddeeplearning.com/chap2.html) and [3](http://neuralnetworksanddeeplearning.com/chap3.html)
-- .note[Course text] .it[ISL] Ch. 11
-
-## Interactive
-
-- TensorFlow's [Neural Network Playground](https://playground.tensorflow.org/)
+- .note[Mostly:] .it[Neural Networks and Deep Learning], Ch. [1](http://neuralnetworksanddeeplearning.com/chap1.html) (some [2](http://neuralnetworksanddeeplearning.com/chap2.html) + [3](http://neuralnetworksanddeeplearning.com/chap3.html)),
+- .note[Also helpful:] .it[ISL] Ch. 11,
+- .note[Fun, interactive tool:] TensorFlow's [Neural Network Playground](https://playground.tensorflow.org/).
 
 ---
 layout: true
-# Neural Networks
+# Neural networks
 
 ---
 class: inverse, middle
 name: intro
 
-## Neural-net intuition
+## (Neural) Intuition
 
 ---
-## Logistic regression is already a tiny neural network
-
-For a binary outcome,
-
-$$
-\Pr(Y = 1 \mid X = x) = \sigma(\beta_0 + x'\beta)
-$$
-
-where `\(\sigma(z) = \dfrac{1}{1 + e^{-z}}\)`.
-
-That is:
-
-- a weighted sum of inputs
-- a bias term
-- an activation function
-- one output
-
-So neural networks are not a sharp break from logistic regression. They are a .attn[generalization].
-
----
-## One neuron = weighted sum + activation
+layout: false
+class: clear, middle
 
 &lt;img src="slides_files/figure-html/logistic-neuron-1.svg" style="display: block; margin: auto;" /&gt;
 
+.b[Anatomy] .attn[Neurons] are the building blocks of neural networks.
+- take .b.slate[in] a weighted sum of inputs, `\(w'x = w_1 x_1 + w_2 x_2 + \cdots + w_p x_p\)`,
+- apply a .b.slate[bias], `\(b\)`, that shifts the sum, `\(z = b + w'x\)`,
+- pass `\(z\)` through an .b.pink[activation function] to produce .b.orange[output], `\(a = g(z)\)`.
+
+---
+layout: true
+
+# Neural networks
+
+---
+## .slab.it.grey-light[History] It all started with the perceptron
+
+The .attn[perceptron] use a .b[hard-threshold] activiation:
+
+$$
+a =
+`\begin{cases}
+1 &amp; \text{if } \color{#314f4f}{w'x} \ge \color{#e64173}{T} \iff \color{#314f4f}{w'x} + \color{#e64173}{b} \ge 0 \\
+0 &amp; \text{if } \color{#314f4f}{w'x} &lt; \color{#e64173}{T} \iff \color{#314f4f}{w'x} + \color{#e64173}{b} &lt; 0
+\end{cases}`
+$$
+
+The intuition literally came from neurons firing.
+
+When the .slate.it[weighted sum of inputs] (`\(\color{#314f4f}{w'x}\)`) exceeds a .pink[threshold] (`\(\color{#e64173}{T}\)`), .b.pink[fire!]
+
+.note[Intuition:] Compare .slate[weighted *evidence*] against the .pink[*burden of proof*].
+
+--
+
+We translate .pink[threshold] into .pink[bias] (`\(b = -T\)`) to get a more "standard" form.
+
 ---
 ## What do the weights and bias do?
-
-The weighted sum
 
 $$
 z = b + \sum_{j = 1}^p w_j x_j
 $$
 
-does two jobs:
+The weighted sum does two jobs:
 
-- the .attn[weights] say which inputs matter and in which direction
-- the .attn[bias] shifts the cutoff left or right
+- the .attn[weights] say which inputs matter and in which direction,
+- the .attn[bias] shifts the cutoff left or right.
+  
+--
 
-So even before hidden layers, a neuron is already learning a scoring rule.
+Even with its simple structure, the neuron is capable of learning
 
----
-## Start with the perceptron
-
-The .attn[perceptron] uses a hard threshold:
-
-$$
-a =
-`\begin{cases}
-1 &amp; \text{if } z \ge 0 \\
-0 &amp; \text{if } z &lt; 0
-\end{cases}`
-$$
-
-That is intuitive, but not smooth.
-
-The sigmoid neuron keeps the same weighted-sum idea and replaces the hard step with a differentiable activation.
+- to set the weights and bias to find a good decision boundary,
+- to `\(1\)` when `\(z \ge 0\)` and `\(0\)` when `\(z &lt; 0\)`,
+- to separate our two classes.
 
 ---
-## Perceptron vs. sigmoid neuron
+## *Too* binary?
+
+Binary activation may be .pink[intuitive], but it's .purple[not great for learning].
+
+.note[Problem] We need to .purple[*learn*] the weights and bias `\((w,b)\)`.
+
+- When .b.purple[training], we want to .purple[adjust] `\(w\)` and `\(b\)` to reduce errors.
+- If we make .purple[small changes] to `\(w\)` or `\(b\)`, binary activation may change *a lot*.
+
+`\(\implies\)` training with binary activations can be .purple[unstable] and .purple[inefficient].
+
+---
+## *Too* binary?
+
+.note[Solution] Keep what we like about the perceptron
+
+- the .b.slate[weighted-sum of inputs shifted by bias],
+- .b.pink[restricting the output] to a certain range (∈[0, 1] for binary classification).
+
+but replace the hard step with a .purple[smooth, differentiable activation].
+
+.qa[Q] Any ideas? .grey-vlight[You already know one!]
+
+--
+
+The .attn[sigmoid neuron] keeps the same weighted-sum idea and replaces the hard step with a differentiable activation—the .attn[sigmoid function].
+
+---
+## Logistic regression or a tiny neural network?
+
+&lt;!-- `\(\implies\)` You already know how to build a (very simple) .b[neural network]! --&gt;
+
+.attn[Logistic regression] For a binary outcome `\(Y\)`
+
+`$$\Pr(Y = 1 \mid X = x) = \sigma(\beta_0 + x'\beta) = \sigma(w'x + b)$$`
+
+where `\(\sigma(z) = \dfrac{1}{1 + e^{-z}}\)`.
+
+.note[Also] .attn[Sigmoid neuron] with
+
+- a .b.slate[weighted sum of inputs] and a .b.slate[bias],
+- a .b.pink[sigmoid] activation function,
+- one output.
+
+--
+
+Neural networks are not a sharp break from (logistic) regression.
+&lt;br&gt;
+They are a .it.slab[generalization].
+
+---
+layout: false
+class: clear, middle, center
+
+.b.slate[Perceptron] .note[vs.] .b.pink[sigmoid neuron]
 
 &lt;img src="slides_files/figure-html/step-v-sigmoid-1.svg" style="display: block; margin: auto;" /&gt;
 
 ---
-## Why stack neurons?
+layout: false
+class: clear, middle, center
 
-The point is not .it[more coefficients].
-
-It is:
-
-- early neurons can respond to simple patterns
-- later neurons can combine those into more complex patterns
-- composition can build feature detectors
-
-For images, that can mean:
-
-- pixels
-- edges / strokes
-- loops / corners
-- whole digits
-
----
-## A feed-forward network
-
-&lt;img src="slides_files/figure-html/network-plot-1.svg" style="display: block; margin: auto;" /&gt;
-
----
-## Hidden layers need nonlinearity
-
-Suppose we stack two .b[linear] maps:
-
-$$
-a^{(1)} = W^{(1)}x + b^{(1)}
-\qquad\text{and}\qquad
-\hat y = W^{(2)}a^{(1)} + b^{(2)}
-$$
-
-Then
-
-$$
-\hat y = W^{(2)}W^{(1)}x + \big(W^{(2)}b^{(1)} + b^{(2)}\big)
-$$
-
-which is still just one linear map.
-
-So hidden layers matter only when we add .attn[nonlinear activations].
-
----
-## Common activation functions
+.b[Common activation functions.] .grey-vlight[(Match activation to the problem.)]
 
 &lt;img src="slides_files/figure-html/activation-functions-1.svg" style="display: block; margin: auto;" /&gt;
 
 ---
-## The derivatives matter too
-
-&lt;img src="slides_files/figure-html/activation-derivatives-1.svg" style="display: block; margin: auto;" /&gt;
-
----
-## Why those derivatives matter
-
-The key derivatives are:
-
-$$
-\sigma'(z) = \sigma(z)\big(1 - \sigma(z)\big)
-$$
-
-$$
-\tanh'(z) = 1 - \tanh^2(z)
-$$
-
-$$
-\text{ReLU}'(z) = \mathbf{1}\{z &gt; 0\}
-$$
-
-Why do we care?
-
-- gradient-based training keeps multiplying by these derivatives
-- if the derivative is tiny, updates can shrink
-- if the derivative is zero, learning can stall locally
+layout: true
+# Neural networks
 
 ---
-## Output activations should match the task
+## Getting flexible
 
-.col-left[
-.hi-pink[Regression]
+Adjusting weights and bias of a .b.slate[single neuron]—regardless of the activation function—is only going to get us so far. .grey-vlight[(Flavors of regression.)]
 
-- often use identity output
-- prediction is unrestricted
-]
+&lt;img src="slides_files/figure-html/single-neuron-plot-1.svg" style="display: block; margin: auto;" /&gt;
 
-.hi-slate[Binary classification]
-
-- often use sigmoid output
-- prediction is a probability
-]
-
-.hi-orange[Multiclass classification]
-
-- often use softmax output
-- prediction is a vector of class probabilities
-]
+.qa[Q:] What else can we do to make our model .it.pink[more flexible]?
+&lt;br&gt;.tran.slab[Q:] .grey-vlight[(Especially for complex, highly nonlinear problems?)]
 
 ---
-## Forward propagation
+layout: false
+class: clear, middle
 
-At layer `\(\ell\)`:
+Adding a .attn[hidden layer] of neurons between the .slate[input] and .orange[output] layers
 
-$$
-z^{(\ell)} = W^{(\ell)}a^{(\ell-1)} + b^{(\ell)}
-\qquad\text{and}\qquad
-a^{(\ell)} = g^{(\ell)}\big(z^{(\ell)}\big)
-$$
+&lt;img src="slides_files/figure-html/plot-intro-hidden-1.svg" style="display: block; margin: auto;" /&gt;
 
-So the network repeats the same recipe:
+increases the model's ability to learn .pink[complex relationships] from .slate[x]→.orange[y].
 
-1. weighted sums
-1. activations
-1. pass the result forward
+- each .pink[hidden neuron] learns a different transformation of the input. &lt;br&gt; `\(\color{#e64173}{a_k} = a(w_k'x + b_k)\)`
+- an .orange[output neuron] flexibly combines those transformations. &lt;br&gt; `\(\color{#FFA500}{\hat{y}} = a_y(w_y'\color{#e64173}{a} + b_y)\)`
 
 ---
-## A dimension check helps
+layout: false
+class: clear, middle
 
-If:
+Let's think about building a .b.purple[feed-forward network for MNIST].
 
-- `\(a^{(\ell-1)}\)` is `\(m_{\ell-1} \times 1\)`
-- `\(W^{(\ell)}\)` is `\(m_\ell \times m_{\ell-1}\)`
-- `\(b^{(\ell)}\)` is `\(m_\ell \times 1\)`
-
-then:
-
-$$
-z^{(\ell)} = W^{(\ell)}a^{(\ell-1)} + b^{(\ell)}
-$$
-
-is also `\(m_\ell \times 1\)`.
-
-That bookkeeping matters once the network gets deep.
+.note[Note:] .attn[Feed-forward networks] are simply neural networks where information flows in one direction—from .it.slate[input] to .it.orange[output]. .grey-vlight[(No cycles or feedback loops.)]
 
 ---
-## Softmax for multiclass output
+class: clear, middle, center
 
-If there are `\(K\)` classes, the output layer produces
+.b[A feedforward network] with one .pink[hidden layer.].
 
-$$
-\hat p_k = \frac{\exp(z_k)}{\sum_{j=1}^K \exp(z_j)}
-$$
+&lt;img src="slides_files/figure-html/network-plot1-1.svg" style="display: block; margin: auto;" /&gt;
 
-for `\(k = 1, \ldots, K\)`.
+---
+class: clear, middle
 
-Properties:
+There's really no reason to stop at .it[one] .pink[hidden layer]!
 
-- each `\(\hat p_k\)` is between 0 and 1
-- the probabilities sum to 1
-- the largest one is the predicted class
+---
+class: clear, middle, center
+
+.b[A feedforward network] with two .pink[hidden layers]!
+
+&lt;img src="slides_files/figure-html/network-plot2-1.svg" style="display: block; margin: auto;" /&gt;
+
+---
+class: clear, middle, center
+
+.b[A feedforward network] with three .pink[hidden layers]! .grey-vlight[(Getting deep!)]
+
+&lt;img src="slides_files/figure-html/network-plot3-1.svg" style="display: block; margin: auto;" /&gt;
+
+---
+layout: true
+# Neural networks
+
+---
+## Neuron stacking in hidden layers
+
+.note[Let's be clear:] Hidden layers are not about .it[more coefficients].
+
+The .it[power of .pink[hidden layers]] comes from their ability to&lt;br&gt;.it[learn increasingly complex features] built from simpler ones.
+
+- Early neurons can respond to simple patterns;
+- later neurons can combine those neurons into more complex patterns;
+- every layer layers complexity on top of the previous layers.
+  
+Adding .attn[depth] (hidden layers) allows NNs to learn more levels of .note[abstraction].
+&lt;br&gt;
+.grey-vlight[(It also adds more parameters to learn.)]
+
+---
+layout: false
+class: clear
+
+&lt;img src="slides_files/figure-html/simple-hidden1-1.svg" style="display: block; margin: auto;" /&gt;
+
+To see how .note[depth] and .note[activations] affect network flexibility and output,
+&lt;br&gt; let's write out the math for this simple neural network.
+
+- .slate[2 inputs],
+- .pink[2 hidden neurons], and
+- .orange[1 output].
+
+---
+class: clear
+
+&lt;img src="slides_files/figure-html/simple-hidden2-1.svg" style="display: block; margin: auto;" /&gt;
+
+In the .pink[hidden layer], neuron `\(\color{#e64173}{a_j}\)` learns a transformation `\(g\)` of the .it.slate[input]:
+`$$\color{#e64173}{a_j} = g\big(w^1_{j,1} \color{#314f4f}{x_1} + w^1_{j,2} \color{#314f4f}{x_2} + b^1_j\big)$$`
+--
+
+The .orange[output] `\(\color{#FFA500}{\hat{y}}\)` is a transformation `\(h\)` of the .it.pink[hidden layer output]:
+`$$\color{#FFA500}{\hat{y}} = h\big(w^2_{1,1} \color{#e64173}{a_1} + w^2_{1,2} \color{#e64173}{a_2} + b^2_1\big)$$`
+--
+
+Combining the preceding two steps...
+`\begin{align*}
+\color{#FFA500}{\hat{y}} &amp; = h\Big(w^2_{1,1} g\big(w^1_{1,1} \color{#314f4f}{x_1} + w^1_{1,2} \color{#314f4f}{x_2} + b^1_1\big) + w^2_{1,2} g\big(w^1_{2,1} \color{#314f4f}{x_1} + w^1_{2,2} \color{#314f4f}{x_2} + b^1_2\big) + b^2_1\Big)
+\end{align*}`
+
+---
+class: clear
+
+`\begin{align*}
+\color{#FFA500}{\hat{y}} &amp; = h\Big(w^2_{1,1} g\big(w^1_{1,1} \color{#314f4f}{x_1} + w^1_{1,2} \color{#314f4f}{x_2} + b^1_1\big) + w^2_{1,2} g\big(w^1_{2,1} \color{#314f4f}{x_1} + w^1_{2,2} \color{#314f4f}{x_2} + b^1_2\big) + b^2_1\Big)
+\end{align*}`
+--
+
+.note[Case 1:] Suppose `\(g\)` and `\(h\)` are both the .attn[identity function] `\(f(z) = z\)`.
+
+--
+
+`\(\color{#FFA500}{\hat{y}} = \Big(w^2_{1,1} \big(w^1_{1,1} \color{#314f4f}{x_1} + w^1_{1,2} \color{#314f4f}{x_2} + b^1_1\big) + w^2_{1,2} \big(w^1_{2,1} \color{#314f4f}{x_1} + w^1_{2,2} \color{#314f4f}{x_2} + b^1_2\big) + b^2_1\Big)\)`
+
+--
+
+`\(\color{#FFFFFF}{\hat{y}} = w^2_{1,1} w^1_{1,1} \color{#314f4f}{x_1} + w^2_{1,1} w^1_{1,2} \color{#314f4f}{x_2} + w^2_{1,1} b^1_1 + w^2_{1,2} w^1_{2,1} \color{#314f4f}{x_1} + w^2_{1,2} w^1_{2,2} \color{#314f4f}{x_2} + b^1_2 + b^2_1\)`
+
+--
+
+`\(\color{#FFFFFF}{\hat{y}} = \big(w^2_{1,1} w^1_{1,1} + w^2_{1,2} w^1_{2,1}\big) \color{#314f4f}{x_1} + \big(w^2_{1,1} w^1_{1,2} + w^2_{1,2} w^1_{2,2}\big) \color{#314f4f}{x_2} + \big(w^2_{1,1} b^1_1 + w^2_{1,2} b^1_2 + b^2_1\big)\)`
+
+--
+
+`\(\color{#FFFFFF}{\hat{y}} = \beta_{0} + \beta_{1} \color{#314f4f}{x_1} + \beta_{2} \color{#314f4f}{x_2}\)`
+
+--
+
+A lot of work to get back to a .b[linear model]!
+
+--
+
+.note[Case 2:] Suppose `\(g\)` and `\(h\)` are .attn[linear]/.attn[affine] functions.
+
+--
+
+.grey-vlight[(insert math)] ... Still a .b[linear model]!
+
+---
+layout: true
+# Neural networks
+
+---
+## Hidden layers need nonlinearity
+
+So hidden layers only "work" when we add .b.pink[nonlinear activations].
+
+`\begin{align*}
+\color{#FFA500}{\hat{y}} &amp; = h\Big(w^2_{1,1} g\big(w^1_{1,1} \color{#314f4f}{x_1} + w^1_{1,2} \color{#314f4f}{x_2} + b^1_1\big) + w^2_{1,2} g\big(w^1_{2,1} \color{#314f4f}{x_1} + w^1_{2,2} \color{#314f4f}{x_2} + b^1_2\big) + b^2_1\Big)
+\end{align*}`
+
+If `\(g\)` and `\(h\)` are nonlinear, then `\(\color{#FFA500}{\hat{y}}\)` is 
+
+- a .orange[nonlinear combination] of the .pink[hidden-layer activations], which are
+- .slate[nonlinear combinations of the inputs].
+
+As you add more hidden layers, you *layer* more nonlinear transformations.
+
+.note[Note] The .orange[output] activation function does not have to be nonlinear for the hidden layers to "work". .grey-vlight[(No requirement that *g* and *h* match either.)]
+
+---
+layout: false
+class: clear, middle
+
+.attn[Universal approximation theorem]
+
+A feedforward network with one hidden layer can approximate *any* continuous function on a compact domain, given enough neurons in the hidden layer.
+
+.grey-vlight[(It doesn't say how many neurons we need.)]
+
+---
+layout: true
+# Neural networks
+
+---
+## Welcome to the playground
+
+TensorFlow's [*Playground*](https://playground.tensorflow.org/) is a fun way to see NNs in action.
+
+Play with the
+
+- activation function,
+- number of hidden layers and neurons,
+- learning rate,
+- amount of regularization.
+
+Watch the .b[boundary] change and the .b[representation] of hidden layers.
 
 ---
 class: inverse, middle
@@ -289,192 +396,35 @@ name: training
 ---
 ## The loss function still runs the show
 
-We choose weights and biases to make the loss small.
+.note[As always:] We choose weights and biases to minimize a .attn[loss function].
 
-Common losses:
+- .note[regression]: MSE, MAE, Huber .grey-vlight.it[(linear output)]
 
-- regression: mean squared error
-- binary classification: log loss
-- multiclass classification: multiclass cross-entropy
+- .note[binary]: log loss (binary cross-entropy). .grey-vlight.it[(sigmoid output)]
+`$$C = - \big[y \log(\hat{p}) + (1 - y) \log(1 - \hat{p})\big]$$`
 
-For one multiclass observation:
+- .note[multiclass]: multiclass cross-entropy .grey-vlight.it[(softmax output)]
+`$$C = -\sum_{k = 1}^K y_k \log \hat p_k$$`
 
-$$
-C = -\sum_{k = 1}^K y_k \log \hat p_k
-$$
+--
 
-where `\(y_k\)` is the one-hot target.
+.note[As before:] We can .attn[penalize] (.attn[regularize]) the weights to prevent overfitting.
 
 ---
-## Gradient descent
+## Optimization
 
-Once we have `\(C(\theta)\)`, we update
+We don't have time to cover the details of optimization; here's the *gist*:
 
-$$
-\theta \leftarrow \theta - \eta \nabla_\theta C(\theta)
-$$
+- .attn[gradient descent] move parameters "downhill" fastest by following the negative gradient of the loss function
+`$$\theta \leftarrow \theta - \eta \nabla_\theta C(\theta)$$`
+- .attn[gradient] how each weight/bias changes the loss
+- .attn[backpropagation] efficient chain rule to compute those gradients
+- .attn[mini-batch] one small chunk of data used for one update
+- .attn[epoch] one full pass through all training observations
 
-where:
+It's a lot. In fact, this *gist* barely scratches the surface.
 
-- `\(\theta\)` collects all weights and biases
-- `\(\eta\)` is the learning rate
-
-Same idea as before in the course, but now the parameter vector is much larger.
-
----
-## Mini-batches and epochs
-
-In practice we usually update on small batches:
-
-- split the data into .attn[mini-batches]
-- compute the gradient on one mini-batch
-- update the weights
-- repeat
-
-One full pass through the training data is an .attn[epoch].
-
----
-## Where do the gradients come from?
-
-A weight in an early layer affects the loss through a chain:
-
-- change a weight
-- that changes a weighted sum
-- that changes an activation
-- that changes later activations and eventually the loss
-
-So computing one gradient means following a .attn[chain of effects] through the network.
-
----
-## One hidden weight affects loss indirectly
-
-For one hidden-layer weight `\(w\)`,
-
-$$
-\frac{\partial C}{\partial w}
-=
-\frac{\partial C}{\partial \hat y}
-\cdot
-\frac{\partial \hat y}{\partial a^{(1)}}
-\cdot
-\frac{\partial a^{(1)}}{\partial z^{(1)}}
-\cdot
-\frac{\partial z^{(1)}}{\partial w}
-$$
-
-Deeper networks have longer chains, but the idea is the same.
-
----
-## Backprop in words
-
-- run the .attn[forward pass] and compute the loss
-- start at the output and measure how wrong it is
-- pass that error signal backward, one layer at a time
-- combine those signals with local derivatives
-- use the result to update weights and biases
-
-Backprop is just an efficient way to organize that repeated chain rule.
-
----
-## Backpropagation reuses the chain rule
-
-&lt;img src="slides_files/figure-html/backprop-plot-1.svg" style="display: block; margin: auto;" /&gt;
-
----
-## Start at the output layer
-
-Write the output-layer error signal as:
-
-$$
-\delta^{(L)} =
-\frac{\partial C}{\partial a^{(L)}} \odot g'\big(z^{(L)}\big)
-$$
-
-For .attn[softmax + cross-entropy], this simplifies nicely:
-
-$$
-\delta^{(L)} = \hat p - y
-$$
-
-That simplification is one reason cross-entropy is so common in classification.
-
----
-## Then move backward through the hidden layers
-
-For earlier layers,
-
-$$
-\delta^{(\ell)} =
-\left(W^{(\ell+1)}\right)' \delta^{(\ell+1)}
-\odot g'\big(z^{(\ell)}\big)
-$$
-
-So each layer receives an error signal from the layer after it, then adjusts it using its own derivative.
-
-That is backpropagation in one sentence.
-
----
-## Then turn those signals into gradients
-
-Once we have the layer errors, the gradients are local:
-
-$$
-\frac{\partial C}{\partial W^{(\ell)}} =
-\delta^{(\ell)} \left(a^{(\ell-1)}\right)'
-\qquad\text{and}\qquad
-\frac{\partial C}{\partial b^{(\ell)}} = \delta^{(\ell)}
-$$
-
-Then update:
-
-$$
-W^{(\ell)} \leftarrow W^{(\ell)} - \eta \frac{\partial C}{\partial W^{(\ell)}}
-$$
-
-and similarly for the biases.
-
----
-## What activation are we using here?
-
-For the MLP slide example we now use:
-
-- `mlp(..., activation = 'relu') |&gt; set_engine('brulee')`
-
-That means:
-
-- the .attn[`activation`] argument applies to the hidden layer, not the output layer
-- for a multiclass factor response, the .attn[output layer] is still chosen by the task
-- here the hidden units use .attn[ReLU], which is closer to a modern neural-net default than the old `nnet` setup
-
-So the MLP example is now a .b[ReLU hidden-layer network], while the multinomial logit baseline remains the no-hidden-layer comparison.
-
----
-## There's a lot more to training
-
-Once the basic setup is in place, training quality also depends on:
-
-- cross-entropy versus squared error
-- regularization
-- weight initialization
-- architectural choices
-
-So the story is not just .it[add a hidden layer].
-
-The details of optimization matter.
-
----
-## Try the playground
-
-TensorFlow's [Neural Network Playground](https://playground.tensorflow.org/) is a very good way to build intuition.
-
-Try changing:
-
-- the activation function
-- the number of hidden units
-- the learning rate
-- the amount of regularization
-
-Watch how the boundary changes as you add nonlinear layers.
+The key is efficiently computing the gradients—backpropagation. 
 
 ---
 class: inverse, middle
@@ -485,24 +435,33 @@ name: mnist
 ---
 ## Why MNIST again?
 
-MNIST is a natural neural-net example because it has:
+MNIST is a natural neural-net example
 
-- 784 predictors for each image
-- 10 output classes
-- lots of nonlinear variation in handwriting
-
-So it gives us both .attn[high-dimensional inputs] and .attn[multiclass outputs].
+- high-dimensional inputs (784 predictors for each image),
+- 10 output classes,
+- nonlinear relationships between pixels and classes,
+- lots of variation in handwriting.
+  
+Let's see how well a neural network can learn from the raw pixel data.
 
 ---
-## The raw inputs are still images
+layout: false
+class: clear, middle
+
+The raw inputs are still images.
 
 &lt;img src="slides_files/figure-html/mnist-examples-1.svg" style="display: block; margin: auto;" /&gt;
 
 ---
+layout: true
+# Neural networks
+
+---
 ## One image, many outputs
 
-For each image, the output layer should produce:
+MNIST is a .attn[multi-output classification] problem.
 
+For each image, the output layer should produce:
 $$
 \big(
 \hat p_0,\,
@@ -512,130 +471,13 @@ $$
 \big)
 $$
 
-That is why MNIST is a .attn[multi-output classification] problem.
-
-If we remove the hidden layer and keep only the softmax output, we are back at .attn[multinomial logistic regression].
-
----
-## What a convolution does
-
-- choose a small filter, often `3 x 3`
-- place it over one local patch of pixels
-- multiply and add to get one score
-- slide the .attn[same filter] across the whole image
-
-So one filter asks the same question everywhere:
-
-- is there a vertical stroke here?
-- is there an edge or a corner here?
-
-In practice, the filter weights are .attn[learned from data].
+If we remove the hidden layer and keep only the softmax output,
+`$$\sigma(z_i) = \dfrac{e^{z_i}}{\sum_{k = 0} e^{z_k}}$$`
+we are back at .attn[multinomial logistic regression].
 
 ---
-## One tiny convolution example
+exclude: true
 
-Take a local patch
-
-$$
-X =
-`\begin{bmatrix}
-0 &amp; 1 &amp; 1 \\
-0 &amp; 1 &amp; 1 \\
-0 &amp; 1 &amp; 1
-\end{bmatrix}`
-\qquad\text{and filter}\qquad
-K =
-`\begin{bmatrix}
--1 &amp; 0 &amp; 1 \\
--1 &amp; 0 &amp; 1 \\
--1 &amp; 0 &amp; 1
-\end{bmatrix}`
-$$
-
-Then the score at that location is
-
-$$
-\sum_{u,v} X_{uv} K_{uv} = 3
-$$
-
-So this filter responds when the patch is dark on the left and bright on the right:
-a simple .attn[vertical-edge detector].
-
----
-## A filter sliding over an image
-
-The highlighted `3 x 3` patch on the left generates the highlighted output cell on the right.
-
-&lt;img src="slides_files/figure-html/convolution-demo-1.svg" style="display: block; margin: auto;" /&gt;
-
----
-## A more ambitious workflow
-
-To make the example more realistic, we will:
-
-1. build a train / validation / test split
-1. compare multinomial logit to a starter MLP
-1. tune the MLP's capacity and preprocessing
-1. see whether a very simple CNN does better on raw images
-1. refit the better models on train + validation
-1. evaluate on the held-out test set
-
-This is still small, but it is now a real modeling workflow.
-
----
-## The starter and tuned models
-
-
-``` r
-# Baseline recipe: normalize and keep 40 PCs.
-rec_base =
-  recipe(label ~ ., data = mnist_train) |&gt;
-  step_zv(all_predictors()) |&gt;
-  step_normalize(all_predictors()) |&gt;
-  step_pca(all_predictors(), num_comp = 40)
-
-# Tuned recipe: keep 60 PCs and add 8 UMAP coordinates.
-rec_tuned =
-  recipe(label ~ ., data = mnist_train) |&gt;
-  step_zv(all_predictors()) |&gt;
-  step_normalize(all_predictors()) |&gt;
-  step_pca(all_predictors(), num_comp = 60) |&gt;
-  embed::step_umap(
-    all_predictors(),
-    num_comp = 8,
-    neighbors = 30,
-    min_dist = 0.05,
-    keep_original_cols = TRUE,
-    prefix = 'umap'
-  )
-
-# Starter MLP: small network with ReLU hidden units.
-mlp_start_spec =
-  mlp(hidden_units = 15, penalty = 0.01, epochs = 50, activation = 'relu') |&gt;
-  set_engine('brulee') |&gt;
-  set_mode('classification')
-
-# Tuned MLP: more hidden units, lighter penalty, more epochs.
-mlp_tuned_spec =
-  mlp(hidden_units = 50, penalty = 0.001, epochs = 150, activation = 'relu') |&gt;
-  set_engine('brulee') |&gt;
-  set_mode('classification')
-
-# Simple CNN: two small conv layers on the raw 28 x 28 image.
-# conv -&gt; relu -&gt; pool -&gt; conv -&gt; relu -&gt; pool -&gt; dense -&gt; 10 logits
-```
-
----
-## A very simple CNN
-
-- keep the raw 28 x 28 image instead of PCA or UMAP features
-- use small .attn[3 x 3 filters] to scan local patches
-- reuse the same filter weights across the image
-- then flatten and map to 10 output classes
-
-That is enough to exploit .attn[spatial structure] that the MLP does not see directly.
-
----
 ## Fit the models
 
 
@@ -771,6 +613,7 @@ example_prob_plot_df =
 ```
 
 ---
+exclude: true
 ## Validation results
 
 The first pass looks like this:
@@ -785,51 +628,21 @@ So the lesson is not .it[any hidden layer wins].
 The lesson is that .attn[capacity, preprocessing, and architecture all matter].
 
 ---
-## Validation comparison
-
-&lt;img src="slides_files/figure-html/validation-compare-plot-1.svg" style="display: block; margin: auto;" /&gt;
-
----
 ## Held-out test results
 
-After refitting on train + validation:
+After tuning and fitting on the training data, here are the test accuracies
 
-- multinomial logit gets about .attn[87.8%]
-- the tuned MLP gets about .attn[91.2%]
-- the simple CNN gets about .attn[95.2%]
+- .note[multinomial logit:] .attn[87.8%]
+- .note[NN (1 hidden layer with 50 units):].super.pink[†] .attn[91.2%]
+- .note[convolutional NN:].super.orange[††] .attn[95.2%]
 
-So the .attn[CNN improves again] once we let the model use the image's 2D structure.
+Nonlinearity and achitectural choices matter
+&lt;br&gt;
+...even for a "simple" problem like MNIST.
+&lt;br&gt;
+.grey-vlight[(Simple is relative.)]
 
----
-## Test comparison
-
-&lt;img src="slides_files/figure-html/test-compare-plot-1.svg" style="display: block; margin: auto;" /&gt;
-
----
-## A single image, many probabilities
-
-&lt;img src="slides_files/figure-html/multi-output-example-1.svg" style="display: block; margin: auto;" /&gt;
-
----
-## Confusion matrix for the simple CNN
-
-&lt;img src="slides_files/figure-html/cnn-cm-1.svg" style="display: block; margin: auto;" /&gt;
-
----
-## What this example does and does not show
-
-It does show:
-
-- real multiclass output
-- real train / validation / test logic
-- real improvement from a stronger architecture
-
-It does not show:
-
-- deep networks
-- state-of-the-art MNIST performance
-
-This is still a .attn[teaching example], just a better one.
+.footnote[.pink[†] You can use the [`brulee` package](https://brulee.tidymodels.org/reference/brulee_mlp.html) to fit a neural net using a `tidymodels` `recipe`. You'll also need to install [`torch`](https://torch.mlverse.org/).&lt;br&gt;.orange[††] I know, we didn't get to CNNs. They're an approach that *slides filters* across the input to detect local patterns.]
 
 ---
 class: inverse, middle
@@ -840,16 +653,15 @@ name: wrap
 ---
 ## Main takeaways
 
-- Logistic regression is a neural network with no hidden layer
-- Hidden layers matter only when paired with nonlinear activations
-- Backpropagation is efficient chain rule
-- Softmax turns multiclass scores into probabilities
-- Convolutions reuse small learned filters across the image
-- A small untuned MLP may only modestly improve on the baseline
-- A better-specified MLP can do better, even in a simple `tidymodels` workflow
-- A very simple CNN can do better still when it uses image structure
+NNs are a powerful class of models that extends many prior topics
 
-Next step: deeper architectures and more modern image models.
+- .attn[logistic regression] is a one-neuron network with sigmoid activation,
+- .attn[hidden layers] allow NNs to learn complex representations of the data,
+- .attn[nonlinear activations] are essential for hidden layers,
+- .attn[training] involves min. loss via gradient descent and backprop.,
+- .attn[penalization] mirrors bias-variance intution from regularized regression.
+
+.note[As always] Careful tuning and construction are key to performance.
     </textarea>
 <style data-target="print-only">@media screen {.remark-slide-container{display:block;}.remark-slide-scaler{box-shadow:none;}}</style>
 <script src="https://remarkjs.com/downloads/remark-latest.min.js"></script>

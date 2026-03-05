@@ -474,8 +474,20 @@ hr, .title-slide h2::after, .mline h1::after {
   height: 1px;
 }
 
+/* Fully transparent */
 .tran {
   opacity: 0 !important;
+}
+
+/* Semi-transparent */
+.tran25 {
+  opacity: .25 !important;
+}
+
+/* Slab */
+.slab {
+  font-weight: 400;
+  font-family: 'Zilla Slab' !important;
 }
 
 .move-right {
