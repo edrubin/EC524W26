@@ -2,3 +2,5 @@
 - [ ] Add tools expo
 - [ ] Revamp labs
 - [ ] Expand NN lecture (esp. optimization; also architectures and code)
+- [ ] Add another clustering algorithm
+- [ ] Give more concrete examples of "non-standard" CV types (time series, spatial, clustered, etc.)

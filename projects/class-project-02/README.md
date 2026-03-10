@@ -20,30 +20,37 @@ By 11:59p on **March 11th**, submit **two documents** on Canvas (share links or 
 
 **NOTE:** No late submissions.
 
-## Claimed topics
+## Schedule
+
+**Thursday, 12 March 2026** (In class)
 
 | Topic | Name |
 |:---------|:---------|
-| *Time-series prediction* | Charlie Anderson |
-| *Spatial prediction (esp. CV)* | Ahmed Abdelrassoul |
 | *Discriminant analysis* | Alex Bolster-White |
-| *Semi-supervised learning* | Kellen Bond |
-| *Bayesian (spatial) search algorithms* | Minal Edwards |
-| *Reinforcement learning* | Sidney Estes |
-| *Ordered logit/probit models* | Malcolm Fleming |
+| *Gaussian process regression* | Rowan Killen |
 | *Multi-level output* | Yuxuan Gao |
-| *Bandit problems* | Ireland Gomes |
+| *Ordered logit/probit models* | Malcolm Fleming |
+| *Semi-supervised learning* | Kellen Bond |
 | *Active learning* | Jack Gooding |
-| *Gaussian process regression* or *Convolutions* | Rowan Killen |
+| *Reinforcement learning* | Sidney Estes |
+| *Bayesian (spatial) search algorithms* | Minal Edwards |
 | *Neural networks* | Cooper Lee |
-| *Natural language processing* | Maya Lim |
-| *Het. trt. effects and causal forests* | Will Martin |
 | *Bayesian neural networks* | Jules Netze |
-| *Adversarial learning* | Claire Rounds |
 | *Image processing and CNNs* | Oliver Van Aken |
+| *Adversarial learning* | Claire Rounds |
+| *Bandit problems* | Ireland Gomes |
+
+**Friday, 13 March 2026** (In lab)
+
+| Topic | Name |
+|:---------|:---------|
 | *t-SNE (and UMAP?)* | Natalie Vogel |
 | *Clustering algorithms* | Luke Xitco |
+| *Time-series prediction* | Charlie Anderson |
 | *Survival analysis* | Lucas Zhang |
+| *Spatial prediction (esp. CV)* | Ahmed Abdelrassoul |
+| *Natural language processing* | Maya Lim |
+| *Het. trt. effects and causal forests* | Will Martin |
 
 ## Some ideas for topics
 

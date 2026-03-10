@@ -198,7 +198,7 @@ Welcome to Economics 524 (424): Prediction and machine-learning in econometrics,
 
 Also: An older notebook... [.html](https://raw.githack.com/edrubin/EC524W25/master/lecture/010/notebook.html) | [.qmd](https://github.com/edrubin/EC524W22/blob/master/lecture/010/notebook.qmd)
 
-[**011 - Unsupervised learning, dimensionality reduction, and image classification**](https://raw.githack.com/edrubin/EC524W26/master/lecture/011/slides.html)
+[**011 - A quick introduction to neural networks**](https://raw.githack.com/edrubin/EC524W26/master/lecture/011/slides.html)
 
 1. anatomy of a single neuron
 2. logistic regression as a one-neuron network
@@ -209,7 +209,7 @@ Also: An older notebook... [.html](https://raw.githack.com/edrubin/EC524W25/mast
 **Readings**
 
 - [NNs and Deep Learning](http://neuralnetworksanddeeplearning.com/) Ch1 (some 2)
-- .it[ISL] Ch10 (*Deep Learning*)
+- *ISL* 10 (*Deep Learning*)
 
 **Formats** [.html](https://raw.githack.com/edrubin/EC524W26/master/lecture/011/slides.html) | [.pdf](https://github.com/edrubin/EC524W26/blob/master/lecture/011/slides.pdf) | [.rmd](https://github.com/edrubin/EC524W26/blob/master/lecture/011/slides.rmd)
 
