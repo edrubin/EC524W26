@@ -46,6 +46,7 @@ By 11:59p on **March 11th**, submit **two documents** on Canvas (share links or 
 |:---------|:---------|
 | *t-SNE (and UMAP?)* | Natalie Vogel |
 | *Clustering algorithms* | Luke Xitco |
+| *Gaussian mixture models* | Yumeng Han |
 | *Time-series prediction* | Charlie Anderson |
 | *Survival analysis* | Lucas Zhang |
 | *Spatial prediction (esp. CV)* | Ahmed Abdelrassoul |
