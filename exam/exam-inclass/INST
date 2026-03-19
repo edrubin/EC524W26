@@ -1,0 +1,30 @@
+# Instructions
+
+## Goal
+
+Write a new final exam for a Masters-level econometrics exam.
+
+## Output
+
+Overwrite the $quarto file `/exam/exam-inclass/exam-inclass.qmd` with the new exam.
+
+The folder `/exam/exam-inclass/` contains custom headers and macros files.
+
+The ultimate output should be a one-page $pdf for the exam that results from rendering the $qmd file. 
+
+## Context
+
+- The course is a Masters-level econometrics course focused on prediction and machine learning.
+- The students are part of the Master's program in the Department of Economics. It is a terminal Master's degree. 
+- The exam should test their understanding of key concepts in prediction and machine learning.
+- I try to model the exam questions off of data science-like interview questions.
+
+## Constraints
+
+- Draw upon past in-class exams (found in `/exam/past-class/inclass-2[3-5]`).
+- The questions should use material from lectures 000 through 009 (found in `/lecture/00[0-9]`) and also include something about K-Means Clustering.
+- The exam can recycle questions from past exams. 
+- I'd like to focus on short answer questions.
+- The exam is two hours long. Follow a similar length to the previous exams, especially the most recent exam. 
+- Focus on intuition and basic theory. You can also have some practical questions. Absolutely no coding.
+- Follow the formatting of the current `exam-inclass.qmd` file. 
