@@ -67,15 +67,14 @@ You are not limited to these ideas, but here are some suggestions (some of the t
 - Image processing (e.g., facial recognition or satellite imagery)
 - Natural Language Processing (NLP)
 - Transfer learning (esp. [Hugging Face](https://huggingface.co/))
-- Neural networks
-- Convolutions
+- Extensions of neural networks, *e.g.*, convolutions, recurrent, transformers
 - Reinforcement learning
 - Adversarial learning
 - Unsupervised learning (esp. clustering algorithms)
 - Semi-supervised learning
 - Active learning
 - Bandit problems
-- Experiments
+- ML with experiments
 - Graphical methods
 - Heterogeneous treatment effect estimation (e.g., causal forests)
 - other "causal ML/AI"
