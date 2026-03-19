@@ -1,0 +1,31 @@
+# TODO
+
+## MAIN GOAL
+
+Build slides for two-lecture introduction to neural networks.
+
+## BACKGROUND
+
+The class is a Masters-level econometrics class focused on prediction. More information here: https://github.com/edrubin/EC524W26
+
+The course uses `R` and its `tidymodels` package. Please stick with `R` and `tidymodels` (no Python).
+
+The style of the slides should follow other `slides.rmd` files, for example, the attached example. They are written in RMarkdown and rendered in `R` using the `xaringan` package.
+
+## TASKS
+
+- [x] I think it would make sense to start by connecting logistic regression (covered in `../006/slides.rmd`) to neural networks. We can then expand by discussing other activiation functions (especially to get to regression tasks).
+
+- [x] Please use/follow [Chapter 1](http://neuralnetworksanddeeplearning.com/chap1.html) from *Neural Networks and Deep Learning*.
+
+- [x] Supplement with subsequent chapters (esp. [2](http://neuralnetworksanddeeplearning.com/chap2.html) and [3](http://neuralnetworksanddeeplearning.com/chap3.html)).
+
+- Provide visualizations of the structure and activation functions.
+- [x] Provide visualizations of the structure and activation functions.
+
+- [x] I would also like you to link to TensorFlow's [Neural Network Playground](https://playground.tensorflow.org). No need for screenshots. I'll click over.
+
+- Applications should draw from MNIST dataset (also covered in prior lectures, `lecture/010/slides.rmd` and `lecture/010/notebook.qmd`). The `train.csv` and `test.csv` can be used here (as they are in the slides and notebook in `lecture/010/`). It might be nice to show multi-output notebooks here.
+- [x] Applications should draw from MNIST dataset (also covered in prior lectures, `lecture/010/slides.rmd` and `lecture/010/notebook.qmd`). The `train.csv` and `test.csv` can be used here (as they are in the slides and notebook in `lecture/010/`). It might be nice to show multi-output notebooks here.
+
+What other information do you need?
