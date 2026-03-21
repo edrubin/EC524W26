@@ -4,6 +4,7 @@
 - [ ] Revamp labs
 - [ ] Expand NN lecture (esp. optimization; also architectures and code)
 - [ ] Add another clustering algorithm
+- [ ] Improve visualization of the k-means clustering algorithm 
 - [ ] Give more concrete examples of "non-standard" CV types (time series, spatial, clustered, etc.)
 - [ ] Discuss how measurement error "works" in prediction problems
 - [ ] Consider whether we want to keep "model selection" as a separate lecture or fold it into the other lectures
